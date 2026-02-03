@@ -1,16 +1,19 @@
 using Cab_Management_System.Models;
 using Cab_Management_System.Models.Enums;
 using Cab_Management_System.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace Cab_Management_System.Services
 {
     public class BillingService : IBillingService
     {
         private readonly IBillingRepository _billingRepository;
+        private readonly ILogger<BillingService> _logger;
 
-        public BillingService(IBillingRepository billingRepository)
+        public BillingService(IBillingRepository billingRepository, ILogger<BillingService> logger)
         {
             _billingRepository = billingRepository;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<Billing>> GetAllBillingsAsync()
@@ -42,22 +45,28 @@ namespace Cab_Management_System.Services
         {
             await _billingRepository.AddAsync(billing);
             await _billingRepository.SaveChangesAsync();
+            _logger.LogInformation("Created Billing with ID {Id}", billing.Id);
         }
 
         public async Task UpdateBillingAsync(Billing billing)
         {
             _billingRepository.Update(billing);
             await _billingRepository.SaveChangesAsync();
+            _logger.LogInformation("Updated Billing with ID {Id}", billing.Id);
         }
 
         public async Task DeleteBillingAsync(int id)
         {
             var billing = await _billingRepository.GetByIdAsync(id);
             if (billing == null)
+            {
+                _logger.LogWarning("Billing with ID {Id} not found", id);
                 throw new KeyNotFoundException($"Billing with ID {id} not found.");
+            }
 
             _billingRepository.Remove(billing);
             await _billingRepository.SaveChangesAsync();
+            _logger.LogInformation("Deleted Billing with ID {Id}", id);
         }
 
         public async Task<decimal> GetTotalRevenueAsync()

@@ -1,16 +1,19 @@
 using Cab_Management_System.Models;
 using Cab_Management_System.Models.Enums;
 using Cab_Management_System.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace Cab_Management_System.Services
 {
     public class DriverService : IDriverService
     {
         private readonly IDriverRepository _driverRepository;
+        private readonly ILogger<DriverService> _logger;
 
-        public DriverService(IDriverRepository driverRepository)
+        public DriverService(IDriverRepository driverRepository, ILogger<DriverService> logger)
         {
             _driverRepository = driverRepository;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<Driver>> GetAllDriversAsync()
@@ -42,22 +45,28 @@ namespace Cab_Management_System.Services
         {
             await _driverRepository.AddAsync(driver);
             await _driverRepository.SaveChangesAsync();
+            _logger.LogInformation("Created Driver with ID {Id}", driver.Id);
         }
 
         public async Task UpdateDriverAsync(Driver driver)
         {
             _driverRepository.Update(driver);
             await _driverRepository.SaveChangesAsync();
+            _logger.LogInformation("Updated Driver with ID {Id}", driver.Id);
         }
 
         public async Task DeleteDriverAsync(int id)
         {
             var driver = await _driverRepository.GetByIdAsync(id);
             if (driver == null)
+            {
+                _logger.LogWarning("Driver with ID {Id} not found", id);
                 throw new KeyNotFoundException($"Driver with ID {id} not found.");
+            }
 
             _driverRepository.Remove(driver);
             await _driverRepository.SaveChangesAsync();
+            _logger.LogInformation("Deleted Driver with ID {Id}", id);
         }
 
         public async Task<int> GetDriverCountAsync()

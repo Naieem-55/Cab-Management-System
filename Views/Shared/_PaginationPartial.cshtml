@@ -1,0 +1,32 @@
+@model dynamic
+
+@{
+    int pageIndex = ViewBag.PageIndex ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalCount = ViewBag.TotalCount ?? 0;
+    string baseUrl = ViewBag.BaseUrl ?? "";
+    string queryString = ViewBag.QueryString ?? "";
+}
+
+@if (totalPages > 1)
+{
+    <nav aria-label="Page navigation" class="mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted">Showing page @pageIndex of @totalPages (@totalCount total records)</span>
+            <ul class="pagination mb-0">
+                <li class="page-item @(pageIndex <= 1 ? "disabled" : "")">
+                    <a class="page-link" href="@baseUrl?page=@(pageIndex - 1)@queryString">Previous</a>
+                </li>
+                @for (int i = Math.Max(1, pageIndex - 2); i <= Math.Min(totalPages, pageIndex + 2); i++)
+                {
+                    <li class="page-item @(i == pageIndex ? "active" : "")">
+                        <a class="page-link" href="@baseUrl?page=@i@queryString">@i</a>
+                    </li>
+                }
+                <li class="page-item @(pageIndex >= totalPages ? "disabled" : "")">
+                    <a class="page-link" href="@baseUrl?page=@(pageIndex + 1)@queryString">Next</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+}

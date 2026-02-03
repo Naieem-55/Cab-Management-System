@@ -21,7 +21,7 @@ namespace Cab_Management_System.Areas.Finance.Controllers
             _tripService = tripService;
         }
 
-        public async Task<IActionResult> Index(string? searchTerm, PaymentStatus? status)
+        public async Task<IActionResult> Index(string? searchTerm, PaymentStatus? status, int page = 1)
         {
             var billings = status.HasValue
                 ? await _billingService.GetBillingsByStatusAsync(status.Value)
@@ -34,11 +34,23 @@ namespace Cab_Management_System.Areas.Finance.Controllers
                 billings = billings.Where(b => matchingTripIds.Contains(b.TripId));
             }
 
+            var pageSize = 10;
+            var paginatedList = PaginatedList<Billing>.Create(billings, page, pageSize);
+
             ViewBag.Statuses = new SelectList(Enum.GetValues<PaymentStatus>());
             ViewData["SearchTerm"] = searchTerm;
             ViewData["SelectedStatus"] = status;
+            ViewBag.PageIndex = paginatedList.PageIndex;
+            ViewBag.TotalPages = paginatedList.TotalPages;
+            ViewBag.TotalCount = paginatedList.TotalCount;
+            ViewBag.BaseUrl = Url.Action("Index");
 
-            return View(billings);
+            var queryParams = new List<string>();
+            if (!string.IsNullOrEmpty(searchTerm)) queryParams.Add($"&searchTerm={searchTerm}");
+            if (status.HasValue) queryParams.Add($"&status={status.Value}");
+            ViewBag.QueryString = string.Join("", queryParams);
+
+            return View(paginatedList);
         }
 
         [HttpGet]
@@ -68,6 +80,7 @@ namespace Cab_Management_System.Areas.Finance.Controllers
                 };
 
                 await _billingService.CreateBillingAsync(billing);
+                TempData["SuccessMessage"] = "Billing record created successfully.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -122,6 +135,7 @@ namespace Cab_Management_System.Areas.Finance.Controllers
                 billing.Status = model.Status;
 
                 await _billingService.UpdateBillingAsync(billing);
+                TempData["SuccessMessage"] = "Billing record updated successfully.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -157,6 +171,7 @@ namespace Cab_Management_System.Areas.Finance.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _billingService.DeleteBillingAsync(id);
+            TempData["SuccessMessage"] = "Billing record deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
 

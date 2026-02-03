@@ -18,7 +18,7 @@ namespace Cab_Management_System.Areas.HR.Controllers
             _employeeService = employeeService;
         }
 
-        public async Task<IActionResult> Index(string? searchTerm, EmployeePosition? position, EmployeeStatus? status)
+        public async Task<IActionResult> Index(string? searchTerm, EmployeePosition? position, EmployeeStatus? status, int page = 1)
         {
             IEnumerable<Employee> employees;
 
@@ -41,13 +41,26 @@ namespace Cab_Management_System.Areas.HR.Controllers
                 employees = employees.Where(e => e.Status == status.Value);
             }
 
+            var pageSize = 10;
+            var paginatedList = PaginatedList<Employee>.Create(employees, page, pageSize);
+
             ViewBag.Positions = new SelectList(Enum.GetValues<EmployeePosition>());
             ViewBag.Statuses = new SelectList(Enum.GetValues<EmployeeStatus>());
             ViewData["SearchTerm"] = searchTerm;
             ViewData["SelectedPosition"] = position;
             ViewData["SelectedStatus"] = status;
+            ViewBag.PageIndex = paginatedList.PageIndex;
+            ViewBag.TotalPages = paginatedList.TotalPages;
+            ViewBag.TotalCount = paginatedList.TotalCount;
+            ViewBag.BaseUrl = Url.Action("Index");
 
-            return View(employees);
+            var queryParams = new List<string>();
+            if (!string.IsNullOrEmpty(searchTerm)) queryParams.Add($"&searchTerm={searchTerm}");
+            if (position.HasValue) queryParams.Add($"&position={position.Value}");
+            if (status.HasValue) queryParams.Add($"&status={status.Value}");
+            ViewBag.QueryString = string.Join("", queryParams);
+
+            return View(paginatedList);
         }
 
         [HttpGet]

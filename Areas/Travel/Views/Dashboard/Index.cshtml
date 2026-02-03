@@ -139,7 +139,7 @@
                                     @foreach (var trip in Model.RecentTrips)
                                     {
                                         <tr>
-                                            <td>@trip.CustomerName</td>
+                                            <td><a asp-area="Travel" asp-controller="Trip" asp-action="Details" asp-route-id="@trip.Id" class="text-decoration-none">@trip.CustomerName</a></td>
                                             <td>@trip.Driver?.Employee?.Name</td>
                                             <td>@trip.Vehicle?.RegistrationNumber</td>
                                             <td>@trip.Route?.Origin &rarr; @trip.Route?.Destination</td>

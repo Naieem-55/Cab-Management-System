@@ -13,6 +13,7 @@ namespace Cab_Management_System.Services
         Task<IEnumerable<Trip>> SearchTripsAsync(string searchTerm);
         Task CreateTripAsync(Trip trip);
         Task UpdateTripAsync(Trip trip);
+        Task UpdateTripStatusAsync(int tripId, TripStatus newStatus);
         Task DeleteTripAsync(int id);
         Task<int> GetTripCountAsync();
         Task<int> GetActiveTripCountAsync();

@@ -16,7 +16,7 @@ namespace Cab_Management_System.Areas.Admin.Controllers
             _vehicleService = vehicleService;
         }
 
-        public async Task<IActionResult> Index(string? searchTerm)
+        public async Task<IActionResult> Index(string? searchTerm, int page = 1)
         {
             IEnumerable<Vehicle> vehicles;
 
@@ -30,7 +30,16 @@ namespace Cab_Management_System.Areas.Admin.Controllers
                 vehicles = await _vehicleService.GetAllVehiclesAsync();
             }
 
-            return View(vehicles);
+            var pageSize = 10;
+            var paginatedList = PaginatedList<Vehicle>.Create(vehicles, page, pageSize);
+
+            ViewBag.PageIndex = paginatedList.PageIndex;
+            ViewBag.TotalPages = paginatedList.TotalPages;
+            ViewBag.TotalCount = paginatedList.TotalCount;
+            ViewBag.BaseUrl = Url.Action("Index");
+            ViewBag.QueryString = !string.IsNullOrEmpty(searchTerm) ? $"&searchTerm={searchTerm}" : "";
+
+            return View(paginatedList);
         }
 
         [HttpGet]

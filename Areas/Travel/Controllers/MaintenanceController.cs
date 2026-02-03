@@ -20,10 +20,20 @@ namespace Cab_Management_System.Areas.Travel.Controllers
             _vehicleService = vehicleService;
         }
 
-        public async Task<IActionResult> Index(string? searchTerm)
+        public async Task<IActionResult> Index(string? searchTerm, int page = 1)
         {
             var records = await _maintenanceService.GetAllMaintenanceRecordsAsync();
-            return View(records);
+
+            var pageSize = 10;
+            var paginatedList = PaginatedList<MaintenanceRecord>.Create(records, page, pageSize);
+
+            ViewBag.PageIndex = paginatedList.PageIndex;
+            ViewBag.TotalPages = paginatedList.TotalPages;
+            ViewBag.TotalCount = paginatedList.TotalCount;
+            ViewBag.BaseUrl = Url.Action("Index");
+            ViewBag.QueryString = "";
+
+            return View(paginatedList);
         }
 
         [HttpGet]

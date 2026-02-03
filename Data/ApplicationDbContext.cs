@@ -91,5 +91,22 @@ namespace Cab_Management_System.Data
                 .Property(m => m.Cost)
                 .HasPrecision(18, 2);
         }
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries<BaseEntity>();
+            foreach (var entry in entries)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedDate = DateTime.Now;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.ModifiedDate = DateTime.Now;
+                    entry.Property(nameof(BaseEntity.CreatedDate)).IsModified = false;
+                }
+            }
+            return await base.SaveChangesAsync(cancellationToken);
+        }
     }
 }

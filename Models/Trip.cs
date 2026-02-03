@@ -4,7 +4,7 @@ using Cab_Management_System.Models.Enums;
 
 namespace Cab_Management_System.Models
 {
-    public class Trip
+    public class Trip : BaseEntity
     {
         public int Id { get; set; }
 

@@ -3,7 +3,7 @@ using Cab_Management_System.Models.Enums;
 
 namespace Cab_Management_System.Models
 {
-    public class Employee
+    public class Employee : BaseEntity
     {
         public int Id { get; set; }
 

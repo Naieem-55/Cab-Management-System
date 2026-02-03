@@ -168,7 +168,7 @@
                                     @foreach (var trip in Model.RecentTrips)
                                     {
                                         <tr>
-                                            <td>@trip.CustomerName</td>
+                                            <td><a asp-area="Travel" asp-controller="Trip" asp-action="Details" asp-route-id="@trip.Id" class="text-decoration-none">@trip.CustomerName</a></td>
                                             <td>@trip.Route?.Origin - @trip.Route?.Destination</td>
                                             <td>
                                                 @switch (trip.Status)
@@ -230,8 +230,8 @@
                                     @foreach (var record in Model.UpcomingMaintenance)
                                     {
                                         <tr>
-                                            <td>@record.Vehicle?.RegistrationNumber</td>
-                                            <td>@record.Description</td>
+                                            <td><a asp-area="Travel" asp-controller="Maintenance" asp-action="Details" asp-route-id="@record.Id" class="text-decoration-none">@record.Vehicle?.RegistrationNumber</a></td>
+                                            <td>@(record.Description.Length > 40 ? record.Description[..40] + "..." : record.Description)</td>
                                             <td>@record.Date.ToString("MMM dd, yyyy")</td>
                                             <td>
                                                 @switch (record.Status)

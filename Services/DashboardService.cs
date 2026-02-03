@@ -2,6 +2,8 @@ using Cab_Management_System.Models;
 using Cab_Management_System.Models.Enums;
 using Cab_Management_System.Models.ViewModels;
 using Cab_Management_System.Repositories;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace Cab_Management_System.Services
 {
@@ -14,6 +16,8 @@ namespace Cab_Management_System.Services
         private readonly ITripRepository _tripRepository;
         private readonly IBillingRepository _billingRepository;
         private readonly IMaintenanceRepository _maintenanceRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<DashboardService> _logger;
 
         public DashboardService(
             IEmployeeRepository employeeRepository,
@@ -22,7 +26,9 @@ namespace Cab_Management_System.Services
             IRouteRepository routeRepository,
             ITripRepository tripRepository,
             IBillingRepository billingRepository,
-            IMaintenanceRepository maintenanceRepository)
+            IMaintenanceRepository maintenanceRepository,
+            UserManager<ApplicationUser> userManager,
+            ILogger<DashboardService> logger)
         {
             _employeeRepository = employeeRepository;
             _driverRepository = driverRepository;
@@ -31,10 +37,13 @@ namespace Cab_Management_System.Services
             _tripRepository = tripRepository;
             _billingRepository = billingRepository;
             _maintenanceRepository = maintenanceRepository;
+            _userManager = userManager;
+            _logger = logger;
         }
 
         public async Task<AdminDashboardViewModel> GetAdminDashboardAsync()
         {
+            _logger.LogInformation("Fetching Admin dashboard data");
             var recentTrips = await _tripRepository.GetAllAsync();
             var upcomingMaintenance = await _maintenanceRepository.FindAsync(
                 m => m.Status == MaintenanceStatus.Scheduled);
@@ -48,7 +57,7 @@ namespace Cab_Management_System.Services
                 TotalEmployees = await _employeeRepository.CountAsync(),
                 TotalRoutes = await _routeRepository.CountAsync(),
                 ActiveTrips = await _tripRepository.CountAsync(t => t.Status == TripStatus.InProgress),
-                TotalUsers = 0,
+                TotalUsers = _userManager.Users.Count(),
                 TotalRevenue = await _billingRepository.GetTotalRevenueAsync(),
                 RecentTrips = recentTrips.Take(5),
                 UpcomingMaintenance = upcomingMaintenance.Take(5)
@@ -57,6 +66,7 @@ namespace Cab_Management_System.Services
 
         public async Task<FinanceDashboardViewModel> GetFinanceDashboardAsync()
         {
+            _logger.LogInformation("Fetching Finance dashboard data");
             var recentBillings = await _billingRepository.GetAllAsync();
             var startOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
@@ -77,6 +87,7 @@ namespace Cab_Management_System.Services
 
         public async Task<HRDashboardViewModel> GetHRDashboardAsync()
         {
+            _logger.LogInformation("Fetching HR dashboard data");
             var allEmployees = await _employeeRepository.GetAllAsync();
 
             return new HRDashboardViewModel
@@ -94,6 +105,7 @@ namespace Cab_Management_System.Services
 
         public async Task<TravelDashboardViewModel> GetTravelDashboardAsync()
         {
+            _logger.LogInformation("Fetching Travel dashboard data");
             var recentTrips = await _tripRepository.GetAllAsync();
             var overdueMaintenance = await _maintenanceRepository.GetOverdueMaintenanceAsync();
 

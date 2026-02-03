@@ -77,7 +77,7 @@
                             @foreach (var item in Model.RecentBillings)
                             {
                                 <tr>
-                                    <td>@item.TripId</td>
+                                    <td><a asp-area="Finance" asp-controller="Billing" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none">#@item.TripId</a></td>
                                     <td>@item.Amount.ToString("C")</td>
                                     <td>@item.PaymentMethod</td>
                                     <td>

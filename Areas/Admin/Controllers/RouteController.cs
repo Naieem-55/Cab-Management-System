@@ -1,3 +1,4 @@
+using Cab_Management_System.Models;
 using Cab_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,7 @@ namespace Cab_Management_System.Areas.Admin.Controllers
             _routeService = routeService;
         }
 
-        public async Task<IActionResult> Index(string? searchTerm)
+        public async Task<IActionResult> Index(string? searchTerm, int page = 1)
         {
             IEnumerable<Models.Route> routes;
 
@@ -29,7 +30,16 @@ namespace Cab_Management_System.Areas.Admin.Controllers
                 routes = await _routeService.GetAllRoutesAsync();
             }
 
-            return View(routes);
+            var pageSize = 10;
+            var paginatedList = PaginatedList<Models.Route>.Create(routes, page, pageSize);
+
+            ViewBag.PageIndex = paginatedList.PageIndex;
+            ViewBag.TotalPages = paginatedList.TotalPages;
+            ViewBag.TotalCount = paginatedList.TotalCount;
+            ViewBag.BaseUrl = Url.Action("Index");
+            ViewBag.QueryString = !string.IsNullOrEmpty(searchTerm) ? $"&searchTerm={searchTerm}" : "";
+
+            return View(paginatedList);
         }
 
         [HttpGet]

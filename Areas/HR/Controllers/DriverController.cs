@@ -21,7 +21,7 @@ namespace Cab_Management_System.Areas.HR.Controllers
             _employeeService = employeeService;
         }
 
-        public async Task<IActionResult> Index(string? searchTerm)
+        public async Task<IActionResult> Index(string? searchTerm, int page = 1)
         {
             IEnumerable<Driver> drivers;
 
@@ -35,7 +35,16 @@ namespace Cab_Management_System.Areas.HR.Controllers
                 drivers = await _driverService.GetAllDriversAsync();
             }
 
-            return View(drivers);
+            var pageSize = 10;
+            var paginatedList = PaginatedList<Driver>.Create(drivers, page, pageSize);
+
+            ViewBag.PageIndex = paginatedList.PageIndex;
+            ViewBag.TotalPages = paginatedList.TotalPages;
+            ViewBag.TotalCount = paginatedList.TotalCount;
+            ViewBag.BaseUrl = Url.Action("Index");
+            ViewBag.QueryString = !string.IsNullOrEmpty(searchTerm) ? $"&searchTerm={searchTerm}" : "";
+
+            return View(paginatedList);
         }
 
         [HttpGet]

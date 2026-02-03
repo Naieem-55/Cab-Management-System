@@ -1,16 +1,19 @@
 using Cab_Management_System.Models;
 using Cab_Management_System.Models.Enums;
 using Cab_Management_System.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace Cab_Management_System.Services
 {
     public class EmployeeService : IEmployeeService
     {
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly ILogger<EmployeeService> _logger;
 
-        public EmployeeService(IEmployeeRepository employeeRepository)
+        public EmployeeService(IEmployeeRepository employeeRepository, ILogger<EmployeeService> logger)
         {
             _employeeRepository = employeeRepository;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
@@ -42,22 +45,28 @@ namespace Cab_Management_System.Services
         {
             await _employeeRepository.AddAsync(employee);
             await _employeeRepository.SaveChangesAsync();
+            _logger.LogInformation("Created Employee with ID {Id}", employee.Id);
         }
 
         public async Task UpdateEmployeeAsync(Employee employee)
         {
             _employeeRepository.Update(employee);
             await _employeeRepository.SaveChangesAsync();
+            _logger.LogInformation("Updated Employee with ID {Id}", employee.Id);
         }
 
         public async Task DeleteEmployeeAsync(int id)
         {
             var employee = await _employeeRepository.GetByIdAsync(id);
             if (employee == null)
+            {
+                _logger.LogWarning("Employee with ID {Id} not found", id);
                 throw new KeyNotFoundException($"Employee with ID {id} not found.");
+            }
 
             _employeeRepository.Remove(employee);
             await _employeeRepository.SaveChangesAsync();
+            _logger.LogInformation("Deleted Employee with ID {Id}", id);
         }
 
         public async Task<int> GetEmployeeCountAsync()

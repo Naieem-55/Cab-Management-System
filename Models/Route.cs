@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Cab_Management_System.Models
 {
-    public class Route
+    public class Route : BaseEntity
     {
         public int Id { get; set; }
 

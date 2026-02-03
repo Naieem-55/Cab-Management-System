@@ -29,7 +29,7 @@ namespace Cab_Management_System.Areas.Travel.Controllers
             _routeService = routeService;
         }
 
-        public async Task<IActionResult> Index(string? searchTerm, TripStatus? status)
+        public async Task<IActionResult> Index(string? searchTerm, TripStatus? status, int page = 1)
         {
             IEnumerable<Trip> trips;
 
@@ -49,12 +49,24 @@ namespace Cab_Management_System.Areas.Travel.Controllers
                 ViewData["SelectedStatus"] = status.Value.ToString();
             }
 
+            var pageSize = 10;
+            var paginatedList = PaginatedList<Trip>.Create(trips, page, pageSize);
+
             ViewBag.Statuses = new SelectList(Enum.GetValues(typeof(TripStatus))
                 .Cast<TripStatus>()
                 .Select(s => new { Value = (int)s, Text = s.ToString() }),
                 "Value", "Text");
+            ViewBag.PageIndex = paginatedList.PageIndex;
+            ViewBag.TotalPages = paginatedList.TotalPages;
+            ViewBag.TotalCount = paginatedList.TotalCount;
+            ViewBag.BaseUrl = Url.Action("Index");
 
-            return View(trips);
+            var queryParams = new List<string>();
+            if (!string.IsNullOrEmpty(searchTerm)) queryParams.Add($"&searchTerm={searchTerm}");
+            if (status.HasValue) queryParams.Add($"&status={status.Value}");
+            ViewBag.QueryString = string.Join("", queryParams);
+
+            return View(paginatedList);
         }
 
         [HttpGet]
@@ -134,22 +146,31 @@ namespace Cab_Management_System.Areas.Travel.Controllers
 
             if (ModelState.IsValid)
             {
-                var trip = new Trip
-                {
-                    Id = model.Id,
-                    DriverId = model.DriverId,
-                    VehicleId = model.VehicleId,
-                    RouteId = model.RouteId,
-                    CustomerName = model.CustomerName,
-                    CustomerPhone = model.CustomerPhone,
-                    CustomerEmail = model.CustomerEmail,
-                    BookingDate = model.BookingDate,
-                    TripDate = model.TripDate,
-                    Status = model.Status,
-                    Cost = model.Cost
-                };
+                var existingTrip = await _tripService.GetTripByIdAsync(id);
+                if (existingTrip == null)
+                    return NotFound();
 
-                await _tripService.UpdateTripAsync(trip);
+                var oldStatus = existingTrip.Status;
+                existingTrip.DriverId = model.DriverId;
+                existingTrip.VehicleId = model.VehicleId;
+                existingTrip.RouteId = model.RouteId;
+                existingTrip.CustomerName = model.CustomerName;
+                existingTrip.CustomerPhone = model.CustomerPhone;
+                existingTrip.CustomerEmail = model.CustomerEmail;
+                existingTrip.BookingDate = model.BookingDate;
+                existingTrip.TripDate = model.TripDate;
+                existingTrip.Cost = model.Cost;
+
+                // Use status workflow if status changed
+                if (oldStatus != model.Status)
+                {
+                    await _tripService.UpdateTripStatusAsync(id, model.Status);
+                }
+                else
+                {
+                    await _tripService.UpdateTripAsync(existingTrip);
+                }
+
                 TempData["SuccessMessage"] = "Trip updated successfully.";
                 return RedirectToAction(nameof(Index));
             }
