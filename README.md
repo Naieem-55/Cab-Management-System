@@ -1,83 +1,135 @@
+<div align="center">
+
 # Cab Management System
 
-A full-stack web application built with **ASP.NET Core MVC (.NET 8)** to digitize and streamline operations of a travel/car agency. The system supports multiple operational departments with role-based access control, covering vehicle management, driver operations, employee administration, route planning, trip booking, billing, and maintenance tracking.
+**A comprehensive fleet and operations management platform built with ASP.NET Core MVC**
+
+[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
+[![EF Core](https://img.shields.io/badge/EF%20Core-8.0-512BD4?logo=dotnet&logoColor=white)](https://learn.microsoft.com/en-us/ef/core/)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
+[![SQL Server](https://img.shields.io/badge/SQL%20Server-LocalDB-CC2927?logo=microsoftsqlserver&logoColor=white)](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+---
+
+*Digitize and streamline cab agency operations across fleet management, trip booking, billing, HR, and maintenance -- all under a unified role-based platform.*
+
+</div>
 
 ---
 
 ## Table of Contents
 
-- [Features](#features)
+- [Overview](#overview)
+- [Key Features](#key-features)
 - [Technology Stack](#technology-stack)
 - [Architecture](#architecture)
 - [Project Structure](#project-structure)
-- [Database Schema](#database-schema)
-- [User Roles & Modules](#user-roles--modules)
+- [Database Design](#database-design)
+- [Modules & Access Control](#modules--access-control)
 - [Getting Started](#getting-started)
 - [Default Credentials](#default-credentials)
-- [Screenshots](#screenshots)
 - [Configuration](#configuration)
+- [License](#license)
 
 ---
 
-## Features
+## Overview
 
-- **Role-Based Access Control** -- Four distinct roles (Admin, Finance Manager, HR Manager, Travel Manager) with restricted module access
-- **Role-Based Dashboards** -- Each role has a dedicated dashboard with relevant statistics and recent activity
-- **Complete CRUD Operations** -- Full Create, Read, Update, Delete functionality for all entities
-- **Search & Filter** -- Search bars and dropdown filters on all list pages
-- **Responsive UI** -- Bootstrap 5 responsive design with sidebar navigation
-- **Authentication & Authorization** -- ASP.NET Identity with secure login, logout, and password management
-- **Data Validation** -- Server-side model validation with client-side unobtrusive validation
-- **Status Tracking** -- Color-coded status badges across all entities
-- **Auto Database Setup** -- Automatic migration and seed data on first run
+The Cab Management System is an enterprise-grade web application designed to manage the end-to-end operations of a cab/fleet agency. It provides dedicated workspaces for four operational roles -- **Admin**, **Finance Manager**, **HR Manager**, and **Travel Manager** -- each with tailored dashboards, data views, and workflows.
+
+The platform handles the complete lifecycle of fleet operations: onboarding employees and drivers, managing vehicles and routes, booking and tracking trips, processing payments, and scheduling maintenance.
+
+---
+
+## Key Features
+
+### Core Capabilities
+- **Multi-Role Dashboard System** -- Each role gets a dedicated dashboard with KPIs, recent activity feeds, and quick-action links
+- **Full CRUD Operations** -- Create, view, edit, and delete across all 7 entity types with form validation
+- **Advanced Search & Filtering** -- Text search, enum-based dropdown filters, and date range queries on all list views
+- **Pagination** -- Server-side pagination across all list views with configurable page size
+
+### Business Logic
+- **Trip Status Workflow** -- Automated driver and vehicle status transitions when trips move between states (Pending, Confirmed, InProgress, Completed, Cancelled)
+- **Billing Integration** -- Payment records linked to trips with status tracking (Pending, Completed, Overdue)
+- **Maintenance Scheduling** -- Track vehicle service history, upcoming maintenance, and overdue alerts
+- **Revenue Reporting** -- Monthly and total revenue calculations with payment method breakdowns
+
+### Technical Highlights
+- **Role-Based Authorization** -- ASP.NET Identity with area-level route protection
+- **Audit Timestamps** -- Automatic `CreatedDate` / `ModifiedDate` tracking on all entities via EF Core interceptor
+- **Structured Logging** -- `ILogger<T>` throughout all service classes with semantic log templates
+- **Referential Integrity** -- Configured cascade/restrict delete behaviors to prevent data inconsistency
+- **Auto-Migration & Seeding** -- Database schema and sample data provisioned automatically on first run
+- **Responsive Design** -- Bootstrap 5 layout with collapsible sidebar, mobile-friendly tables, and status badges
 
 ---
 
 ## Technology Stack
 
-| Component | Technology |
-|-----------|-----------|
-| **Framework** | ASP.NET Core MVC (.NET 8.0) |
-| **ORM** | Entity Framework Core 8.0 |
-| **Database** | SQL Server (LocalDB for development) |
-| **Authentication** | ASP.NET Core Identity |
-| **Frontend** | Razor Views, Bootstrap 5, Bootstrap Icons |
-| **Validation** | jQuery Validation + Unobtrusive Validation |
-| **Architecture** | Repository Pattern + Service Layer |
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Runtime** | .NET 8.0 | Cross-platform application framework |
+| **Web Framework** | ASP.NET Core MVC | Server-side request handling and view rendering |
+| **ORM** | Entity Framework Core 8.0 | Object-relational mapping and migrations |
+| **Database** | SQL Server (LocalDB) | Relational data storage |
+| **Authentication** | ASP.NET Core Identity | User management, password hashing, role claims |
+| **Frontend** | Razor Views + Bootstrap 5 | Server-rendered HTML with responsive CSS framework |
+| **Icons** | Bootstrap Icons | UI iconography via CDN |
+| **Validation** | jQuery Validation Unobtrusive | Client-side form validation tied to server models |
 
 ---
 
 ## Architecture
 
-The application follows a layered architecture with clear separation of concerns:
+The application implements a **layered architecture** with clear separation of concerns:
 
 ```
-┌─────────────────────────────────────────────┐
-│                Razor Views                   │
-│          (Bootstrap 5 + Tag Helpers)         │
-├─────────────────────────────────────────────┤
-│              Controllers                     │
-│    (Area-based, Role-authorized)             │
-├─────────────────────────────────────────────┤
-│             Service Layer                    │
-│       (Business logic & orchestration)       │
-├─────────────────────────────────────────────┤
-│           Repository Layer                   │
-│     (Data access & query abstraction)        │
-├─────────────────────────────────────────────┤
-│     Entity Framework Core + Identity         │
-│          (ApplicationDbContext)               │
-├─────────────────────────────────────────────┤
-│             SQL Server                       │
-└─────────────────────────────────────────────┘
+                    ┌─────────────────────────────────────┐
+                    │           Presentation               │
+                    │   Razor Views  ·  Tag Helpers         │
+                    │   Bootstrap 5  ·  Partial Views       │
+                    └────────────────┬────────────────────┘
+                                     │
+                    ┌────────────────▼────────────────────┐
+                    │           Controllers                 │
+                    │   Area-based  ·  [Authorize(Roles)]   │
+                    │   ViewModels  ·  TempData messages    │
+                    └────────────────┬────────────────────┘
+                                     │
+                    ┌────────────────▼────────────────────┐
+                    │          Service Layer                │
+                    │   Business rules  ·  Orchestration    │
+                    │   Status workflows · Logging          │
+                    └────────────────┬────────────────────┘
+                                     │
+                    ┌────────────────▼────────────────────┐
+                    │        Repository Layer               │
+                    │   Generic CRUD  ·  Eager loading      │
+                    │   Custom queries · Filtering          │
+                    └────────────────┬────────────────────┘
+                                     │
+                    ┌────────────────▼────────────────────┐
+                    │     EF Core + ASP.NET Identity        │
+                    │   DbContext  ·  Migrations             │
+                    │   Audit interceptor · Seeding          │
+                    └────────────────┬────────────────────┘
+                                     │
+                    ┌────────────────▼────────────────────┐
+                    │           SQL Server                  │
+                    └─────────────────────────────────────┘
 ```
 
-**Key design decisions:**
+### Design Principles
 
-- **Generic Repository** (`IRepository<T>`) provides common CRUD operations; entity-specific repositories add custom queries with eager loading
-- **Service Layer** wraps repository calls and encapsulates business logic, keeping controllers thin
-- **MVC Areas** organize modules (Admin, Finance, HR, Travel) into isolated sections with their own controllers and views
-- **ViewModels** decouple domain models from view concerns, especially for forms requiring dropdown data
+| Principle | Implementation |
+|-----------|---------------|
+| **Generic Repository** | `IRepository<T>` / `Repository<T>` provides CRUD, counting, and predicate-based queries; entity-specific repositories extend with custom methods and eager loading |
+| **Thin Controllers** | Controllers delegate to services; no direct repository or DbContext access from controllers |
+| **Area Isolation** | Each module (Admin, Finance, HR, Travel) lives in its own MVC Area with dedicated controllers, views, and `_ViewImports` |
+| **ViewModel Separation** | Domain models never bind directly to forms; ViewModels handle dropdowns, validation display, and form-specific concerns |
+| **Automatic Auditing** | `SaveChangesAsync` override in `ApplicationDbContext` sets `CreatedDate` on insert and `ModifiedDate` on update across all entities |
 
 ---
 
@@ -85,159 +137,166 @@ The application follows a layered architecture with clear separation of concerns
 
 ```
 Cab Management System/
-│
 ├── Areas/
 │   ├── Admin/
-│   │   ├── Controllers/          # DashboardController, UserManagementController,
-│   │   │                         # VehicleController, RouteController
-│   │   └── Views/                # Dashboard, UserManagement, Vehicle, Route views
+│   │   ├── Controllers/            # Dashboard, UserManagement, Vehicle, Route
+│   │   └── Views/                  # 16 views (dashboards, CRUD pages)
 │   ├── Finance/
-│   │   ├── Controllers/          # DashboardController, BillingController, ReportsController
-│   │   └── Views/                # Dashboard, Billing, Reports views
+│   │   ├── Controllers/            # Dashboard, Billing, Reports
+│   │   └── Views/                  # 7 views
 │   ├── HR/
-│   │   ├── Controllers/          # DashboardController, EmployeeController, DriverController
-│   │   └── Views/                # Dashboard, Employee, Driver views
+│   │   ├── Controllers/            # Dashboard, Employee, Driver
+│   │   └── Views/                  # 11 views
 │   └── Travel/
-│       ├── Controllers/          # DashboardController, TripController, MaintenanceController
-│       └── Views/                # Dashboard, Trip, Maintenance views
+│       ├── Controllers/            # Dashboard, Trip, Maintenance
+│       └── Views/                  # 11 views
 │
 ├── Controllers/
-│   ├── AccountController.cs      # Login, Logout, ChangePassword, AccessDenied
-│   └── HomeController.cs         # Landing page with role-based redirect
+│   ├── AccountController.cs        # Authentication (Login, Logout, ChangePassword)
+│   └── HomeController.cs           # Landing page with role-based redirect
 │
 ├── Data/
-│   ├── ApplicationDbContext.cs   # EF Core DbContext with entity configuration
-│   └── DbSeeder.cs              # Seeds roles and default admin user
+│   ├── ApplicationDbContext.cs     # DbContext, entity config, audit interceptor
+│   └── DbSeeder.cs                # Role, user, and sample data seeding
 │
 ├── Models/
-│   ├── Enums/                    # DriverStatus, EmployeePosition, EmployeeStatus,
-│   │                             # FuelType, MaintenanceStatus, PaymentMethod,
-│   │                             # PaymentStatus, TripStatus, VehicleStatus
-│   ├── ViewModels/               # Login, Register, ChangePassword, Dashboard VMs,
-│   │                             # Trip, Billing, Driver, Maintenance VMs
-│   ├── ApplicationUser.cs        # Extends IdentityUser
-│   ├── Employee.cs
-│   ├── Driver.cs
-│   ├── Vehicle.cs
-│   ├── Route.cs
-│   ├── Trip.cs
-│   ├── Billing.cs
-│   └── MaintenanceRecord.cs
+│   ├── Enums/                      # 9 enums (DriverStatus, TripStatus, etc.)
+│   ├── ViewModels/                 # 12 ViewModels (auth, dashboards, entities)
+│   ├── BaseEntity.cs               # Abstract base with audit timestamps
+│   ├── PaginatedList.cs            # Generic pagination helper
+│   └── [7 domain models]           # Employee, Driver, Vehicle, Route, Trip, Billing, MaintenanceRecord
 │
 ├── Repositories/
-│   ├── IRepository.cs            # Generic repository interface
-│   ├── Repository.cs             # Generic repository implementation
-│   └── [Entity]Repository.cs     # 7 entity-specific repository pairs
+│   ├── IRepository.cs              # Generic repository interface
+│   ├── Repository.cs               # Generic repository implementation
+│   └── [7 entity repositories]     # Interface + implementation pairs
 │
 ├── Services/
-│   ├── I[Entity]Service.cs       # 8 service interfaces
-│   ├── [Entity]Service.cs        # 7 entity service implementations
-│   └── DashboardService.cs       # Aggregates stats for role dashboards
+│   ├── [8 service interfaces]      # Business operation contracts
+│   ├── [7 entity services]         # Business logic implementations
+│   └── DashboardService.cs         # Aggregated dashboard statistics
 │
 ├── Views/
-│   ├── Account/                  # Login, ChangePassword, AccessDenied
-│   ├── Home/                     # Landing page, Privacy, Error
-│   └── Shared/                   # _Layout, _SidebarPartial, _LoginPartial
+│   ├── Account/                    # Login, ChangePassword, AccessDenied
+│   ├── Home/                       # Landing page
+│   └── Shared/                     # _Layout, _SidebarPartial, _LoginPartial, _PaginationPartial
 │
-├── wwwroot/
-│   ├── css/site.css              # Custom styles (sidebar, dashboard cards, badges)
-│   ├── js/site.js                # Sidebar active link highlighting
-│   └── lib/                      # Bootstrap, jQuery, jQuery Validation
-│
-├── Program.cs                    # Application entry point & DI configuration
-├── appsettings.json              # Connection string & logging config
-└── Cab Management System.csproj  # Project file with NuGet references
+├── wwwroot/                        # Static assets (CSS, JS, client libraries)
+├── Migrations/                     # EF Core migration files
+├── Program.cs                      # Entry point, DI registration, middleware pipeline
+└── appsettings.json                # Connection strings, logging configuration
 ```
 
-**File counts:** 83 C# source files, 65 Razor views
+> **Scale:** ~90 C# source files, ~65 Razor views, 13 controllers across 4 areas
 
 ---
 
-## Database Schema
+## Database Design
+
+### Entity Relationship Diagram
 
 ```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│   Employee   │     │    Driver    │     │    Trip      │
-├──────────────┤     ├──────────────┤     ├──────────────┤
-│ Id           │1───1│ Id           │1───*│ Id           │
-│ Name         │     │ EmployeeId   │     │ DriverId     │
-│ Email (UQ)   │     │ LicenseNo(UQ)│     │ VehicleId    │
-│ Phone        │     │ LicenseExpiry│     │ RouteId      │
-│ Position     │     │ Status       │     │ CustomerName │
-│ Status       │     └──────────────┘     │ CustomerPhone│
-│ HireDate     │                          │ BookingDate  │
-│ Salary       │     ┌──────────────┐     │ TripDate     │
-└──────────────┘     │   Vehicle    │     │ Status       │
-                     ├──────────────┤     │ Cost         │
-                     │ Id           │1───*│              │
-                     │ RegNo (UQ)   │     └──────┬───────┘
-                     │ Make         │            │1
-                     │ Model        │            │
-                     │ Year         │     ┌──────┴───────┐
-                     │ Color        │     │   Billing    │
-                     │ Capacity     │     ├──────────────┤
-                     │ FuelType     │     │ Id           │
-                     │ Status       │     │ TripId       │
-                     │ Mileage      │     │ Amount       │
-                     └──────┬───────┘     │ PaymentDate  │
-                            │1            │ PaymentMethod│
-                     ┌──────┴───────┐     │ Status       │
-                     │ Maintenance  │     └──────────────┘
-                     │   Record     │
-                     ├──────────────┤     ┌──────────────┐
-                     │ Id           │     │    Route     │
-                     │ VehicleId    │     ├──────────────┤
-                     │ Description  │     │ Id           │1───*  Trip
-                     │ Cost         │     │ Origin       │
-                     │ Date         │     │ Destination  │
-                     │ NextMaintDate│     │ Distance     │
-                     │ Status       │     │ EstTimeHours │
-                     └──────────────┘     │ BaseCost     │
-                                          └──────────────┘
+┌────────────────┐         ┌────────────────┐         ┌────────────────┐
+│    Employee     │         │     Driver     │         │      Trip      │
+├────────────────┤         ├────────────────┤         ├────────────────┤
+│ Id          PK │──1───1──│ Id          PK │──1───*──│ Id          PK │
+│ Name           │         │ EmployeeId  FK │         │ DriverId    FK │
+│ Email     (UQ) │         │ LicenseNo (UQ) │         │ VehicleId   FK │
+│ Phone          │         │ LicenseExpiry  │         │ RouteId     FK │
+│ Position       │         │ Status         │         │ CustomerName   │
+│ Status         │         │ CreatedDate    │         │ CustomerPhone  │
+│ HireDate       │         │ ModifiedDate   │         │ CustomerEmail  │
+│ Salary         │         └────────────────┘         │ BookingDate    │
+│ CreatedDate    │                                    │ TripDate       │
+│ ModifiedDate   │                                    │ Status         │
+└────────────────┘                                    │ Cost           │
+                                                      │ CreatedDate    │
+┌────────────────┐                                    │ ModifiedDate   │
+│    Vehicle     │                                    └───────┬────────┘
+├────────────────┤                                            │1
+│ Id          PK │──1───*── Trip                              │
+│ RegNo     (UQ) │                                    ┌───────┴────────┐
+│ Make           │                                    │    Billing     │
+│ Model          │                                    ├────────────────┤
+│ Year           │                                    │ Id          PK │
+│ Color          │                                    │ TripId      FK │
+│ Capacity       │                                    │ Amount         │
+│ FuelType       │                                    │ PaymentDate    │
+│ Status         │                                    │ PaymentMethod  │
+│ Mileage        │                                    │ Status         │
+│ CreatedDate    │                                    │ CreatedDate    │
+│ ModifiedDate   │                                    │ ModifiedDate   │
+└───────┬────────┘                                    └────────────────┘
+        │1
+┌───────┴────────┐         ┌────────────────┐
+│  Maintenance   │         │     Route      │
+│    Record      │         ├────────────────┤
+├────────────────┤         │ Id          PK │──1───*── Trip
+│ Id          PK │         │ Origin         │
+│ VehicleId   FK │         │ Destination    │
+│ Description    │         │ Distance       │
+│ Cost           │         │ EstTimeHours   │
+│ Date           │         │ BaseCost       │
+│ NextMaintDate  │         │ CreatedDate    │
+│ Status         │         │ ModifiedDate   │
+│ CreatedDate    │         └────────────────┘
+│ ModifiedDate   │
+└────────────────┘
 
-ASP.NET Identity Tables: AspNetUsers, AspNetRoles, AspNetUserRoles,
-                          AspNetUserClaims, AspNetRoleClaims,
-                          AspNetUserLogins, AspNetUserTokens
++ ASP.NET Identity tables (AspNetUsers, AspNetRoles, AspNetUserRoles, etc.)
 ```
 
-**Referential integrity:**
-- `Restrict` delete on Driver/Vehicle/Route -> Trip (prevents orphaned trips)
-- `Restrict` delete on Employee -> Driver
-- `Cascade` delete on Trip -> Billing
-- `Cascade` delete on Vehicle -> MaintenanceRecord
+### Referential Integrity Rules
+
+| Relationship | Delete Behavior | Rationale |
+|-------------|----------------|-----------|
+| Employee -> Driver | Restrict | Prevent orphaned driver records |
+| Driver -> Trip | Restrict | Prevent deletion of drivers with trip history |
+| Vehicle -> Trip | Restrict | Prevent deletion of vehicles with trip history |
+| Route -> Trip | Restrict | Prevent deletion of routes with trip history |
+| Trip -> Billing | Cascade | Billing is meaningless without its trip |
+| Vehicle -> MaintenanceRecord | Cascade | Maintenance history follows vehicle lifecycle |
 
 ---
 
-## User Roles & Modules
+## Modules & Access Control
 
-### Admin
+### Admin Module
+> Full system oversight and configuration
+
 | Feature | Description |
 |---------|-------------|
-| Dashboard | Overview of all system stats (vehicles, drivers, employees, trips, revenue) |
-| User Management | Create, edit, delete manager accounts and assign roles |
-| Vehicle Management | Full CRUD for fleet vehicles with status tracking |
-| Route Management | Define and manage travel routes with distance and cost |
+| **Dashboard** | System-wide KPIs: total vehicles, drivers, employees, active trips, registered users, total revenue |
+| **User Management** | Create and manage system users; assign roles (Admin, FinanceManager, HRManager, TravelManager) |
+| **Vehicle Management** | Fleet CRUD with search; track registration, capacity, fuel type, mileage, and availability status |
+| **Route Management** | Define origin-destination routes with distance, estimated time, and base cost |
 
-### Finance Manager
+### Finance Module
+> Revenue tracking and payment processing
+
 | Feature | Description |
 |---------|-------------|
-| Dashboard | Revenue stats, pending/completed payment counts, monthly revenue |
-| Billing | Create and manage payment records linked to trips |
-| Reports | Revenue summaries with totals and payment breakdowns |
+| **Dashboard** | Financial KPIs: total revenue, monthly revenue, pending vs. completed payments |
+| **Billing** | Create and manage billing records linked to trips; filter by payment status and date range |
+| **Reports** | Revenue summaries with payment method breakdown and period-based analysis |
 
-### HR Manager
+### HR Module
+> Workforce and driver administration
+
 | Feature | Description |
 |---------|-------------|
-| Dashboard | Employee and driver counts, leave tracking |
-| Employee Management | Full CRUD with position and status filters |
-| Driver Management | Register drivers linked to employees, track licenses |
+| **Dashboard** | Workforce KPIs: total/active employees, available drivers, employees on leave |
+| **Employee Management** | Full CRUD with position (Driver, Receptionist, Mechanic, Cleaner) and status filters |
+| **Driver Management** | Register drivers linked to employee records; track license numbers and expiry dates |
 
-### Travel Manager
+### Travel Module
+> Trip operations and vehicle maintenance
+
 | Feature | Description |
 |---------|-------------|
-| Dashboard | Trip stats, vehicle availability, overdue maintenance alerts |
-| Trip Management | Book trips by assigning drivers, vehicles, and routes |
-| Maintenance | Schedule and track vehicle maintenance records |
+| **Dashboard** | Operations KPIs: total/active/completed trips, vehicle availability, overdue maintenance count |
+| **Trip Management** | Book trips with driver, vehicle, and route selection; automated status workflow updates driver/vehicle availability |
+| **Maintenance** | Schedule and track vehicle maintenance; flag overdue service records |
 
 ---
 
@@ -246,72 +305,73 @@ ASP.NET Identity Tables: AspNetUsers, AspNetRoles, AspNetUserRoles,
 ### Prerequisites
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later
-- SQL Server LocalDB (included with Visual Studio) or a SQL Server instance
+- SQL Server LocalDB (included with Visual Studio) or any SQL Server instance
 
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd "Cab Management System"
-   ```
-
-2. **Restore dependencies**
-   ```bash
-   dotnet restore
-   ```
-
-3. **Update the connection string** (if not using LocalDB)
-
-   Edit `appsettings.json`:
-   ```json
-   {
-     "ConnectionStrings": {
-       "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=CabManagementDb;Trusted_Connection=True;MultipleActiveResultSets=true"
-     }
-   }
-   ```
-
-4. **Run the application**
-   ```bash
-   dotnet run
-   ```
-
-   The database is **created and seeded automatically** on first run via `Database.MigrateAsync()`.
-
-5. **Open in browser**
-   - HTTPS: `https://localhost:7188`
-   - HTTP: `http://localhost:5195`
-
-### Manual Migration (if needed)
+### Quick Start
 
 ```bash
-dotnet ef migrations add InitialCreate
-dotnet ef database update
+# 1. Clone the repository
+git clone https://github.com/Naieem-55/Cab-Management-System.git
+cd "Cab Management System"
+
+# 2. Restore dependencies
+dotnet restore
+
+# 3. Run the application
+dotnet run
+```
+
+The application will automatically:
+- Create the database using EF Core migrations
+- Seed roles, default users, and sample data
+
+### Access the Application
+
+| Protocol | URL |
+|----------|-----|
+| HTTPS | `https://localhost:7188` |
+| HTTP | `http://localhost:5195` |
+
+### Custom Database Connection
+
+To use a different SQL Server instance, update `appsettings.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=YOUR_SERVER;Database=CabManagementDb;Trusted_Connection=True;MultipleActiveResultSets=true"
+  }
+}
 ```
 
 ---
 
 ## Default Credentials
 
+The application seeds the following accounts on first run:
+
 | Role | Email | Password |
 |------|-------|----------|
-| **Admin** | admin@cabsystem.com | Admin@123 |
+| **Admin** | `admin@cabsystem.com` | `Admin@123` |
+| **Finance Manager** | `finance@cabsystem.com` | `Finance@123` |
+| **HR Manager** | `hr@cabsystem.com` | `HR@1234` |
+| **Travel Manager** | `travel@cabsystem.com` | `Travel@123` |
 
-After logging in as Admin, use **User Management** to create accounts for Finance Manager, HR Manager, and Travel Manager roles.
+> **Note:** The Admin account can also create additional users through the User Management module.
 
----
+### Sample Data
 
-## Screenshots
+The seeder provisions realistic sample data across all entities:
 
-After running the application, you can explore:
-
-- **Landing Page** -- Public homepage with feature overview and login button
-- **Admin Dashboard** -- Stats cards showing vehicles, drivers, employees, trips, and revenue
-- **Vehicle Management** -- Searchable table with status badges and full CRUD
-- **Trip Booking** -- Form with dropdown selectors for driver, vehicle, and route
-- **Billing Management** -- Payment tracking with status filters and revenue reports
-- **Employee Management** -- Filterable employee list with position and status dropdowns
+| Entity | Count | Notes |
+|--------|-------|-------|
+| Employees | 8 | 4 drivers, 2 receptionists, 1 mechanic, 1 cleaner |
+| Drivers | 4 | Linked to driver-position employees |
+| Vehicles | 6 | Mixed fuel types and statuses |
+| Routes | 5 | Indian city-to-city routes |
+| Trips | 6 | Various statuses (Pending through Completed) |
+| Billings | 4 | Pending and completed payments |
+| Maintenance Records | 3 | Scheduled, in-progress, and completed |
 
 ---
 
@@ -320,19 +380,31 @@ After running the application, you can explore:
 ### Password Policy
 
 Configured in `Program.cs`:
-- Minimum 6 characters
-- Requires uppercase, lowercase, digit, and special character
 
-### Cookie Settings
+| Rule | Value |
+|------|-------|
+| Minimum length | 6 characters |
+| Require uppercase | Yes |
+| Require lowercase | Yes |
+| Require digit | Yes |
+| Require special character | Yes |
 
-- Login path: `/Account/Login`
-- Access denied path: `/Account/AccessDenied`
+### Authentication
+
+| Setting | Value |
+|---------|-------|
+| Login path | `/Account/Login` |
+| Access denied path | `/Account/AccessDenied` |
+| Session expiry | 30 days (sliding) |
 
 ### Logging
 
-Default logging levels in `appsettings.json`:
-- General: `Information`
-- ASP.NET Core: `Warning`
+Structured logging is enabled across all services using `ILogger<T>`. Log levels are configured in `appsettings.json`:
+
+| Category | Level |
+|----------|-------|
+| Default | Information |
+| Microsoft.AspNetCore | Warning |
 
 ---
 
