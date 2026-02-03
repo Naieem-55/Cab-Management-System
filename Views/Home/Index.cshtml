@@ -1,0 +1,53 @@
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8 text-center">
+        <div class="mb-4">
+            <i class="bi bi-taxi-front text-primary" style="font-size: 5rem;"></i>
+        </div>
+        <h1 class="display-4 fw-bold">Cab Management System</h1>
+        <p class="lead text-muted mt-3">
+            A comprehensive platform to manage vehicles, drivers, employees, routes, trips, and financial operations for your travel agency.
+        </p>
+        <hr class="my-4" />
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-3 mb-3">
+                <div class="card border-primary h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-truck fs-1 text-primary"></i>
+                        <h6 class="mt-2">Vehicle Management</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-success h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people fs-1 text-success"></i>
+                        <h6 class="mt-2">Employee & Driver Management</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-warning h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-geo-alt fs-1 text-warning"></i>
+                        <h6 class="mt-2">Trip & Route Planning</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-info h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-cash-stack fs-1 text-info"></i>
+                        <h6 class="mt-2">Billing & Finance</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg mt-4 px-5">
+            <i class="bi bi-box-arrow-in-right"></i> Login to Get Started
+        </a>
+    </div>
+</div>

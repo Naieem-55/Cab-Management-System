@@ -1,0 +1,123 @@
+@model Employee
+
+@{
+    ViewData["Title"] = "Employee Details";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">Employee Details</h1>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">@Model.Name</h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Name</dt>
+                <dd class="col-sm-9">@Model.Name</dd>
+
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+
+                <dt class="col-sm-3">Phone</dt>
+                <dd class="col-sm-9">@Model.Phone</dd>
+
+                <dt class="col-sm-3">Position</dt>
+                <dd class="col-sm-9">
+                    @switch (Model.Position)
+                    {
+                        case EmployeePosition.Driver:
+                            <span class="badge bg-primary">Driver</span>
+                            break;
+                        case EmployeePosition.Receptionist:
+                            <span class="badge bg-info">Receptionist</span>
+                            break;
+                        case EmployeePosition.Cleaner:
+                            <span class="badge bg-secondary">Cleaner</span>
+                            break;
+                        case EmployeePosition.Mechanic:
+                            <span class="badge bg-warning">Mechanic</span>
+                            break;
+                    }
+                </dd>
+
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9">
+                    @switch (Model.Status)
+                    {
+                        case EmployeeStatus.Active:
+                            <span class="badge bg-success">Active</span>
+                            break;
+                        case EmployeeStatus.OnLeave:
+                            <span class="badge bg-warning">On Leave</span>
+                            break;
+                        case EmployeeStatus.Terminated:
+                            <span class="badge bg-danger">Terminated</span>
+                            break;
+                    }
+                </dd>
+
+                <dt class="col-sm-3">Hire Date</dt>
+                <dd class="col-sm-9">@Model.HireDate.ToString("MMM dd, yyyy")</dd>
+
+                <dt class="col-sm-3">Salary</dt>
+                <dd class="col-sm-9">@Model.Salary.ToString("C")</dd>
+            </dl>
+        </div>
+    </div>
+
+    @if (Model.Driver != null)
+    {
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Driver Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">License Number</dt>
+                    <dd class="col-sm-9">@Model.Driver.LicenseNumber</dd>
+
+                    <dt class="col-sm-3">License Expiry</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.Driver.LicenseExpiry < DateTime.Today)
+                        {
+                            <span class="text-danger">@Model.Driver.LicenseExpiry.ToString("MMM dd, yyyy") (Expired)</span>
+                        }
+                        else
+                        {
+                            @Model.Driver.LicenseExpiry.ToString("MMM dd, yyyy")
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">Driver Status</dt>
+                    <dd class="col-sm-9">
+                        @switch (Model.Driver.Status)
+                        {
+                            case DriverStatus.Available:
+                                <span class="badge bg-success">Available</span>
+                                break;
+                            case DriverStatus.OnTrip:
+                                <span class="badge bg-warning">On Trip</span>
+                                break;
+                            case DriverStatus.OffDuty:
+                                <span class="badge bg-secondary">Off Duty</span>
+                                break;
+                            case DriverStatus.Suspended:
+                                <span class="badge bg-danger">Suspended</span>
+                                break;
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    }
+
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>

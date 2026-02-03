@@ -1,0 +1,63 @@
+@model UserViewModel
+
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">User Details</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">@Model.FullName</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">First Name</dt>
+                        <dd class="col-sm-8">@Model.FirstName</dd>
+
+                        <dt class="col-sm-4">Last Name</dt>
+                        <dd class="col-sm-8">@Model.LastName</dd>
+
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">@Model.Email</dd>
+
+                        <dt class="col-sm-4">Role</dt>
+                        <dd class="col-sm-8">
+                            @switch (Model.Role)
+                            {
+                                case "Admin":
+                                    <span class="badge bg-danger">@Model.Role</span>
+                                    break;
+                                case "FinanceManager":
+                                    <span class="badge bg-success">@Model.Role</span>
+                                    break;
+                                case "HRManager":
+                                    <span class="badge bg-info">@Model.Role</span>
+                                    break;
+                                case "TravelManager":
+                                    <span class="badge bg-warning">@Model.Role</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">@Model.Role</span>
+                                    break;
+                            }
+                        </dd>
+                    </dl>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                            <i class="bi bi-pencil me-1"></i> Edit
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

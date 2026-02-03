@@ -1,0 +1,108 @@
+@model IEnumerable<Billing>
+
+@{
+    ViewData["Title"] = "Financial Reports";
+}
+
+<div class="container-fluid">
+    <h2 class="mb-4">Financial Reports</h2>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-currency-dollar fs-1 text-primary"></i>
+                    <h5 class="card-title mt-2">Total Revenue</h5>
+                    <p class="card-text fs-4 fw-bold">@(((decimal)ViewBag.TotalRevenue).ToString("C"))</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-clock-history fs-1 text-warning"></i>
+                    <h5 class="card-title mt-2">Pending Amount</h5>
+                    <p class="card-text fs-4 fw-bold">@(((decimal)ViewBag.PendingAmount).ToString("C"))</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle fs-1 text-success"></i>
+                    <h5 class="card-title mt-2">Completed Payments</h5>
+                    <p class="card-text fs-4 fw-bold">@ViewBag.CompletedPayments</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-danger h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-exclamation-circle fs-1 text-danger"></i>
+                    <h5 class="card-title mt-2">Pending Payments</h5>
+                    <p class="card-text fs-4 fw-bold">@ViewBag.PendingPayments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">All Billing Records</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Trip #</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                            <th>Payment Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var item in Model.OrderByDescending(b => b.PaymentDate))
+                            {
+                                <tr>
+                                    <td>@item.Id</td>
+                                    <td>@item.TripId</td>
+                                    <td>@item.Amount.ToString("C")</td>
+                                    <td>@item.PaymentMethod</td>
+                                    <td>
+                                        @switch (item.Status)
+                                        {
+                                            case PaymentStatus.Pending:
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                break;
+                                            case PaymentStatus.Completed:
+                                                <span class="badge bg-success">Completed</span>
+                                                break;
+                                            case PaymentStatus.Failed:
+                                                <span class="badge bg-danger">Failed</span>
+                                                break;
+                                            case PaymentStatus.Refunded:
+                                                <span class="badge bg-secondary">Refunded</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>@item.PaymentDate.ToString("MMM dd, yyyy")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No billing records found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

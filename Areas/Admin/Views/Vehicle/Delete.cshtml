@@ -1,0 +1,80 @@
+@model Vehicle
+
+@{
+    ViewData["Title"] = "Delete Vehicle";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">Delete Vehicle</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">Are you sure you want to delete this vehicle?</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Registration Number</dt>
+                        <dd class="col-sm-8">@Model.RegistrationNumber</dd>
+
+                        <dt class="col-sm-4">Make</dt>
+                        <dd class="col-sm-8">@Model.Make</dd>
+
+                        <dt class="col-sm-4">Model</dt>
+                        <dd class="col-sm-8">@Model.Model</dd>
+
+                        <dt class="col-sm-4">Year</dt>
+                        <dd class="col-sm-8">@Model.Year</dd>
+
+                        <dt class="col-sm-4">Color</dt>
+                        <dd class="col-sm-8">@Model.Color</dd>
+
+                        <dt class="col-sm-4">Capacity</dt>
+                        <dd class="col-sm-8">@Model.Capacity</dd>
+
+                        <dt class="col-sm-4">Fuel Type</dt>
+                        <dd class="col-sm-8">@Model.FuelType</dd>
+
+                        <dt class="col-sm-4">Status</dt>
+                        <dd class="col-sm-8">
+                            @switch (Model.Status)
+                            {
+                                case VehicleStatus.Available:
+                                    <span class="badge bg-success">@Model.Status</span>
+                                    break;
+                                case VehicleStatus.OnTrip:
+                                    <span class="badge bg-warning">@Model.Status</span>
+                                    break;
+                                case VehicleStatus.InMaintenance:
+                                    <span class="badge bg-info">@Model.Status</span>
+                                    break;
+                                case VehicleStatus.Retired:
+                                    <span class="badge bg-secondary">@Model.Status</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">@Model.Status</span>
+                                    break;
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Mileage</dt>
+                        <dd class="col-sm-8">@Model.Mileage.ToString("N0") km</dd>
+                    </dl>
+                </div>
+                <div class="card-footer">
+                    <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i> Confirm Delete
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

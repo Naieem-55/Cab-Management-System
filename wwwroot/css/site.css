@@ -1,0 +1,143 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 0;
+}
+
+/* Sidebar */
+#sidebar {
+    width: 250px;
+    min-height: calc(100vh - 56px);
+    position: sticky;
+    top: 56px;
+    flex-shrink: 0;
+}
+
+#sidebar .nav-link {
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin: 2px 0;
+    transition: background-color 0.2s;
+}
+
+#sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#sidebar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+#sidebar .nav-link i {
+    margin-right: 8px;
+    width: 20px;
+    text-align: center;
+}
+
+#main-content.with-sidebar {
+    min-height: calc(100vh - 56px);
+}
+
+/* Dashboard cards */
+.dashboard-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
+    border-radius: 10px;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-card .card-body {
+    padding: 1.5rem;
+}
+
+.dashboard-card .stat-icon {
+    font-size: 2.5rem;
+    opacity: 0.8;
+}
+
+.dashboard-card .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.dashboard-card .stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Cards */
+.card {
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+}
+
+/* Tables */
+.table th {
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Status badges */
+.badge {
+    font-weight: 500;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+}
+
+/* Action buttons in tables */
+.btn-action {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    margin: 0 2px;
+}
+
+/* Search form */
+.search-form .form-control {
+    border-radius: 20px 0 0 20px;
+}
+
+.search-form .btn {
+    border-radius: 0 20px 20px 0;
+}
+
+/* Form improvements */
+.form-label {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+/* Focus styles */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}

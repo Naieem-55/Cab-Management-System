@@ -1,0 +1,93 @@
+@model IEnumerable<MaintenanceRecord>
+
+@{
+    ViewData["Title"] = "Maintenance Records";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Maintenance Records</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Schedule Maintenance
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Vehicle</th>
+                            <th>Description</th>
+                            <th>Cost</th>
+                            <th>Date</th>
+                            <th>Next Maintenance</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Id</td>
+                                    <td>@item.Vehicle?.RegistrationNumber</td>
+                                    <td>@(item.Description.Length > 50 ? item.Description.Substring(0, 50) + "..." : item.Description)</td>
+                                    <td>@item.Cost.ToString("C")</td>
+                                    <td>@item.Date.ToString("MMM dd, yyyy")</td>
+                                    <td>@(item.NextMaintenanceDate.HasValue ? item.NextMaintenanceDate.Value.ToString("MMM dd, yyyy") : "N/A")</td>
+                                    <td>
+                                        @switch (item.Status)
+                                        {
+                                            case MaintenanceStatus.Scheduled:
+                                                <span class="badge bg-info">Scheduled</span>
+                                                break;
+                                            case MaintenanceStatus.InProgress:
+                                                <span class="badge bg-warning text-dark">In Progress</span>
+                                                break;
+                                            case MaintenanceStatus.Completed:
+                                                <span class="badge bg-success">Completed</span>
+                                                break;
+                                            case MaintenanceStatus.Overdue:
+                                                <span class="badge bg-danger">Overdue</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info" title="Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">No maintenance records found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

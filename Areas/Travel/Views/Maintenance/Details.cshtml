@@ -1,0 +1,78 @@
+@model MaintenanceRecord
+
+@{
+    ViewData["Title"] = "Maintenance Details";
+}
+
+<div class="container">
+    <h2 class="mb-4">Maintenance Details</h2>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Maintenance Record #@Model.Id</h5>
+        </div>
+        <div class="card-body">
+            <!-- Vehicle Information -->
+            <h5 class="mt-2">Vehicle Information</h5>
+            <dl class="row">
+                <dt class="col-sm-3">Vehicle</dt>
+                <dd class="col-sm-9">@Model.Vehicle?.RegistrationNumber</dd>
+
+                <dt class="col-sm-3">Make</dt>
+                <dd class="col-sm-9">@Model.Vehicle?.Make</dd>
+
+                <dt class="col-sm-3">Model</dt>
+                <dd class="col-sm-9">@Model.Vehicle?.Model</dd>
+
+                <dt class="col-sm-3">Year</dt>
+                <dd class="col-sm-9">@Model.Vehicle?.Year</dd>
+            </dl>
+
+            <hr />
+
+            <!-- Maintenance Details -->
+            <h5 class="mt-3">Maintenance Details</h5>
+            <dl class="row">
+                <dt class="col-sm-3">Description</dt>
+                <dd class="col-sm-9">@Model.Description</dd>
+
+                <dt class="col-sm-3">Cost</dt>
+                <dd class="col-sm-9">@Model.Cost.ToString("C")</dd>
+
+                <dt class="col-sm-3">Maintenance Date</dt>
+                <dd class="col-sm-9">@Model.Date.ToString("MMM dd, yyyy")</dd>
+
+                <dt class="col-sm-3">Next Maintenance Date</dt>
+                <dd class="col-sm-9">@(Model.NextMaintenanceDate.HasValue ? Model.NextMaintenanceDate.Value.ToString("MMM dd, yyyy") : "N/A")</dd>
+
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9">
+                    @switch (Model.Status)
+                    {
+                        case MaintenanceStatus.Scheduled:
+                            <span class="badge bg-info">Scheduled</span>
+                            break;
+                        case MaintenanceStatus.InProgress:
+                            <span class="badge bg-warning text-dark">In Progress</span>
+                            break;
+                        case MaintenanceStatus.Completed:
+                            <span class="badge bg-success">Completed</span>
+                            break;
+                        case MaintenanceStatus.Overdue:
+                            <span class="badge bg-danger">Overdue</span>
+                            break;
+                    }
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a asp-action="Index" class="btn btn-secondary ms-2">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>

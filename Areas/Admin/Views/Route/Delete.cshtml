@@ -1,0 +1,49 @@
+@model Cab_Management_System.Models.Route
+
+@{
+    ViewData["Title"] = "Delete Route";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">Delete Route</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">Are you sure you want to delete this route?</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Origin</dt>
+                        <dd class="col-sm-8">@Model.Origin</dd>
+
+                        <dt class="col-sm-4">Destination</dt>
+                        <dd class="col-sm-8">@Model.Destination</dd>
+
+                        <dt class="col-sm-4">Distance (km)</dt>
+                        <dd class="col-sm-8">@Model.Distance.ToString("N1")</dd>
+
+                        <dt class="col-sm-4">Estimated Time (hours)</dt>
+                        <dd class="col-sm-8">@Model.EstimatedTimeHours.ToString("N1")</dd>
+
+                        <dt class="col-sm-4">Base Cost</dt>
+                        <dd class="col-sm-8">@Model.BaseCost.ToString("C")</dd>
+                    </dl>
+                </div>
+                <div class="card-footer">
+                    <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i> Confirm Delete
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

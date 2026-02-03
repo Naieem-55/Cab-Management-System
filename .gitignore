@@ -1,0 +1,38 @@
+## .NET
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.cache
+*.dll
+*.exe
+*.pdb
+
+## Visual Studio
+.vs/
+*.sln.docstates
+launchSettings.json
+
+## User secrets
+secrets.json
+
+## NuGet
+*.nupkg
+**/packages/*
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+
+## Misc
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+## Claude
+.claude/

@@ -1,0 +1,272 @@
+@model AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">Admin Dashboard</h1>
+
+    @if (TempData["StatusMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["StatusMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Stat Cards Row 1 -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-primary h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Vehicles</h6>
+                            <h3 class="mb-0">@Model.TotalVehicles</h3>
+                        </div>
+                        <div class="text-primary">
+                            <i class="bi bi-truck fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-success h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Available Vehicles</h6>
+                            <h3 class="mb-0">@Model.AvailableVehicles</h3>
+                        </div>
+                        <div class="text-success">
+                            <i class="bi bi-check-circle fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-info h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Drivers</h6>
+                            <h3 class="mb-0">@Model.TotalDrivers</h3>
+                        </div>
+                        <div class="text-info">
+                            <i class="bi bi-person-workspace fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-success h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Available Drivers</h6>
+                            <h3 class="mb-0">@Model.AvailableDrivers</h3>
+                        </div>
+                        <div class="text-success">
+                            <i class="bi bi-person-check fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat Cards Row 2 -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-warning h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Employees</h6>
+                            <h3 class="mb-0">@Model.TotalEmployees</h3>
+                        </div>
+                        <div class="text-warning">
+                            <i class="bi bi-people fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-secondary h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Routes</h6>
+                            <h3 class="mb-0">@Model.TotalRoutes</h3>
+                        </div>
+                        <div class="text-secondary">
+                            <i class="bi bi-signpost-2 fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-danger h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Active Trips</h6>
+                            <h3 class="mb-0">@Model.ActiveTrips</h3>
+                        </div>
+                        <div class="text-danger">
+                            <i class="bi bi-geo-alt fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-primary h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Revenue</h6>
+                            <h3 class="mb-0">@Model.TotalRevenue.ToString("C")</h3>
+                        </div>
+                        <div class="text-primary">
+                            <i class="bi bi-currency-dollar fs-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables Row -->
+    <div class="row g-4">
+        <!-- Recent Trips -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Trips</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Route</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.RecentTrips.Any())
+                                {
+                                    @foreach (var trip in Model.RecentTrips)
+                                    {
+                                        <tr>
+                                            <td>@trip.CustomerName</td>
+                                            <td>@trip.Route?.Origin - @trip.Route?.Destination</td>
+                                            <td>
+                                                @switch (trip.Status)
+                                                {
+                                                    case TripStatus.Confirmed:
+                                                        <span class="badge bg-success">@trip.Status</span>
+                                                        break;
+                                                    case TripStatus.InProgress:
+                                                        <span class="badge bg-warning">@trip.Status</span>
+                                                        break;
+                                                    case TripStatus.Completed:
+                                                        <span class="badge bg-info">@trip.Status</span>
+                                                        break;
+                                                    case TripStatus.Cancelled:
+                                                        <span class="badge bg-danger">@trip.Status</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">@trip.Status</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>@trip.TripDate.ToString("MMM dd, yyyy")</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No recent trips found.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Maintenance -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Upcoming Maintenance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Vehicle</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.UpcomingMaintenance.Any())
+                                {
+                                    @foreach (var record in Model.UpcomingMaintenance)
+                                    {
+                                        <tr>
+                                            <td>@record.Vehicle?.RegistrationNumber</td>
+                                            <td>@record.Description</td>
+                                            <td>@record.Date.ToString("MMM dd, yyyy")</td>
+                                            <td>
+                                                @switch (record.Status)
+                                                {
+                                                    case MaintenanceStatus.Scheduled:
+                                                        <span class="badge bg-info">@record.Status</span>
+                                                        break;
+                                                    case MaintenanceStatus.InProgress:
+                                                        <span class="badge bg-warning">@record.Status</span>
+                                                        break;
+                                                    case MaintenanceStatus.Completed:
+                                                        <span class="badge bg-success">@record.Status</span>
+                                                        break;
+                                                    case MaintenanceStatus.Overdue:
+                                                        <span class="badge bg-danger">@record.Status</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">@record.Status</span>
+                                                        break;
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No upcoming maintenance records.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

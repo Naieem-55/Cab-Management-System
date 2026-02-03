@@ -1,0 +1,56 @@
+@model DriverViewModel
+
+@{
+    ViewData["Title"] = "Create Driver";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">Create Driver</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="EmployeeId" class="form-label"></label>
+                        <select asp-for="EmployeeId" asp-items="Model.AvailableEmployees" class="form-select">
+                            <option value="">-- Select Employee --</option>
+                        </select>
+                        <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="LicenseNumber" class="form-label"></label>
+                        <input asp-for="LicenseNumber" class="form-control" />
+                        <span asp-validation-for="LicenseNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="LicenseExpiry" class="form-label"></label>
+                        <input asp-for="LicenseExpiry" type="date" class="form-control" />
+                        <span asp-validation-for="LicenseExpiry" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Status" class="form-label"></label>
+                        <select asp-for="Status" asp-items="Html.GetEnumSelectList<DriverStatus>()" class="form-select">
+                            <option value="">-- Select Status --</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Create
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

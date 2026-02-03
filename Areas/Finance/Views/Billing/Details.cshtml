@@ -1,0 +1,86 @@
+@model Billing
+
+@{
+    ViewData["Title"] = "Billing Details";
+}
+
+<div class="container">
+    <h2 class="mb-4">Billing Details</h2>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Billing #@Model.Id</h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Billing ID</dt>
+                <dd class="col-sm-9">@Model.Id</dd>
+
+                <dt class="col-sm-3">Trip ID</dt>
+                <dd class="col-sm-9">@Model.TripId</dd>
+
+                <dt class="col-sm-3">Amount</dt>
+                <dd class="col-sm-9">@Model.Amount.ToString("C")</dd>
+
+                <dt class="col-sm-3">Payment Date</dt>
+                <dd class="col-sm-9">@Model.PaymentDate.ToString("MMM dd, yyyy")</dd>
+
+                <dt class="col-sm-3">Payment Method</dt>
+                <dd class="col-sm-9">@Model.PaymentMethod</dd>
+
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9">
+                    @switch (Model.Status)
+                    {
+                        case PaymentStatus.Pending:
+                            <span class="badge bg-warning text-dark">Pending</span>
+                            break;
+                        case PaymentStatus.Completed:
+                            <span class="badge bg-success">Completed</span>
+                            break;
+                        case PaymentStatus.Failed:
+                            <span class="badge bg-danger">Failed</span>
+                            break;
+                        case PaymentStatus.Refunded:
+                            <span class="badge bg-secondary">Refunded</span>
+                            break;
+                    }
+                </dd>
+            </dl>
+
+            @if (Model.Trip != null)
+            {
+                <hr />
+                <h5 class="mt-3">Trip Information</h5>
+                <dl class="row">
+                    <dt class="col-sm-3">Customer Name</dt>
+                    <dd class="col-sm-9">@Model.Trip.CustomerName</dd>
+
+                    <dt class="col-sm-3">Customer Phone</dt>
+                    <dd class="col-sm-9">@Model.Trip.CustomerPhone</dd>
+
+                    <dt class="col-sm-3">Customer Email</dt>
+                    <dd class="col-sm-9">@(Model.Trip.CustomerEmail ?? "N/A")</dd>
+
+                    <dt class="col-sm-3">Trip Date</dt>
+                    <dd class="col-sm-9">@Model.Trip.TripDate.ToString("MMM dd, yyyy")</dd>
+
+                    <dt class="col-sm-3">Trip Status</dt>
+                    <dd class="col-sm-9">@Model.Trip.Status</dd>
+
+                    <dt class="col-sm-3">Trip Cost</dt>
+                    <dd class="col-sm-9">@Model.Trip.Cost.ToString("C")</dd>
+                </dl>
+            }
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a asp-action="Index" class="btn btn-secondary ms-2">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>

@@ -1,0 +1,65 @@
+@model Cab_Management_System.Models.Route
+
+@{
+    ViewData["Title"] = "Add Route";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">Add Route</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Origin" class="form-label"></label>
+                                <input asp-for="Origin" class="form-control" />
+                                <span asp-validation-for="Origin" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Destination" class="form-label"></label>
+                                <input asp-for="Destination" class="form-control" />
+                                <span asp-validation-for="Destination" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label asp-for="Distance" class="form-label"></label>
+                                <input asp-for="Distance" class="form-control" type="number" step="0.1" />
+                                <span asp-validation-for="Distance" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="EstimatedTimeHours" class="form-label"></label>
+                                <input asp-for="EstimatedTimeHours" class="form-control" type="number" step="0.1" />
+                                <span asp-validation-for="EstimatedTimeHours" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="BaseCost" class="form-label"></label>
+                                <input asp-for="BaseCost" class="form-control" type="number" step="0.01" />
+                                <span asp-validation-for="BaseCost" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i> Add Route
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

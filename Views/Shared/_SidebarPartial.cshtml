@@ -1,0 +1,90 @@
+@if (User.Identity != null && User.Identity.IsAuthenticated)
+{
+    <nav id="sidebar" class="bg-dark text-white">
+        <div class="sidebar-header p-3 border-bottom border-secondary">
+            <h5 class="mb-0"><i class="bi bi-taxi-front"></i> Cab System</h5>
+        </div>
+        <ul class="nav flex-column px-2 mt-2">
+            @if (User.IsInRole("Admin"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="Admin" asp-controller="UserManagement" asp-action="Index">
+                        <i class="bi bi-people"></i> User Management
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="Admin" asp-controller="Vehicle" asp-action="Index">
+                        <i class="bi bi-truck"></i> Vehicles
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="Admin" asp-controller="Route" asp-action="Index">
+                        <i class="bi bi-signpost-2"></i> Routes
+                    </a>
+                </li>
+            }
+
+            @if (User.IsInRole("FinanceManager"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="Finance" asp-controller="Dashboard" asp-action="Index">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="Finance" asp-controller="Billing" asp-action="Index">
+                        <i class="bi bi-receipt"></i> Billing
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="Finance" asp-controller="Reports" asp-action="Index">
+                        <i class="bi bi-bar-chart"></i> Reports
+                    </a>
+                </li>
+            }
+
+            @if (User.IsInRole("HRManager"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="HR" asp-controller="Dashboard" asp-action="Index">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="HR" asp-controller="Employee" asp-action="Index">
+                        <i class="bi bi-person-badge"></i> Employees
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="HR" asp-controller="Driver" asp-action="Index">
+                        <i class="bi bi-person-workspace"></i> Drivers
+                    </a>
+                </li>
+            }
+
+            @if (User.IsInRole("TravelManager"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="Travel" asp-controller="Dashboard" asp-action="Index">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="Travel" asp-controller="Trip" asp-action="Index">
+                        <i class="bi bi-geo-alt"></i> Trips
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="Travel" asp-controller="Maintenance" asp-action="Index">
+                        <i class="bi bi-tools"></i> Maintenance
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

@@ -1,0 +1,131 @@
+@model IEnumerable<Trip>
+
+@{
+    ViewData["Title"] = "Trips";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Trips</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Book New Trip
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="Index">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label for="searchTerm" class="form-label">Search by Customer Name</label>
+                        <input type="text" name="searchTerm" id="searchTerm" class="form-control"
+                               placeholder="Enter customer name..."
+                               value="@ViewData["SearchTerm"]" />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="status" class="form-label">Trip Status</label>
+                        <select name="status" id="status" class="form-select">
+                            <option value="">-- All Statuses --</option>
+                            @foreach (var s in (SelectList)ViewBag.Statuses)
+                            {
+                                <option value="@s.Value"
+                                        selected="@(ViewData["SelectedStatus"]?.ToString() == s.Text ? true : false)">
+                                    @s.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer Name</th>
+                            <th>Driver</th>
+                            <th>Vehicle</th>
+                            <th>Route</th>
+                            <th>Trip Date</th>
+                            <th>Status</th>
+                            <th>Cost</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var trip in Model)
+                            {
+                                <tr>
+                                    <td>@trip.Id</td>
+                                    <td>@trip.CustomerName</td>
+                                    <td>@trip.Driver?.Employee?.Name</td>
+                                    <td>@trip.Vehicle?.RegistrationNumber</td>
+                                    <td>@trip.Route?.Origin &rarr; @trip.Route?.Destination</td>
+                                    <td>@trip.TripDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        @switch (trip.Status)
+                                        {
+                                            case TripStatus.Pending:
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                break;
+                                            case TripStatus.Confirmed:
+                                                <span class="badge bg-info">Confirmed</span>
+                                                break;
+                                            case TripStatus.InProgress:
+                                                <span class="badge bg-primary">In Progress</span>
+                                                break;
+                                            case TripStatus.Completed:
+                                                <span class="badge bg-success">Completed</span>
+                                                break;
+                                            case TripStatus.Cancelled:
+                                                <span class="badge bg-danger">Cancelled</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>@trip.Cost.ToString("C")</td>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@trip.Id" class="btn btn-sm btn-info" title="Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@trip.Id" class="btn btn-sm btn-warning" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@trip.Id" class="btn btn-sm btn-danger" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center text-muted">No trips found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
