@@ -15,5 +15,11 @@ namespace Cab_Management_System.Models.ViewModels
         public decimal TotalRevenue { get; set; }
         public IEnumerable<Trip> RecentTrips { get; set; } = new List<Trip>();
         public IEnumerable<MaintenanceRecord> UpcomingMaintenance { get; set; } = new List<MaintenanceRecord>();
+
+        // Chart data
+        public List<string> TripStatusLabels { get; set; } = new();
+        public List<int> TripStatusCounts { get; set; } = new();
+        public List<string> MonthlyRevenueLabels { get; set; } = new();
+        public List<decimal> MonthlyRevenueData { get; set; } = new();
     }
 }

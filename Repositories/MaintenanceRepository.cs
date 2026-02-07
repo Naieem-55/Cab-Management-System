@@ -33,5 +33,14 @@ namespace Cab_Management_System.Repositories
                            .Where(m => m.VehicleId == vehicleId)
                            .OrderByDescending(m => m.Date)
                            .ToListAsync();
+
+        public async Task<IEnumerable<MaintenanceRecord>> SearchMaintenanceAsync(string searchTerm)
+            => await _dbSet.Include(m => m.Vehicle)
+                           .Where(m => m.Description.Contains(searchTerm) ||
+                                       m.Vehicle.RegistrationNumber.Contains(searchTerm) ||
+                                       m.Vehicle.Make.Contains(searchTerm) ||
+                                       m.Vehicle.Model.Contains(searchTerm))
+                           .OrderByDescending(m => m.Date)
+                           .ToListAsync();
     }
 }

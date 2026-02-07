@@ -10,5 +10,11 @@ namespace Cab_Management_System.Models.ViewModels
         public int CompletedPayments { get; set; }
         public int TotalBillings { get; set; }
         public IEnumerable<Billing> RecentBillings { get; set; } = new List<Billing>();
+
+        // Chart data
+        public List<string> PaymentMethodLabels { get; set; } = new();
+        public List<decimal> PaymentMethodAmounts { get; set; } = new();
+        public List<string> RevenueTrendLabels { get; set; } = new();
+        public List<decimal> RevenueTrendData { get; set; } = new();
     }
 }

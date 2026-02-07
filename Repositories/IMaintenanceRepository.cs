@@ -7,5 +7,6 @@ namespace Cab_Management_System.Repositories
         Task<MaintenanceRecord?> GetMaintenanceWithVehicleAsync(int id);
         Task<IEnumerable<MaintenanceRecord>> GetOverdueMaintenanceAsync();
         Task<IEnumerable<MaintenanceRecord>> GetMaintenanceByVehicleAsync(int vehicleId);
+        Task<IEnumerable<MaintenanceRecord>> SearchMaintenanceAsync(string searchTerm);
     }
 }

@@ -14,15 +14,18 @@ namespace Cab_Management_System.Areas.Admin.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ILogger<UserManagementController> _logger;
 
         private readonly string[] _availableRoles = { "Admin", "FinanceManager", "HRManager", "TravelManager" };
 
         public UserManagementController(
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            ILogger<UserManagementController> logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _logger = logger;
         }
 
         private void PopulateRolesDropdown(string? selectedRole = null)
@@ -85,26 +88,39 @@ namespace Cab_Management_System.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser
+                try
                 {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Role = model.Role
-                };
+                    var user = new ApplicationUser
+                    {
+                        UserName = model.Email,
+                        Email = model.Email,
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        Role = model.Role
+                    };
 
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    await _userManager.AddToRoleAsync(user, model.Role);
-                    TempData["StatusMessage"] = "User created successfully.";
-                    return RedirectToAction(nameof(Index));
+                    var result = await _userManager.CreateAsync(user, model.Password);
+                    if (result.Succeeded)
+                    {
+                        await _userManager.AddToRoleAsync(user, model.Role);
+                        TempData["SuccessMessage"] = "User created successfully.";
+                        return RedirectToAction(nameof(Index));
+                    }
+
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
                 }
-
-                foreach (var error in result.Errors)
+                catch (DbUpdateException ex)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    _logger.LogError(ex, "Database error creating user");
+                    TempData["ErrorMessage"] = "A database error occurred while creating the user.";
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error creating user");
+                    TempData["ErrorMessage"] = "An unexpected error occurred while creating the user.";
                 }
             }
 
@@ -143,30 +159,43 @@ namespace Cab_Management_System.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByIdAsync(id);
-                if (user == null)
-                    return NotFound();
-
-                user.FirstName = model.FirstName;
-                user.LastName = model.LastName;
-                user.Email = model.Email;
-                user.UserName = model.Email;
-                user.Role = model.Role;
-
-                var result = await _userManager.UpdateAsync(user);
-                if (result.Succeeded)
+                try
                 {
-                    var currentRoles = await _userManager.GetRolesAsync(user);
-                    await _userManager.RemoveFromRolesAsync(user, currentRoles);
-                    await _userManager.AddToRoleAsync(user, model.Role);
+                    var user = await _userManager.FindByIdAsync(id);
+                    if (user == null)
+                        return NotFound();
 
-                    TempData["StatusMessage"] = "User updated successfully.";
-                    return RedirectToAction(nameof(Index));
+                    user.FirstName = model.FirstName;
+                    user.LastName = model.LastName;
+                    user.Email = model.Email;
+                    user.UserName = model.Email;
+                    user.Role = model.Role;
+
+                    var result = await _userManager.UpdateAsync(user);
+                    if (result.Succeeded)
+                    {
+                        var currentRoles = await _userManager.GetRolesAsync(user);
+                        await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                        await _userManager.AddToRoleAsync(user, model.Role);
+
+                        TempData["SuccessMessage"] = "User updated successfully.";
+                        return RedirectToAction(nameof(Index));
+                    }
+
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
                 }
-
-                foreach (var error in result.Errors)
+                catch (DbUpdateException ex)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    _logger.LogError(ex, "Database error updating user {Id}", id);
+                    TempData["ErrorMessage"] = "A database error occurred while updating the user.";
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating user {Id}", id);
+                    TempData["ErrorMessage"] = "An unexpected error occurred while updating the user.";
                 }
             }
 
@@ -220,12 +249,25 @@ namespace Cab_Management_System.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-                return NotFound();
+            try
+            {
+                var user = await _userManager.FindByIdAsync(id);
+                if (user == null)
+                    return NotFound();
 
-            await _userManager.DeleteAsync(user);
-            TempData["StatusMessage"] = "User deleted successfully.";
+                await _userManager.DeleteAsync(user);
+                TempData["SuccessMessage"] = "User deleted successfully.";
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Database error deleting user {Id}", id);
+                TempData["ErrorMessage"] = "Cannot delete this user because it has related records.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting user {Id}", id);
+                TempData["ErrorMessage"] = "An unexpected error occurred while deleting the user.";
+            }
             return RedirectToAction(nameof(Index));
         }
     }

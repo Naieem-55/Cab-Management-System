@@ -8,11 +8,13 @@ namespace Cab_Management_System.Services
     public class DriverService : IDriverService
     {
         private readonly IDriverRepository _driverRepository;
+        private readonly ITripRepository _tripRepository;
         private readonly ILogger<DriverService> _logger;
 
-        public DriverService(IDriverRepository driverRepository, ILogger<DriverService> logger)
+        public DriverService(IDriverRepository driverRepository, ITripRepository tripRepository, ILogger<DriverService> logger)
         {
             _driverRepository = driverRepository;
+            _tripRepository = tripRepository;
             _logger = logger;
         }
 
@@ -77,6 +79,17 @@ namespace Cab_Management_System.Services
         public async Task<int> GetAvailableDriverCountAsync()
         {
             return await _driverRepository.CountAsync(d => d.Status == DriverStatus.Available);
+        }
+
+        public async Task<bool> CanDeleteAsync(int id)
+        {
+            var tripCount = await _tripRepository.CountAsync(t => t.DriverId == id);
+            return tripCount == 0;
+        }
+
+        public async Task<int> GetTripCountAsync(int id)
+        {
+            return await _tripRepository.CountAsync(t => t.DriverId == id);
         }
     }
 }

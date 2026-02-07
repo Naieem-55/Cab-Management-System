@@ -7,6 +7,28 @@
 <div class="container-fluid">
     <h2 class="mb-4">Financial Reports</h2>
 
+    <!-- Date Range Filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">End Date</label>
+                    <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Filter</button>
+                </div>
+                <div class="col-md-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary w-100"><i class="bi bi-x-lg"></i> Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="row g-4 mb-4">
         <div class="col-md-3">
             <div class="card border-primary h-100">
@@ -46,9 +68,52 @@
         </div>
     </div>
 
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><h5 class="mb-0">Payment Method Breakdown</h5></div>
+                <div class="card-body">
+                    @if (((List<string>)ViewBag.PaymentBreakdownMethods).Any())
+                    {
+                        <table class="table table-sm mb-3">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Count</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < ((List<string>)ViewBag.PaymentBreakdownMethods).Count; i++)
+                                {
+                                    <tr>
+                                        <td>@(((List<string>)ViewBag.PaymentBreakdownMethods)[i])</td>
+                                        <td>@(((List<int>)ViewBag.PaymentBreakdownCounts)[i])</td>
+                                        <td>@(((List<decimal>)ViewBag.PaymentBreakdownTotals)[i].ToString("C"))</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">No completed payments in this period.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><h5 class="mb-0">Revenue Trend (Last 6 Months)</h5></div>
+                <div class="card-body"><canvas id="revenueTrendChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-header">
-            <h5 class="mb-0">All Billing Records</h5>
+            <h5 class="mb-0">Billing Records</h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -97,7 +162,7 @@
                         else
                         {
                             <tr>
-                                <td colspan="6" class="text-center text-muted">No billing records found.</td>
+                                <td colspan="6" class="text-center text-muted">No billing records found for this period.</td>
                             </tr>
                         }
                     </tbody>
@@ -106,3 +171,20 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        new Chart(document.getElementById('revenueTrendChart'), {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(ViewBag.MonthlyLabels)),
+                datasets: [{
+                    label: 'Revenue',
+                    data: @Html.Raw(Json.Serialize(ViewBag.MonthlyRevenue)),
+                    backgroundColor: '#0d6efd'
+                }]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
+    </script>
+}

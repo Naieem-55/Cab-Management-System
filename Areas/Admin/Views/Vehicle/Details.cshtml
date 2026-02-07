@@ -75,4 +75,60 @@
             </div>
         </div>
     </div>
+
+    @if (Model.MaintenanceRecords != null && Model.MaintenanceRecords.Any())
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Maintenance Records</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Cost</th>
+                                        <th>Date</th>
+                                        <th>Next Maintenance</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var record in Model.MaintenanceRecords.OrderByDescending(m => m.Date))
+                                    {
+                                        <tr>
+                                            <td>@record.Description</td>
+                                            <td>@record.Cost.ToString("C")</td>
+                                            <td>@record.Date.ToString("MMM dd, yyyy")</td>
+                                            <td>@(record.NextMaintenanceDate?.ToString("MMM dd, yyyy") ?? "N/A")</td>
+                                            <td>
+                                                @switch (record.Status)
+                                                {
+                                                    case MaintenanceStatus.Scheduled:
+                                                        <span class="badge bg-info">Scheduled</span>
+                                                        break;
+                                                    case MaintenanceStatus.InProgress:
+                                                        <span class="badge bg-warning">In Progress</span>
+                                                        break;
+                                                    case MaintenanceStatus.Completed:
+                                                        <span class="badge bg-success">Completed</span>
+                                                        break;
+                                                    case MaintenanceStatus.Overdue:
+                                                        <span class="badge bg-danger">Overdue</span>
+                                                        break;
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>

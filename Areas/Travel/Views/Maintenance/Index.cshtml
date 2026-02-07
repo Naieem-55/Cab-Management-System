@@ -7,9 +7,14 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Maintenance Records</h2>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus-lg"></i> Schedule Maintenance
-        </a>
+        <div class="d-flex gap-2">
+            <a asp-action="Export" class="btn btn-success">
+                <i class="bi bi-download"></i> Export CSV
+            </a>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> Schedule Maintenance
+            </a>
+        </div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
@@ -19,6 +24,60 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="Index">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="searchTerm" class="form-label">Search</label>
+                        <input type="text" name="searchTerm" id="searchTerm" class="form-control"
+                               placeholder="Search description, vehicle..."
+                               value="@ViewData["SearchTerm"]" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select name="status" id="status" class="form-select">
+                            <option value="">-- All Statuses --</option>
+                            @foreach (var s in (SelectList)ViewBag.Statuses)
+                            {
+                                <option value="@s.Value"
+                                        selected="@(ViewData["SelectedStatus"]?.ToString() == s.Value ? true : false)">
+                                    @s.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="vehicleId" class="form-label">Vehicle</label>
+                        <select name="vehicleId" id="vehicleId" class="form-select">
+                            <option value="">-- All Vehicles --</option>
+                            @foreach (var v in (SelectList)ViewBag.Vehicles)
+                            {
+                                <option value="@v.Value"
+                                        selected="@(ViewData["SelectedVehicleId"]?.ToString() == v.Value ? true : false)">
+                                    @v.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-search"></i> Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <div class="card">
         <div class="card-body">

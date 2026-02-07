@@ -113,6 +113,22 @@
         </div>
     </div>
 
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><h5 class="mb-0">Trip Status Distribution</h5></div>
+                <div class="card-body"><canvas id="tripStatusChart"></canvas></div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><h5 class="mb-0">Vehicle Status Distribution</h5></div>
+                <div class="card-body"><canvas id="vehicleStatusChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Recent Trips -->
     <div class="row g-4">
         <div class="col-12">
@@ -181,3 +197,31 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        new Chart(document.getElementById('tripStatusChart'), {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.TripStatusLabels)),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.TripStatusCounts)),
+                    backgroundColor: ['#ffc107', '#17a2b8', '#007bff', '#28a745', '#dc3545']
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        new Chart(document.getElementById('vehicleStatusChart'), {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.VehicleStatusLabels)),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.VehicleStatusCounts)),
+                    backgroundColor: ['#28a745', '#007bff', '#ffc107', '#6c757d']
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    </script>
+}

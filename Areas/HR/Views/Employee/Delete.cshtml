@@ -12,6 +12,14 @@
         <p>This action cannot be undone.</p>
     </div>
 
+    @if ((bool)ViewBag.HasDriverRecord)
+    {
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Warning:</strong> This employee has an associated driver record. Deletion will fail. Please remove the driver record first.
+        </div>
+    }
+
     <div class="card mb-4">
         <div class="card-header">
             <h5 class="mb-0">@Model.Name</h5>

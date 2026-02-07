@@ -5,6 +5,7 @@ using Cab_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cab_Management_System.Areas.HR.Controllers
 {
@@ -14,11 +15,13 @@ namespace Cab_Management_System.Areas.HR.Controllers
     {
         private readonly IDriverService _driverService;
         private readonly IEmployeeService _employeeService;
+        private readonly ILogger<DriverController> _logger;
 
-        public DriverController(IDriverService driverService, IEmployeeService employeeService)
+        public DriverController(IDriverService driverService, IEmployeeService employeeService, ILogger<DriverController> logger)
         {
             _driverService = driverService;
             _employeeService = employeeService;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index(string? searchTerm, int page = 1)
@@ -69,17 +72,38 @@ namespace Cab_Management_System.Areas.HR.Controllers
         {
             if (ModelState.IsValid)
             {
-                var driver = new Driver
+                try
                 {
-                    EmployeeId = model.EmployeeId,
-                    LicenseNumber = model.LicenseNumber,
-                    LicenseExpiry = model.LicenseExpiry,
-                    Status = model.Status
-                };
+                    var driver = new Driver
+                    {
+                        EmployeeId = model.EmployeeId,
+                        LicenseNumber = model.LicenseNumber,
+                        LicenseExpiry = model.LicenseExpiry,
+                        Status = model.Status
+                    };
 
-                await _driverService.CreateDriverAsync(driver);
-                TempData["SuccessMessage"] = "Driver created successfully.";
-                return RedirectToAction(nameof(Index));
+                    await _driverService.CreateDriverAsync(driver);
+                    TempData["SuccessMessage"] = "Driver created successfully.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "Database error creating driver");
+                    if (ex.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true ||
+                        ex.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        ModelState.AddModelError("LicenseNumber", "A driver with this license number already exists.");
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "A database error occurred while creating the driver.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error creating driver");
+                    TempData["ErrorMessage"] = "An unexpected error occurred while creating the driver.";
+                }
             }
 
             var allEmployees = await _employeeService.GetEmployeesByPositionAsync(EmployeePosition.Driver);
@@ -126,18 +150,39 @@ namespace Cab_Management_System.Areas.HR.Controllers
 
             if (ModelState.IsValid)
             {
-                var driver = new Driver
+                try
                 {
-                    Id = model.Id,
-                    EmployeeId = model.EmployeeId,
-                    LicenseNumber = model.LicenseNumber,
-                    LicenseExpiry = model.LicenseExpiry,
-                    Status = model.Status
-                };
+                    var driver = new Driver
+                    {
+                        Id = model.Id,
+                        EmployeeId = model.EmployeeId,
+                        LicenseNumber = model.LicenseNumber,
+                        LicenseExpiry = model.LicenseExpiry,
+                        Status = model.Status
+                    };
 
-                await _driverService.UpdateDriverAsync(driver);
-                TempData["SuccessMessage"] = "Driver updated successfully.";
-                return RedirectToAction(nameof(Index));
+                    await _driverService.UpdateDriverAsync(driver);
+                    TempData["SuccessMessage"] = "Driver updated successfully.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "Database error updating driver {Id}", id);
+                    if (ex.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true ||
+                        ex.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        ModelState.AddModelError("LicenseNumber", "A driver with this license number already exists.");
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "A database error occurred while updating the driver.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating driver {Id}", id);
+                    TempData["ErrorMessage"] = "An unexpected error occurred while updating the driver.";
+                }
             }
 
             var allEmployees = await _employeeService.GetEmployeesByPositionAsync(EmployeePosition.Driver);
@@ -165,6 +210,9 @@ namespace Cab_Management_System.Areas.HR.Controllers
             if (driver == null)
                 return NotFound();
 
+            var tripCount = await _driverService.GetTripCountAsync(id);
+            ViewBag.TripCount = tripCount;
+
             return View(driver);
         }
 
@@ -172,8 +220,28 @@ namespace Cab_Management_System.Areas.HR.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _driverService.DeleteDriverAsync(id);
-            TempData["SuccessMessage"] = "Driver deleted successfully.";
+            try
+            {
+                var canDelete = await _driverService.CanDeleteAsync(id);
+                if (!canDelete)
+                {
+                    TempData["ErrorMessage"] = "Cannot delete this driver because they have associated trips. Please remove or reassign the trips first.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                await _driverService.DeleteDriverAsync(id);
+                TempData["SuccessMessage"] = "Driver deleted successfully.";
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Database error deleting driver {Id}", id);
+                TempData["ErrorMessage"] = "Cannot delete this driver because they have related records.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting driver {Id}", id);
+                TempData["ErrorMessage"] = "An unexpected error occurred while deleting the driver.";
+            }
             return RedirectToAction(nameof(Index));
         }
     }

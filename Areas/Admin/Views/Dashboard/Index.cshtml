@@ -143,6 +143,22 @@
         </div>
     </div>
 
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><h5 class="mb-0">Trip Status Distribution</h5></div>
+                <div class="card-body"><canvas id="tripStatusChart"></canvas></div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><h5 class="mb-0">Monthly Revenue</h5></div>
+                <div class="card-body"><canvas id="monthlyRevenueChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Tables Row -->
     <div class="row g-4">
         <!-- Recent Trips -->
@@ -270,3 +286,32 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        new Chart(document.getElementById('tripStatusChart'), {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.TripStatusLabels)),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.TripStatusCounts)),
+                    backgroundColor: ['#ffc107', '#17a2b8', '#007bff', '#28a745', '#dc3545']
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        new Chart(document.getElementById('monthlyRevenueChart'), {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.MonthlyRevenueLabels)),
+                datasets: [{
+                    label: 'Revenue',
+                    data: @Html.Raw(Json.Serialize(Model.MonthlyRevenueData)),
+                    backgroundColor: '#0d6efd'
+                }]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
+    </script>
+}

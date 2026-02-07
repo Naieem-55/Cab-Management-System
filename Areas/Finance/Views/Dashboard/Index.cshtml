@@ -55,6 +55,22 @@
         </div>
     </div>
 
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><h5 class="mb-0">Payment Method Distribution</h5></div>
+                <div class="card-body"><canvas id="paymentMethodChart"></canvas></div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><h5 class="mb-0">Revenue Trend (Last 6 Months)</h5></div>
+                <div class="card-body"><canvas id="revenueTrendChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-header">
             <h5 class="mb-0">Recent Billings</h5>
@@ -113,3 +129,35 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        new Chart(document.getElementById('paymentMethodChart'), {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.PaymentMethodLabels)),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.PaymentMethodAmounts)),
+                    backgroundColor: ['#28a745', '#007bff', '#ffc107', '#17a2b8', '#dc3545']
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        new Chart(document.getElementById('revenueTrendChart'), {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.RevenueTrendLabels)),
+                datasets: [{
+                    label: 'Revenue',
+                    data: @Html.Raw(Json.Serialize(Model.RevenueTrendData)),
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
+    </script>
+}

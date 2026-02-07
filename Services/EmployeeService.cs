@@ -8,11 +8,13 @@ namespace Cab_Management_System.Services
     public class EmployeeService : IEmployeeService
     {
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly IDriverRepository _driverRepository;
         private readonly ILogger<EmployeeService> _logger;
 
-        public EmployeeService(IEmployeeRepository employeeRepository, ILogger<EmployeeService> logger)
+        public EmployeeService(IEmployeeRepository employeeRepository, IDriverRepository driverRepository, ILogger<EmployeeService> logger)
         {
             _employeeRepository = employeeRepository;
+            _driverRepository = driverRepository;
             _logger = logger;
         }
 
@@ -77,6 +79,18 @@ namespace Cab_Management_System.Services
         public async Task<int> GetActiveEmployeeCountAsync()
         {
             return await _employeeRepository.CountAsync(e => e.Status == EmployeeStatus.Active);
+        }
+
+        public async Task<bool> CanDeleteAsync(int id)
+        {
+            var driverCount = await _driverRepository.CountAsync(d => d.EmployeeId == id);
+            return driverCount == 0;
+        }
+
+        public async Task<bool> HasDriverRecordAsync(int id)
+        {
+            var driverCount = await _driverRepository.CountAsync(d => d.EmployeeId == id);
+            return driverCount > 0;
         }
     }
 }

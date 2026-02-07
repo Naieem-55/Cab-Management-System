@@ -8,11 +8,15 @@ namespace Cab_Management_System.Services
     public class VehicleService : IVehicleService
     {
         private readonly IVehicleRepository _vehicleRepository;
+        private readonly ITripRepository _tripRepository;
+        private readonly IMaintenanceRepository _maintenanceRepository;
         private readonly ILogger<VehicleService> _logger;
 
-        public VehicleService(IVehicleRepository vehicleRepository, ILogger<VehicleService> logger)
+        public VehicleService(IVehicleRepository vehicleRepository, ITripRepository tripRepository, IMaintenanceRepository maintenanceRepository, ILogger<VehicleService> logger)
         {
             _vehicleRepository = vehicleRepository;
+            _tripRepository = tripRepository;
+            _maintenanceRepository = maintenanceRepository;
             _logger = logger;
         }
 
@@ -77,6 +81,19 @@ namespace Cab_Management_System.Services
         public async Task<int> GetAvailableVehicleCountAsync()
         {
             return await _vehicleRepository.CountAsync(v => v.Status == VehicleStatus.Available);
+        }
+
+        public async Task<bool> CanDeleteAsync(int id)
+        {
+            var tripCount = await _tripRepository.CountAsync(t => t.VehicleId == id);
+            return tripCount == 0;
+        }
+
+        public async Task<(int TripCount, int MaintenanceCount)> GetDependencyCountsAsync(int id)
+        {
+            var tripCount = await _tripRepository.CountAsync(t => t.VehicleId == id);
+            var maintenanceCount = await _maintenanceRepository.CountAsync(m => m.VehicleId == id);
+            return (tripCount, maintenanceCount);
         }
     }
 }

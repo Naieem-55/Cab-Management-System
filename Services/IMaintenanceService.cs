@@ -13,5 +13,6 @@ namespace Cab_Management_System.Services
         Task UpdateMaintenanceAsync(MaintenanceRecord maintenanceRecord);
         Task DeleteMaintenanceAsync(int id);
         Task<int> GetMaintenanceCountAsync();
+        Task<IEnumerable<MaintenanceRecord>> SearchMaintenanceAsync(string searchTerm);
     }
 }

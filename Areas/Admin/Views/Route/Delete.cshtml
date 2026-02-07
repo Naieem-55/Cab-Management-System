@@ -14,6 +14,13 @@
                     <h5 class="card-title mb-0">Are you sure you want to delete this route?</h5>
                 </div>
                 <div class="card-body">
+                    @if ((int)ViewBag.TripCount > 0)
+                    {
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Warning:</strong> This route has @ViewBag.TripCount associated trip(s). Deletion will fail.
+                        </div>
+                    }
                     <dl class="row">
                         <dt class="col-sm-4">Origin</dt>
                         <dd class="col-sm-8">@Model.Origin</dd>

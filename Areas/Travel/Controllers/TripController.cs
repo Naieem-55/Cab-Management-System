@@ -5,6 +5,7 @@ using Cab_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cab_Management_System.Areas.Travel.Controllers
 {
@@ -16,17 +17,20 @@ namespace Cab_Management_System.Areas.Travel.Controllers
         private readonly IDriverService _driverService;
         private readonly IVehicleService _vehicleService;
         private readonly IRouteService _routeService;
+        private readonly ILogger<TripController> _logger;
 
         public TripController(
             ITripService tripService,
             IDriverService driverService,
             IVehicleService vehicleService,
-            IRouteService routeService)
+            IRouteService routeService,
+            ILogger<TripController> logger)
         {
             _tripService = tripService;
             _driverService = driverService;
             _vehicleService = vehicleService;
             _routeService = routeService;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index(string? searchTerm, TripStatus? status, int page = 1)
@@ -88,23 +92,36 @@ namespace Cab_Management_System.Areas.Travel.Controllers
         {
             if (ModelState.IsValid)
             {
-                var trip = new Trip
+                try
                 {
-                    DriverId = model.DriverId,
-                    VehicleId = model.VehicleId,
-                    RouteId = model.RouteId,
-                    CustomerName = model.CustomerName,
-                    CustomerPhone = model.CustomerPhone,
-                    CustomerEmail = model.CustomerEmail,
-                    BookingDate = model.BookingDate,
-                    TripDate = model.TripDate,
-                    Status = model.Status,
-                    Cost = model.Cost
-                };
+                    var trip = new Trip
+                    {
+                        DriverId = model.DriverId,
+                        VehicleId = model.VehicleId,
+                        RouteId = model.RouteId,
+                        CustomerName = model.CustomerName,
+                        CustomerPhone = model.CustomerPhone,
+                        CustomerEmail = model.CustomerEmail,
+                        BookingDate = model.BookingDate,
+                        TripDate = model.TripDate,
+                        Status = model.Status,
+                        Cost = model.Cost
+                    };
 
-                await _tripService.CreateTripAsync(trip);
-                TempData["SuccessMessage"] = "Trip created successfully.";
-                return RedirectToAction(nameof(Index));
+                    await _tripService.CreateTripAsync(trip);
+                    TempData["SuccessMessage"] = "Trip created successfully.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "Database error creating trip");
+                    TempData["ErrorMessage"] = "A database error occurred while creating the trip.";
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error creating trip");
+                    TempData["ErrorMessage"] = "An unexpected error occurred while creating the trip.";
+                }
             }
 
             await PopulateDropdownsAsync(model);
@@ -146,33 +163,45 @@ namespace Cab_Management_System.Areas.Travel.Controllers
 
             if (ModelState.IsValid)
             {
-                var existingTrip = await _tripService.GetTripByIdAsync(id);
-                if (existingTrip == null)
-                    return NotFound();
-
-                var oldStatus = existingTrip.Status;
-                existingTrip.DriverId = model.DriverId;
-                existingTrip.VehicleId = model.VehicleId;
-                existingTrip.RouteId = model.RouteId;
-                existingTrip.CustomerName = model.CustomerName;
-                existingTrip.CustomerPhone = model.CustomerPhone;
-                existingTrip.CustomerEmail = model.CustomerEmail;
-                existingTrip.BookingDate = model.BookingDate;
-                existingTrip.TripDate = model.TripDate;
-                existingTrip.Cost = model.Cost;
-
-                // Use status workflow if status changed
-                if (oldStatus != model.Status)
+                try
                 {
-                    await _tripService.UpdateTripStatusAsync(id, model.Status);
-                }
-                else
-                {
-                    await _tripService.UpdateTripAsync(existingTrip);
-                }
+                    var existingTrip = await _tripService.GetTripByIdAsync(id);
+                    if (existingTrip == null)
+                        return NotFound();
 
-                TempData["SuccessMessage"] = "Trip updated successfully.";
-                return RedirectToAction(nameof(Index));
+                    var oldStatus = existingTrip.Status;
+                    existingTrip.DriverId = model.DriverId;
+                    existingTrip.VehicleId = model.VehicleId;
+                    existingTrip.RouteId = model.RouteId;
+                    existingTrip.CustomerName = model.CustomerName;
+                    existingTrip.CustomerPhone = model.CustomerPhone;
+                    existingTrip.CustomerEmail = model.CustomerEmail;
+                    existingTrip.BookingDate = model.BookingDate;
+                    existingTrip.TripDate = model.TripDate;
+                    existingTrip.Cost = model.Cost;
+
+                    if (oldStatus != model.Status)
+                    {
+                        await _tripService.UpdateTripStatusAsync(id, model.Status);
+                    }
+                    else
+                    {
+                        await _tripService.UpdateTripAsync(existingTrip);
+                    }
+
+                    TempData["SuccessMessage"] = "Trip updated successfully.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "Database error updating trip {Id}", id);
+                    TempData["ErrorMessage"] = "A database error occurred while updating the trip.";
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating trip {Id}", id);
+                    TempData["ErrorMessage"] = "An unexpected error occurred while updating the trip.";
+                }
             }
 
             await PopulateDropdownsAsync(model);
@@ -202,9 +231,40 @@ namespace Cab_Management_System.Areas.Travel.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _tripService.DeleteTripAsync(id);
-            TempData["SuccessMessage"] = "Trip deleted successfully.";
+            try
+            {
+                await _tripService.DeleteTripAsync(id);
+                TempData["SuccessMessage"] = "Trip deleted successfully.";
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Database error deleting trip {Id}", id);
+                TempData["ErrorMessage"] = "Cannot delete this trip because it has related billing records. Please remove the billing record first.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting trip {Id}", id);
+                TempData["ErrorMessage"] = "An unexpected error occurred while deleting the trip.";
+            }
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Export()
+        {
+            var trips = await _tripService.GetAllTripsAsync();
+            var columns = new Dictionary<string, Func<Trip, object>>
+            {
+                { "Customer", t => t.CustomerName },
+                { "Driver", t => t.Driver?.Employee?.Name ?? "" },
+                { "Vehicle", t => t.Vehicle?.RegistrationNumber ?? "" },
+                { "Route", t => t.Route != null ? $"{t.Route.Origin} - {t.Route.Destination}" : "" },
+                { "Trip Date", t => t.TripDate.ToString("yyyy-MM-dd") },
+                { "Status", t => t.Status },
+                { "Cost", t => t.Cost }
+            };
+
+            var csvData = Helpers.CsvExportHelper.ExportToCsv(trips, columns);
+            return File(csvData, "text/csv", $"Trips_{DateTime.Now:yyyyMMdd}.csv");
         }
 
         private async Task PopulateDropdownsAsync(TripViewModel model)

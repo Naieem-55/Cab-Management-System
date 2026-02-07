@@ -44,4 +44,63 @@
             </div>
         </div>
     </div>
+
+    @if (Model.Trips != null && Model.Trips.Any())
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Trips on this Route (@Model.Trips.Count)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Customer</th>
+                                        <th>Trip Date</th>
+                                        <th>Status</th>
+                                        <th>Cost</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var trip in Model.Trips.OrderByDescending(t => t.TripDate))
+                                    {
+                                        <tr>
+                                            <td>@trip.Id</td>
+                                            <td>@trip.CustomerName</td>
+                                            <td>@trip.TripDate.ToString("MMM dd, yyyy")</td>
+                                            <td>
+                                                @switch (trip.Status)
+                                                {
+                                                    case TripStatus.Pending:
+                                                        <span class="badge bg-warning text-dark">Pending</span>
+                                                        break;
+                                                    case TripStatus.Confirmed:
+                                                        <span class="badge bg-info">Confirmed</span>
+                                                        break;
+                                                    case TripStatus.InProgress:
+                                                        <span class="badge bg-primary">In Progress</span>
+                                                        break;
+                                                    case TripStatus.Completed:
+                                                        <span class="badge bg-success">Completed</span>
+                                                        break;
+                                                    case TripStatus.Cancelled:
+                                                        <span class="badge bg-danger">Cancelled</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>@trip.Cost.ToString("C")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>

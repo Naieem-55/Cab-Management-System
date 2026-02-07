@@ -7,22 +7,35 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Billings</h2>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus-lg"></i> Create New Billing
-        </a>
+        <div class="d-flex gap-2">
+            <a asp-action="Export" class="btn btn-success">
+                <i class="bi bi-download"></i> Export CSV
+            </a>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> Create New Billing
+            </a>
+        </div>
     </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
     <div class="card mb-4">
         <div class="card-body">
             <form method="get" asp-action="Index">
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-5">
+                    <div class="col-md-3">
                         <label for="searchTerm" class="form-label">Search by Customer Name</label>
                         <input type="text" name="searchTerm" id="searchTerm" class="form-control"
                                placeholder="Enter customer name..."
                                value="@ViewData["SearchTerm"]" />
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <label for="status" class="form-label">Payment Status</label>
                         <select name="status" id="status" class="form-select">
                             <option value="">-- All Statuses --</option>
@@ -34,6 +47,16 @@
                                 </option>
                             }
                         </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" name="startDate" id="startDate" class="form-control"
+                               value="@ViewData["StartDate"]" />
+                    </div>
+                    <div class="col-md-2">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" name="endDate" id="endDate" class="form-control"
+                               value="@ViewData["EndDate"]" />
                     </div>
                     <div class="col-md-3">
                         <button type="submit" class="btn btn-outline-primary w-100">

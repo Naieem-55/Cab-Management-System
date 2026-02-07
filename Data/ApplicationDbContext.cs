@@ -1,14 +1,20 @@
 using Cab_Management_System.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace Cab_Management_System.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        private readonly IHttpContextAccessor? _httpContextAccessor;
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor? httpContextAccessor = null)
             : base(options)
         {
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public DbSet<Employee> Employees { get; set; }
@@ -18,6 +24,7 @@ namespace Cab_Management_System.Data
         public DbSet<Trip> Trips { get; set; }
         public DbSet<Billing> Billings { get; set; }
         public DbSet<MaintenanceRecord> MaintenanceRecords { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -91,8 +98,13 @@ namespace Cab_Management_System.Data
                 .Property(m => m.Cost)
                 .HasPrecision(18, 2);
         }
+
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
+            var auditEntries = new List<AuditLog>();
+            var userId = _httpContextAccessor?.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userName = _httpContextAccessor?.HttpContext?.User?.Identity?.Name;
+
             var entries = ChangeTracker.Entries<BaseEntity>();
             foreach (var entry in entries)
             {
@@ -106,7 +118,82 @@ namespace Cab_Management_System.Data
                     entry.Property(nameof(BaseEntity.CreatedDate)).IsModified = false;
                 }
             }
-            return await base.SaveChangesAsync(cancellationToken);
+
+            // Capture audit entries before save
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>().ToList())
+            {
+                if (entry.State == EntityState.Added || entry.State == EntityState.Modified || entry.State == EntityState.Deleted)
+                {
+                    var entityName = entry.Entity.GetType().Name;
+                    var action = entry.State switch
+                    {
+                        EntityState.Added => "Create",
+                        EntityState.Modified => "Update",
+                        EntityState.Deleted => "Delete",
+                        _ => "Unknown"
+                    };
+
+                    var changes = new Dictionary<string, object?>();
+
+                    if (entry.State == EntityState.Modified)
+                    {
+                        foreach (var prop in entry.Properties.Where(p => p.IsModified && p.Metadata.Name != "ModifiedDate"))
+                        {
+                            changes[prop.Metadata.Name] = new { Old = prop.OriginalValue, New = prop.CurrentValue };
+                        }
+                    }
+                    else if (entry.State == EntityState.Added)
+                    {
+                        foreach (var prop in entry.Properties.Where(p => p.CurrentValue != null && p.Metadata.Name != "CreatedDate" && p.Metadata.Name != "ModifiedDate"))
+                        {
+                            changes[prop.Metadata.Name] = prop.CurrentValue;
+                        }
+                    }
+                    else if (entry.State == EntityState.Deleted)
+                    {
+                        foreach (var prop in entry.Properties.Where(p => p.OriginalValue != null))
+                        {
+                            changes[prop.Metadata.Name] = prop.OriginalValue;
+                        }
+                    }
+
+                    auditEntries.Add(new AuditLog
+                    {
+                        EntityName = entityName,
+                        EntityId = entry.State == EntityState.Added ? 0 : (int)(entry.Property("Id").CurrentValue ?? 0),
+                        Action = action,
+                        Changes = changes.Count > 0 ? JsonSerializer.Serialize(changes) : null,
+                        UserId = userId,
+                        UserName = userName,
+                        Timestamp = DateTime.Now
+                    });
+                }
+            }
+
+            var result = await base.SaveChangesAsync(cancellationToken);
+
+            // Save audit logs after main save (so new entity IDs are available)
+            if (auditEntries.Count > 0)
+            {
+                // For newly added entities, we stored a temp reference - get IDs from tracker
+                var addedEntities = ChangeTracker.Entries<BaseEntity>()
+                    .Where(e => e.State == EntityState.Unchanged)
+                    .ToList();
+
+                foreach (var audit in auditEntries.Where(a => a.Action == "Create" && a.EntityId == 0))
+                {
+                    var match = addedEntities.FirstOrDefault(e => e.Entity.GetType().Name == audit.EntityName);
+                    if (match != null)
+                    {
+                        audit.EntityId = (int)(match.Property("Id").CurrentValue ?? 0);
+                    }
+                }
+
+                AuditLogs.AddRange(auditEntries);
+                await base.SaveChangesAsync(cancellationToken);
+            }
+
+            return result;
         }
     }
 }

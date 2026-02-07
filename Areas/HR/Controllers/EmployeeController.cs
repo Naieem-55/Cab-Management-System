@@ -4,6 +4,7 @@ using Cab_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cab_Management_System.Areas.HR.Controllers
 {
@@ -12,10 +13,12 @@ namespace Cab_Management_System.Areas.HR.Controllers
     public class EmployeeController : Controller
     {
         private readonly IEmployeeService _employeeService;
+        private readonly ILogger<EmployeeController> _logger;
 
-        public EmployeeController(IEmployeeService employeeService)
+        public EmployeeController(IEmployeeService employeeService, ILogger<EmployeeController> logger)
         {
             _employeeService = employeeService;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index(string? searchTerm, EmployeePosition? position, EmployeeStatus? status, int page = 1)
@@ -75,9 +78,30 @@ namespace Cab_Management_System.Areas.HR.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _employeeService.CreateEmployeeAsync(employee);
-                TempData["SuccessMessage"] = "Employee created successfully.";
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    await _employeeService.CreateEmployeeAsync(employee);
+                    TempData["SuccessMessage"] = "Employee created successfully.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "Database error creating employee");
+                    if (ex.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true ||
+                        ex.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        ModelState.AddModelError("Email", "An employee with this email already exists.");
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "A database error occurred while creating the employee.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error creating employee");
+                    TempData["ErrorMessage"] = "An unexpected error occurred while creating the employee.";
+                }
             }
             return View(employee);
         }
@@ -101,9 +125,30 @@ namespace Cab_Management_System.Areas.HR.Controllers
 
             if (ModelState.IsValid)
             {
-                await _employeeService.UpdateEmployeeAsync(employee);
-                TempData["SuccessMessage"] = "Employee updated successfully.";
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    await _employeeService.UpdateEmployeeAsync(employee);
+                    TempData["SuccessMessage"] = "Employee updated successfully.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "Database error updating employee {Id}", id);
+                    if (ex.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true ||
+                        ex.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        ModelState.AddModelError("Email", "An employee with this email already exists.");
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "A database error occurred while updating the employee.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating employee {Id}", id);
+                    TempData["ErrorMessage"] = "An unexpected error occurred while updating the employee.";
+                }
             }
             return View(employee);
         }
@@ -124,6 +169,9 @@ namespace Cab_Management_System.Areas.HR.Controllers
             if (employee == null)
                 return NotFound();
 
+            var hasDriver = await _employeeService.HasDriverRecordAsync(id);
+            ViewBag.HasDriverRecord = hasDriver;
+
             return View(employee);
         }
 
@@ -131,9 +179,47 @@ namespace Cab_Management_System.Areas.HR.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _employeeService.DeleteEmployeeAsync(id);
-            TempData["SuccessMessage"] = "Employee deleted successfully.";
+            try
+            {
+                var canDelete = await _employeeService.CanDeleteAsync(id);
+                if (!canDelete)
+                {
+                    TempData["ErrorMessage"] = "Cannot delete this employee because they have an associated driver record. Please remove the driver record first.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                await _employeeService.DeleteEmployeeAsync(id);
+                TempData["SuccessMessage"] = "Employee deleted successfully.";
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Database error deleting employee {Id}", id);
+                TempData["ErrorMessage"] = "Cannot delete this employee because they have related records.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting employee {Id}", id);
+                TempData["ErrorMessage"] = "An unexpected error occurred while deleting the employee.";
+            }
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Export()
+        {
+            var employees = await _employeeService.GetAllEmployeesAsync();
+            var columns = new Dictionary<string, Func<Employee, object>>
+            {
+                { "Name", e => e.Name },
+                { "Email", e => e.Email },
+                { "Phone", e => e.Phone },
+                { "Position", e => e.Position },
+                { "Status", e => e.Status },
+                { "Hire Date", e => e.HireDate.ToString("yyyy-MM-dd") },
+                { "Salary", e => e.Salary }
+            };
+
+            var csvData = Helpers.CsvExportHelper.ExportToCsv(employees, columns);
+            return File(csvData, "text/csv", $"Employees_{DateTime.Now:yyyyMMdd}.csv");
         }
     }
 }

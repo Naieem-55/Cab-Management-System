@@ -48,6 +48,27 @@ namespace Cab_Management_System.Services
             var upcomingMaintenance = await _maintenanceRepository.FindAsync(
                 m => m.Status == MaintenanceStatus.Scheduled);
 
+            // Chart data - Trip status distribution
+            var allTrips = recentTrips.ToList();
+            var tripStatusGroups = allTrips.GroupBy(t => t.Status)
+                .Select(g => new { Status = g.Key.ToString(), Count = g.Count() })
+                .OrderBy(g => g.Status).ToList();
+
+            // Chart data - Monthly revenue (last 6 months)
+            var allBillings = (await _billingRepository.GetAllAsync()).ToList();
+            var monthlyRevenue = Enumerable.Range(0, 6)
+                .Select(i => DateTime.Now.AddMonths(-i))
+                .Reverse()
+                .Select(date => new
+                {
+                    Label = date.ToString("MMM yyyy"),
+                    Revenue = allBillings
+                        .Where(b => b.Status == PaymentStatus.Completed &&
+                                    b.PaymentDate.Year == date.Year &&
+                                    b.PaymentDate.Month == date.Month)
+                        .Sum(b => b.Amount)
+                }).ToList();
+
             return new AdminDashboardViewModel
             {
                 TotalVehicles = await _vehicleRepository.CountAsync(),
@@ -59,8 +80,12 @@ namespace Cab_Management_System.Services
                 ActiveTrips = await _tripRepository.CountAsync(t => t.Status == TripStatus.InProgress),
                 TotalUsers = _userManager.Users.Count(),
                 TotalRevenue = await _billingRepository.GetTotalRevenueAsync(),
-                RecentTrips = recentTrips.Take(5),
-                UpcomingMaintenance = upcomingMaintenance.Take(5)
+                RecentTrips = allTrips.Take(5),
+                UpcomingMaintenance = upcomingMaintenance.Take(5),
+                TripStatusLabels = tripStatusGroups.Select(g => g.Status).ToList(),
+                TripStatusCounts = tripStatusGroups.Select(g => g.Count).ToList(),
+                MonthlyRevenueLabels = monthlyRevenue.Select(m => m.Label).ToList(),
+                MonthlyRevenueData = monthlyRevenue.Select(m => m.Revenue).ToList()
             };
         }
 
@@ -68,9 +93,31 @@ namespace Cab_Management_System.Services
         {
             _logger.LogInformation("Fetching Finance dashboard data");
             var recentBillings = await _billingRepository.GetAllAsync();
+            var billingsList = recentBillings.ToList();
             var startOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
             var monthlyBillings = await _billingRepository.GetBillingsByDateRangeAsync(startOfMonth, endOfMonth);
+
+            // Chart data - Payment method distribution
+            var paymentMethodGroups = billingsList
+                .Where(b => b.Status == PaymentStatus.Completed)
+                .GroupBy(b => b.PaymentMethod)
+                .Select(g => new { Method = g.Key.ToString(), Amount = g.Sum(b => b.Amount) })
+                .OrderBy(g => g.Method).ToList();
+
+            // Chart data - Revenue trend (last 6 months)
+            var revenueTrend = Enumerable.Range(0, 6)
+                .Select(i => DateTime.Now.AddMonths(-i))
+                .Reverse()
+                .Select(date => new
+                {
+                    Label = date.ToString("MMM yyyy"),
+                    Revenue = billingsList
+                        .Where(b => b.Status == PaymentStatus.Completed &&
+                                    b.PaymentDate.Year == date.Year &&
+                                    b.PaymentDate.Month == date.Month)
+                        .Sum(b => b.Amount)
+                }).ToList();
 
             return new FinanceDashboardViewModel
             {
@@ -78,46 +125,80 @@ namespace Cab_Management_System.Services
                 PendingPayments = await _billingRepository.CountAsync(b => b.Status == PaymentStatus.Pending),
                 CompletedPayments = await _billingRepository.CountAsync(b => b.Status == PaymentStatus.Completed),
                 TotalBillings = await _billingRepository.CountAsync(),
-                RecentBillings = recentBillings.Take(5),
+                RecentBillings = billingsList.Take(5),
                 MonthlyRevenue = monthlyBillings
                     .Where(b => b.Status == PaymentStatus.Completed)
-                    .Sum(b => b.Amount)
+                    .Sum(b => b.Amount),
+                PaymentMethodLabels = paymentMethodGroups.Select(g => g.Method).ToList(),
+                PaymentMethodAmounts = paymentMethodGroups.Select(g => g.Amount).ToList(),
+                RevenueTrendLabels = revenueTrend.Select(r => r.Label).ToList(),
+                RevenueTrendData = revenueTrend.Select(r => r.Revenue).ToList()
             };
         }
 
         public async Task<HRDashboardViewModel> GetHRDashboardAsync()
         {
             _logger.LogInformation("Fetching HR dashboard data");
-            var allEmployees = await _employeeRepository.GetAllAsync();
+            var allEmployees = (await _employeeRepository.GetAllAsync()).ToList();
+            var allDrivers = (await _driverRepository.GetAllAsync()).ToList();
+
+            // Chart data - Position distribution
+            var positionGroups = allEmployees.GroupBy(e => e.Position)
+                .Select(g => new { Position = g.Key.ToString(), Count = g.Count() })
+                .OrderBy(g => g.Position).ToList();
+
+            // Chart data - Driver status distribution
+            var driverStatusGroups = allDrivers.GroupBy(d => d.Status)
+                .Select(g => new { Status = g.Key.ToString(), Count = g.Count() })
+                .OrderBy(g => g.Status).ToList();
 
             return new HRDashboardViewModel
             {
-                TotalEmployees = await _employeeRepository.CountAsync(),
-                ActiveEmployees = await _employeeRepository.CountAsync(e => e.Status == EmployeeStatus.Active),
-                TotalDrivers = await _driverRepository.CountAsync(),
-                AvailableDrivers = await _driverRepository.CountAsync(d => d.Status == DriverStatus.Available),
-                EmployeesOnLeave = await _employeeRepository.CountAsync(e => e.Status == EmployeeStatus.OnLeave),
+                TotalEmployees = allEmployees.Count,
+                ActiveEmployees = allEmployees.Count(e => e.Status == EmployeeStatus.Active),
+                TotalDrivers = allDrivers.Count,
+                AvailableDrivers = allDrivers.Count(d => d.Status == DriverStatus.Available),
+                EmployeesOnLeave = allEmployees.Count(e => e.Status == EmployeeStatus.OnLeave),
                 RecentEmployees = allEmployees
                     .OrderByDescending(e => e.HireDate)
-                    .Take(5)
+                    .Take(5),
+                PositionLabels = positionGroups.Select(g => g.Position).ToList(),
+                PositionCounts = positionGroups.Select(g => g.Count).ToList(),
+                DriverStatusLabels = driverStatusGroups.Select(g => g.Status).ToList(),
+                DriverStatusCounts = driverStatusGroups.Select(g => g.Count).ToList()
             };
         }
 
         public async Task<TravelDashboardViewModel> GetTravelDashboardAsync()
         {
             _logger.LogInformation("Fetching Travel dashboard data");
-            var recentTrips = await _tripRepository.GetAllAsync();
+            var recentTrips = (await _tripRepository.GetAllAsync()).ToList();
             var overdueMaintenance = await _maintenanceRepository.GetOverdueMaintenanceAsync();
+            var allVehicles = (await _vehicleRepository.GetAllAsync()).ToList();
+
+            // Chart data - Trip status distribution
+            var tripStatusGroups = recentTrips.GroupBy(t => t.Status)
+                .Select(g => new { Status = g.Key.ToString(), Count = g.Count() })
+                .OrderBy(g => g.Status).ToList();
+
+            // Chart data - Vehicle status distribution
+            var vehicleStatusGroups = allVehicles.GroupBy(v => v.Status)
+                .Select(g => new { Status = g.Key.ToString(), Count = g.Count() })
+                .OrderBy(g => g.Status).ToList();
 
             return new TravelDashboardViewModel
             {
-                TotalTrips = await _tripRepository.CountAsync(),
-                ActiveTrips = await _tripRepository.CountAsync(t => t.Status == TripStatus.InProgress),
-                CompletedTrips = await _tripRepository.CountAsync(t => t.Status == TripStatus.Completed),
-                TotalVehicles = await _vehicleRepository.CountAsync(),
-                AvailableVehicles = await _vehicleRepository.CountAsync(v => v.Status == VehicleStatus.Available),
+                TotalTrips = recentTrips.Count,
+                ActiveTrips = recentTrips.Count(t => t.Status == TripStatus.InProgress),
+                CompletedTrips = recentTrips.Count(t => t.Status == TripStatus.Completed),
+                TotalVehicles = allVehicles.Count,
+                AvailableVehicles = allVehicles.Count(v => v.Status == VehicleStatus.Available),
                 OverdueMaintenance = overdueMaintenance.Count(),
-                RecentTrips = recentTrips.Take(5)
+                RecentTrips = recentTrips.Take(5),
+                TripStatusLabels = tripStatusGroups.Select(g => g.Status).ToList(),
+                TripStatusCounts = tripStatusGroups.Select(g => g.Count).ToList(),
+                VehicleStatusLabels = vehicleStatusGroups.Select(g => g.Status).ToList(),
+                VehicleStatusCounts = vehicleStatusGroups.Select(g => g.Count).ToList()
             };
         }
     }

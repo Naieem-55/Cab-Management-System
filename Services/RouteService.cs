@@ -7,11 +7,13 @@ namespace Cab_Management_System.Services
     public class RouteService : IRouteService
     {
         private readonly IRouteRepository _routeRepository;
+        private readonly ITripRepository _tripRepository;
         private readonly ILogger<RouteService> _logger;
 
-        public RouteService(IRouteRepository routeRepository, ILogger<RouteService> logger)
+        public RouteService(IRouteRepository routeRepository, ITripRepository tripRepository, ILogger<RouteService> logger)
         {
             _routeRepository = routeRepository;
+            _tripRepository = tripRepository;
             _logger = logger;
         }
 
@@ -66,6 +68,17 @@ namespace Cab_Management_System.Services
         public async Task<int> GetRouteCountAsync()
         {
             return await _routeRepository.CountAsync();
+        }
+
+        public async Task<bool> CanDeleteAsync(int id)
+        {
+            var tripCount = await _tripRepository.CountAsync(t => t.RouteId == id);
+            return tripCount == 0;
+        }
+
+        public async Task<int> GetTripCountAsync(int id)
+        {
+            return await _tripRepository.CountAsync(t => t.RouteId == id);
         }
     }
 }

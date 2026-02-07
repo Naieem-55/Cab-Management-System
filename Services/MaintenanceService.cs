@@ -72,5 +72,10 @@ namespace Cab_Management_System.Services
         {
             return await _maintenanceRepository.CountAsync();
         }
+
+        public async Task<IEnumerable<MaintenanceRecord>> SearchMaintenanceAsync(string searchTerm)
+        {
+            return await _maintenanceRepository.SearchMaintenanceAsync(searchTerm);
+        }
     }
 }

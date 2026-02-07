@@ -7,31 +7,50 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Vehicles</h1>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i> Add Vehicle
-        </a>
+        <div class="d-flex gap-2">
+            <a asp-action="Export" class="btn btn-outline-success">
+                <i class="bi bi-download me-1"></i> Export CSV
+            </a>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Add Vehicle
+            </a>
+        </div>
     </div>
 
-    @if (TempData["StatusMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["StatusMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    <!-- Search Form -->
+    <!-- Search & Filter Form -->
     <div class="card mb-4">
         <div class="card-body">
             <form asp-action="Index" method="get">
-                <div class="input-group">
-                    <input type="text" name="searchTerm" class="form-control" placeholder="Search by registration, make, or model..." value="@ViewBag.SearchTerm" />
-                    <button type="submit" class="btn btn-outline-primary">
-                        <i class="bi bi-search me-1"></i> Search
-                    </button>
-                    <a asp-action="Index" class="btn btn-outline-secondary">
-                        <i class="bi bi-x-circle me-1"></i> Clear
-                    </a>
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Search</label>
+                        <input type="text" name="searchTerm" class="form-control" placeholder="Search by registration, make, or model..." value="@ViewBag.SearchTerm" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="">All Statuses</option>
+                            @foreach (var s in Enum.GetValues<VehicleStatus>())
+                            {
+                                <option value="@s" selected="@(ViewData["SelectedStatus"] is VehicleStatus vs && vs == s)">@s</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Fuel Type</label>
+                        <select name="fuelType" class="form-select">
+                            <option value="">All Fuel Types</option>
+                            @foreach (var ft in Enum.GetValues<FuelType>())
+                            {
+                                <option value="@ft" selected="@(ViewData["SelectedFuelType"] is FuelType vft && vft == ft)">@ft</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-search me-1"></i> Filter
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

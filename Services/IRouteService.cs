@@ -12,5 +12,7 @@ namespace Cab_Management_System.Services
         Task UpdateRouteAsync(Models.Route route);
         Task DeleteRouteAsync(int id);
         Task<int> GetRouteCountAsync();
+        Task<bool> CanDeleteAsync(int id);
+        Task<int> GetTripCountAsync(int id);
     }
 }

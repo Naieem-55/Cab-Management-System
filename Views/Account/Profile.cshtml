@@ -1,0 +1,45 @@
+@model Cab_Management_System.Models.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <h4 class="mb-0"><i class="bi bi-person-circle"></i> My Profile</h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-person-circle" style="font-size: 4rem; color: #6c757d;"></i>
+                </div>
+                <table class="table">
+                    <tr>
+                        <th class="w-25">First Name</th>
+                        <td>@Model.FirstName</td>
+                    </tr>
+                    <tr>
+                        <th>Last Name</th>
+                        <td>@Model.LastName</td>
+                    </tr>
+                    <tr>
+                        <th>Email</th>
+                        <td>@Model.Email</td>
+                    </tr>
+                    <tr>
+                        <th>Role</th>
+                        <td><span class="badge bg-info">@Model.Role</span></td>
+                    </tr>
+                </table>
+                <div class="d-flex gap-2 justify-content-center mt-3">
+                    <a asp-action="EditProfile" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> Edit Profile
+                    </a>
+                    <a asp-action="ChangePassword" class="btn btn-outline-secondary">
+                        <i class="bi bi-key"></i> Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

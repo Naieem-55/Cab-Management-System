@@ -5,6 +5,7 @@ using Cab_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cab_Management_System.Areas.Finance.Controllers
 {
@@ -14,18 +15,36 @@ namespace Cab_Management_System.Areas.Finance.Controllers
     {
         private readonly IBillingService _billingService;
         private readonly ITripService _tripService;
+        private readonly ILogger<BillingController> _logger;
 
-        public BillingController(IBillingService billingService, ITripService tripService)
+        public BillingController(IBillingService billingService, ITripService tripService, ILogger<BillingController> logger)
         {
             _billingService = billingService;
             _tripService = tripService;
+            _logger = logger;
         }
 
-        public async Task<IActionResult> Index(string? searchTerm, PaymentStatus? status, int page = 1)
+        public async Task<IActionResult> Index(string? searchTerm, PaymentStatus? status, DateTime? startDate, DateTime? endDate, int page = 1)
         {
-            var billings = status.HasValue
-                ? await _billingService.GetBillingsByStatusAsync(status.Value)
-                : await _billingService.GetAllBillingsAsync();
+            IEnumerable<Billing> billings;
+
+            if (startDate.HasValue && endDate.HasValue)
+            {
+                billings = await _billingService.GetBillingsByDateRangeAsync(startDate.Value, endDate.Value);
+            }
+            else if (status.HasValue)
+            {
+                billings = await _billingService.GetBillingsByStatusAsync(status.Value);
+            }
+            else
+            {
+                billings = await _billingService.GetAllBillingsAsync();
+            }
+
+            if (status.HasValue && startDate.HasValue && endDate.HasValue)
+            {
+                billings = billings.Where(b => b.Status == status.Value);
+            }
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
@@ -40,6 +59,8 @@ namespace Cab_Management_System.Areas.Finance.Controllers
             ViewBag.Statuses = new SelectList(Enum.GetValues<PaymentStatus>());
             ViewData["SearchTerm"] = searchTerm;
             ViewData["SelectedStatus"] = status;
+            ViewData["StartDate"] = startDate?.ToString("yyyy-MM-dd");
+            ViewData["EndDate"] = endDate?.ToString("yyyy-MM-dd");
             ViewBag.PageIndex = paginatedList.PageIndex;
             ViewBag.TotalPages = paginatedList.TotalPages;
             ViewBag.TotalCount = paginatedList.TotalCount;
@@ -48,6 +69,8 @@ namespace Cab_Management_System.Areas.Finance.Controllers
             var queryParams = new List<string>();
             if (!string.IsNullOrEmpty(searchTerm)) queryParams.Add($"&searchTerm={searchTerm}");
             if (status.HasValue) queryParams.Add($"&status={status.Value}");
+            if (startDate.HasValue) queryParams.Add($"&startDate={startDate.Value:yyyy-MM-dd}");
+            if (endDate.HasValue) queryParams.Add($"&endDate={endDate.Value:yyyy-MM-dd}");
             ViewBag.QueryString = string.Join("", queryParams);
 
             return View(paginatedList);
@@ -70,18 +93,31 @@ namespace Cab_Management_System.Areas.Finance.Controllers
         {
             if (ModelState.IsValid)
             {
-                var billing = new Billing
+                try
                 {
-                    TripId = model.TripId,
-                    Amount = model.Amount,
-                    PaymentDate = model.PaymentDate,
-                    PaymentMethod = model.PaymentMethod,
-                    Status = model.Status
-                };
+                    var billing = new Billing
+                    {
+                        TripId = model.TripId,
+                        Amount = model.Amount,
+                        PaymentDate = model.PaymentDate,
+                        PaymentMethod = model.PaymentMethod,
+                        Status = model.Status
+                    };
 
-                await _billingService.CreateBillingAsync(billing);
-                TempData["SuccessMessage"] = "Billing record created successfully.";
-                return RedirectToAction(nameof(Index));
+                    await _billingService.CreateBillingAsync(billing);
+                    TempData["SuccessMessage"] = "Billing record created successfully.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "Database error creating billing");
+                    TempData["ErrorMessage"] = "A database error occurred while creating the billing record.";
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error creating billing");
+                    TempData["ErrorMessage"] = "An unexpected error occurred while creating the billing record.";
+                }
             }
 
             model.AvailableTrips = await GetAvailableTripsSelectList();
@@ -122,21 +158,34 @@ namespace Cab_Management_System.Areas.Finance.Controllers
 
             if (ModelState.IsValid)
             {
-                var billing = await _billingService.GetBillingByIdAsync(id);
-                if (billing == null)
+                try
                 {
-                    return NotFound();
+                    var billing = await _billingService.GetBillingByIdAsync(id);
+                    if (billing == null)
+                    {
+                        return NotFound();
+                    }
+
+                    billing.TripId = model.TripId;
+                    billing.Amount = model.Amount;
+                    billing.PaymentDate = model.PaymentDate;
+                    billing.PaymentMethod = model.PaymentMethod;
+                    billing.Status = model.Status;
+
+                    await _billingService.UpdateBillingAsync(billing);
+                    TempData["SuccessMessage"] = "Billing record updated successfully.";
+                    return RedirectToAction(nameof(Index));
                 }
-
-                billing.TripId = model.TripId;
-                billing.Amount = model.Amount;
-                billing.PaymentDate = model.PaymentDate;
-                billing.PaymentMethod = model.PaymentMethod;
-                billing.Status = model.Status;
-
-                await _billingService.UpdateBillingAsync(billing);
-                TempData["SuccessMessage"] = "Billing record updated successfully.";
-                return RedirectToAction(nameof(Index));
+                catch (DbUpdateException ex)
+                {
+                    _logger.LogError(ex, "Database error updating billing {Id}", id);
+                    TempData["ErrorMessage"] = "A database error occurred while updating the billing record.";
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating billing {Id}", id);
+                    TempData["ErrorMessage"] = "An unexpected error occurred while updating the billing record.";
+                }
             }
 
             model.AvailableTrips = await GetAvailableTripsSelectList(model.TripId);
@@ -170,9 +219,39 @@ namespace Cab_Management_System.Areas.Finance.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _billingService.DeleteBillingAsync(id);
-            TempData["SuccessMessage"] = "Billing record deleted successfully.";
+            try
+            {
+                await _billingService.DeleteBillingAsync(id);
+                TempData["SuccessMessage"] = "Billing record deleted successfully.";
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Database error deleting billing {Id}", id);
+                TempData["ErrorMessage"] = "Cannot delete this billing record because it has related records.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting billing {Id}", id);
+                TempData["ErrorMessage"] = "An unexpected error occurred while deleting the billing record.";
+            }
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Export()
+        {
+            var billings = await _billingService.GetAllBillingsAsync();
+            var columns = new Dictionary<string, Func<Billing, object>>
+            {
+                { "Trip #", b => b.TripId },
+                { "Customer", b => b.Trip?.CustomerName ?? "" },
+                { "Amount", b => b.Amount },
+                { "Payment Date", b => b.PaymentDate.ToString("yyyy-MM-dd") },
+                { "Payment Method", b => b.PaymentMethod },
+                { "Status", b => b.Status }
+            };
+
+            var csvData = Helpers.CsvExportHelper.ExportToCsv(billings, columns);
+            return File(csvData, "text/csv", $"Billings_{DateTime.Now:yyyyMMdd}.csv");
         }
 
         private async Task<SelectList> GetAvailableTripsSelectList(int? currentTripId = null)

@@ -12,6 +12,14 @@
         <p>This action cannot be undone.</p>
     </div>
 
+    @if ((int)ViewBag.TripCount > 0)
+    {
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Warning:</strong> This driver has @ViewBag.TripCount associated trip(s). Deletion will fail. Please remove or reassign the trips first.
+        </div>
+    }
+
     <div class="card mb-4">
         <div class="card-header">
             <h5 class="mb-0">Employee Information</h5>

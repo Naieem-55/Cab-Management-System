@@ -14,5 +14,7 @@ namespace Cab_Management_System.Services
         Task DeleteDriverAsync(int id);
         Task<int> GetDriverCountAsync();
         Task<int> GetAvailableDriverCountAsync();
+        Task<bool> CanDeleteAsync(int id);
+        Task<int> GetTripCountAsync(int id);
     }
 }

@@ -15,5 +15,7 @@ namespace Cab_Management_System.Services
         Task DeleteEmployeeAsync(int id);
         Task<int> GetEmployeeCountAsync();
         Task<int> GetActiveEmployeeCountAsync();
+        Task<bool> CanDeleteAsync(int id);
+        Task<bool> HasDriverRecordAsync(int id);
     }
 }

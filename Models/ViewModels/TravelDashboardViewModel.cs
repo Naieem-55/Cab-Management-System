@@ -11,5 +11,11 @@ namespace Cab_Management_System.Models.ViewModels
         public int AvailableVehicles { get; set; }
         public int OverdueMaintenance { get; set; }
         public IEnumerable<Trip> RecentTrips { get; set; } = new List<Trip>();
+
+        // Chart data
+        public List<string> TripStatusLabels { get; set; } = new();
+        public List<int> TripStatusCounts { get; set; } = new();
+        public List<string> VehicleStatusLabels { get; set; } = new();
+        public List<int> VehicleStatusCounts { get; set; } = new();
     }
 }

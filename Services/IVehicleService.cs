@@ -14,5 +14,7 @@ namespace Cab_Management_System.Services
         Task DeleteVehicleAsync(int id);
         Task<int> GetVehicleCountAsync();
         Task<int> GetAvailableVehicleCountAsync();
+        Task<bool> CanDeleteAsync(int id);
+        Task<(int TripCount, int MaintenanceCount)> GetDependencyCountsAsync(int id);
     }
 }

@@ -1,0 +1,122 @@
+@model PaginatedList<Cab_Management_System.Models.AuditLog>
+@{
+    ViewData["Title"] = "Audit Logs";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-journal-text"></i> Audit Logs</h2>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-10">
+                <input type="text" name="searchTerm" class="form-control" placeholder="Search by entity, action, user, or changes..." value="@ViewBag.SearchTerm" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <p class="text-muted mb-3">Total Records: @ViewBag.TotalCount</p>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Entity</th>
+                        <th>ID</th>
+                        <th>Action</th>
+                        <th>User</th>
+                        <th>Changes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">No audit logs found.</td>
+                        </tr>
+                    }
+                    @foreach (var log in Model)
+                    {
+                        <tr>
+                            <td>@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td>@log.EntityName</td>
+                            <td>@log.EntityId</td>
+                            <td>
+                                @if (log.Action == "Create")
+                                {
+                                    <span class="badge bg-success">Create</span>
+                                }
+                                else if (log.Action == "Update")
+                                {
+                                    <span class="badge bg-warning text-dark">Update</span>
+                                }
+                                else if (log.Action == "Delete")
+                                {
+                                    <span class="badge bg-danger">Delete</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@log.Action</span>
+                                }
+                            </td>
+                            <td>@(log.UserName ?? "System")</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(log.Changes))
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#changesModal-@log.Id">
+                                        <i class="bi bi-eye"></i> View
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (ViewBag.TotalPages > 1)
+        {
+            <nav>
+                <ul class="pagination justify-content-center">
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.PageIndex ? "active" : "")">
+                            <a class="page-link" href="@ViewBag.BaseUrl?page=@i@ViewBag.QueryString">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    </div>
+</div>
+
+@foreach (var log in Model.Where(l => !string.IsNullOrEmpty(l.Changes)))
+{
+    <div class="modal fade" id="changesModal-@log.Id" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Changes - @log.EntityName #@log.EntityId (@log.Action)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">@log.Changes</pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
