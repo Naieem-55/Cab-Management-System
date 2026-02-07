@@ -33,6 +33,7 @@ build/
 *.tmp
 .DS_Store
 Thumbs.db
+nul
 
 ## Claude
 .claude/
