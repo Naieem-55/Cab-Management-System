@@ -54,8 +54,12 @@ namespace Cab_Management_System.Models.ViewModels
         [Range(0, double.MaxValue)]
         public decimal Cost { get; set; }
 
+        [Display(Name = "Customer")]
+        public int? CustomerId { get; set; }
+
         public SelectList? AvailableDrivers { get; set; }
         public SelectList? AvailableVehicles { get; set; }
         public SelectList? AvailableRoutes { get; set; }
+        public SelectList? AvailableCustomers { get; set; }
     }
 }

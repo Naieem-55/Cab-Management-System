@@ -17,6 +17,8 @@ namespace Cab_Management_System.Areas.Travel.Controllers
         private readonly IDriverService _driverService;
         private readonly IVehicleService _vehicleService;
         private readonly IRouteService _routeService;
+        private readonly ICustomerService _customerService;
+        private readonly IEmailService _emailService;
         private readonly ILogger<TripController> _logger;
 
         public TripController(
@@ -24,12 +26,16 @@ namespace Cab_Management_System.Areas.Travel.Controllers
             IDriverService driverService,
             IVehicleService vehicleService,
             IRouteService routeService,
+            ICustomerService customerService,
+            IEmailService emailService,
             ILogger<TripController> logger)
         {
             _tripService = tripService;
             _driverService = driverService;
             _vehicleService = vehicleService;
             _routeService = routeService;
+            _customerService = customerService;
+            _emailService = emailService;
             _logger = logger;
         }
 
@@ -99,6 +105,7 @@ namespace Cab_Management_System.Areas.Travel.Controllers
                         DriverId = model.DriverId,
                         VehicleId = model.VehicleId,
                         RouteId = model.RouteId,
+                        CustomerId = model.CustomerId,
                         CustomerName = model.CustomerName,
                         CustomerPhone = model.CustomerPhone,
                         CustomerEmail = model.CustomerEmail,
@@ -109,6 +116,23 @@ namespace Cab_Management_System.Areas.Travel.Controllers
                     };
 
                     await _tripService.CreateTripAsync(trip);
+
+                    // Send booking confirmation email if customer email exists
+                    if (!string.IsNullOrWhiteSpace(model.CustomerEmail))
+                    {
+                        try
+                        {
+                            var route = await _routeService.GetRouteByIdAsync(model.RouteId);
+                            var routeText = route != null ? $"{route.Origin} - {route.Destination}" : "N/A";
+                            await _emailService.SendBookingConfirmationAsync(
+                                model.CustomerEmail, model.CustomerName, routeText, model.TripDate, model.Cost);
+                        }
+                        catch (Exception emailEx)
+                        {
+                            _logger.LogError(emailEx, "Failed to send booking confirmation email");
+                        }
+                    }
+
                     TempData["SuccessMessage"] = "Trip created successfully.";
                     return RedirectToAction(nameof(Index));
                 }
@@ -141,6 +165,7 @@ namespace Cab_Management_System.Areas.Travel.Controllers
                 DriverId = trip.DriverId,
                 VehicleId = trip.VehicleId,
                 RouteId = trip.RouteId,
+                CustomerId = trip.CustomerId,
                 CustomerName = trip.CustomerName,
                 CustomerPhone = trip.CustomerPhone,
                 CustomerEmail = trip.CustomerEmail,
@@ -173,6 +198,7 @@ namespace Cab_Management_System.Areas.Travel.Controllers
                     existingTrip.DriverId = model.DriverId;
                     existingTrip.VehicleId = model.VehicleId;
                     existingTrip.RouteId = model.RouteId;
+                    existingTrip.CustomerId = model.CustomerId;
                     existingTrip.CustomerName = model.CustomerName;
                     existingTrip.CustomerPhone = model.CustomerPhone;
                     existingTrip.CustomerEmail = model.CustomerEmail;
@@ -282,6 +308,9 @@ namespace Cab_Management_System.Areas.Travel.Controllers
                 Text = $"{r.Origin} \u2192 {r.Destination} ({r.Distance} km)"
             });
             model.AvailableRoutes = new SelectList(routeItems, "Value", "Text");
+
+            var customers = await _customerService.GetAllCustomersAsync();
+            model.AvailableCustomers = new SelectList(customers, "Id", "Name");
         }
     }
 }

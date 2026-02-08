@@ -55,6 +55,37 @@
         </div>
     </div>
 
+    <!-- Expense Stat Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-danger h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-cash-stack fs-1 text-danger"></i>
+                    <h5 class="card-title mt-2">Total Expenses</h5>
+                    <p class="card-text fs-4 fw-bold">@Model.TotalExpenses.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-danger h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-minus fs-1 text-danger"></i>
+                    <h5 class="card-title mt-2">Monthly Expenses</h5>
+                    <p class="card-text fs-4 fw-bold">@Model.MonthlyExpenses.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-@(Model.NetProfit >= 0 ? "success" : "danger") h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-graph-up-arrow fs-1 text-@(Model.NetProfit >= 0 ? "success" : "danger")"></i>
+                    <h5 class="card-title mt-2">Net Profit</h5>
+                    <p class="card-text fs-4 fw-bold text-@(Model.NetProfit >= 0 ? "success" : "danger")">@Model.NetProfit.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Charts Row -->
     <div class="row g-4 mb-4">
         <div class="col-lg-6">
@@ -67,6 +98,16 @@
             <div class="card h-100">
                 <div class="card-header"><h5 class="mb-0">Revenue Trend (Last 6 Months)</h5></div>
                 <div class="card-body"><canvas id="revenueTrendChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Category Chart -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6 mx-auto">
+            <div class="card h-100">
+                <div class="card-header"><h5 class="mb-0">Expense Categories</h5></div>
+                <div class="card-body"><canvas id="expenseCategoryChart"></canvas></div>
             </div>
         </div>
     </div>
@@ -139,6 +180,18 @@
                 datasets: [{
                     data: @Html.Raw(Json.Serialize(Model.PaymentMethodAmounts)),
                     backgroundColor: ['#28a745', '#007bff', '#ffc107', '#17a2b8', '#dc3545']
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        new Chart(document.getElementById('expenseCategoryChart'), {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.ExpenseCategoryLabels)),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.ExpenseCategoryAmounts)),
+                    backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#20c997', '#0dcaf0', '#6c757d']
                 }]
             },
             options: { responsive: true, plugins: { legend: { position: 'bottom' } } }

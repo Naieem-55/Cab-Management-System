@@ -16,6 +16,10 @@ namespace Cab_Management_System.Models.ViewModels
         public IEnumerable<Trip> RecentTrips { get; set; } = new List<Trip>();
         public IEnumerable<MaintenanceRecord> UpcomingMaintenance { get; set; } = new List<MaintenanceRecord>();
 
+        // License expiry alerts
+        public IEnumerable<Driver> ExpiringLicenses { get; set; } = new List<Driver>();
+        public int ExpiringLicenseCount { get; set; }
+
         // Chart data
         public List<string> TripStatusLabels { get; set; } = new();
         public List<int> TripStatusCounts { get; set; } = new();

@@ -1,0 +1,77 @@
+@model ExpenseViewModel
+
+@{
+    ViewData["Title"] = "Edit Expense";
+}
+
+<div class="container">
+    <h2 class="mb-4">Edit Expense</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label asp-for="Category" class="form-label"></label>
+                    <select asp-for="Category" asp-items="Html.GetEnumSelectList<ExpenseCategory>()" class="form-select"></select>
+                    <span asp-validation-for="Category" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Amount" class="form-label"></label>
+                    <input asp-for="Amount" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Amount" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Date" class="form-label"></label>
+                    <input asp-for="Date" type="date" class="form-control" />
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="VehicleId" class="form-label">Vehicle (Optional)</label>
+                    <select asp-for="VehicleId" asp-items="Model.AvailableVehicles" class="form-select">
+                        <option value="">-- Select a Vehicle (Optional) --</option>
+                    </select>
+                    <span asp-validation-for="VehicleId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="TripId" class="form-label">Trip (Optional)</label>
+                    <select asp-for="TripId" asp-items="Model.AvailableTrips" class="form-select">
+                        <option value="">-- Select a Trip (Optional) --</option>
+                    </select>
+                    <span asp-validation-for="TripId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ApprovedBy" class="form-label"></label>
+                    <input asp-for="ApprovedBy" class="form-control" />
+                    <span asp-validation-for="ApprovedBy" class="text-danger"></span>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-check-lg"></i> Save Changes
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary ms-2">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

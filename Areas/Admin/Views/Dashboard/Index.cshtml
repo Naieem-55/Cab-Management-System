@@ -143,6 +143,47 @@
         </div>
     </div>
 
+    <!-- License Expiry Alerts -->
+    @if (Model.ExpiringLicenses.Any())
+    {
+        <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
+            <h5 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> License Expiry Alerts (@Model.ExpiringLicenseCount)</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-borderless mb-0">
+                    <thead>
+                        <tr>
+                            <th>Driver Name</th>
+                            <th>License #</th>
+                            <th>Expiry Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var driver in Model.ExpiringLicenses)
+                        {
+                            <tr>
+                                <td>@driver.Employee?.Name</td>
+                                <td>@driver.LicenseNumber</td>
+                                <td>@driver.LicenseExpiry.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @if (driver.LicenseExpiry < DateTime.Today)
+                                    {
+                                        <span class="badge bg-danger">Expired</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">Expiring Soon</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <!-- Charts Row -->
     <div class="row g-4 mb-4">
         <div class="col-lg-6">

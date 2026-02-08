@@ -45,5 +45,6 @@ namespace Cab_Management_System.Models
 
         public ICollection<Trip> Trips { get; set; } = new List<Trip>();
         public ICollection<MaintenanceRecord> MaintenanceRecords { get; set; } = new List<MaintenanceRecord>();
+        public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
     }
 }

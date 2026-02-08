@@ -16,5 +16,6 @@ namespace Cab_Management_System.Services
         Task<int> GetAvailableDriverCountAsync();
         Task<bool> CanDeleteAsync(int id);
         Task<int> GetTripCountAsync(int id);
+        Task<IEnumerable<Driver>> GetDriversWithExpiringLicensesAsync(int daysThreshold = 30);
     }
 }

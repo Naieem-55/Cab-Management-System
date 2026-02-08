@@ -37,6 +37,14 @@
                 </div>
 
                 <div class="mb-3">
+                    <label asp-for="CustomerId" class="form-label">Customer (Optional)</label>
+                    <select asp-for="CustomerId" asp-items="Model.AvailableCustomers" class="form-select">
+                        <option value="">-- Select a Customer (Optional) --</option>
+                    </select>
+                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
                     <label asp-for="CustomerName" class="form-label"></label>
                     <input asp-for="CustomerName" class="form-control" />
                     <span asp-validation-for="CustomerName" class="text-danger"></span>

@@ -16,6 +16,7 @@ namespace Cab_Management_System.Services
         private readonly ITripRepository _tripRepository;
         private readonly IBillingRepository _billingRepository;
         private readonly IMaintenanceRepository _maintenanceRepository;
+        private readonly IExpenseRepository _expenseRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<DashboardService> _logger;
 
@@ -27,6 +28,7 @@ namespace Cab_Management_System.Services
             ITripRepository tripRepository,
             IBillingRepository billingRepository,
             IMaintenanceRepository maintenanceRepository,
+            IExpenseRepository expenseRepository,
             UserManager<ApplicationUser> userManager,
             ILogger<DashboardService> logger)
         {
@@ -37,6 +39,7 @@ namespace Cab_Management_System.Services
             _tripRepository = tripRepository;
             _billingRepository = billingRepository;
             _maintenanceRepository = maintenanceRepository;
+            _expenseRepository = expenseRepository;
             _userManager = userManager;
             _logger = logger;
         }
@@ -69,6 +72,9 @@ namespace Cab_Management_System.Services
                         .Sum(b => b.Amount)
                 }).ToList();
 
+            // License expiry alerts
+            var expiringDrivers = await _driverRepository.GetDriversWithExpiringLicensesAsync(30);
+
             return new AdminDashboardViewModel
             {
                 TotalVehicles = await _vehicleRepository.CountAsync(),
@@ -85,7 +91,9 @@ namespace Cab_Management_System.Services
                 TripStatusLabels = tripStatusGroups.Select(g => g.Status).ToList(),
                 TripStatusCounts = tripStatusGroups.Select(g => g.Count).ToList(),
                 MonthlyRevenueLabels = monthlyRevenue.Select(m => m.Label).ToList(),
-                MonthlyRevenueData = monthlyRevenue.Select(m => m.Revenue).ToList()
+                MonthlyRevenueData = monthlyRevenue.Select(m => m.Revenue).ToList(),
+                ExpiringLicenses = expiringDrivers,
+                ExpiringLicenseCount = expiringDrivers.Count()
             };
         }
 
@@ -119,9 +127,21 @@ namespace Cab_Management_System.Services
                         .Sum(b => b.Amount)
                 }).ToList();
 
+            // Expense data
+            var totalExpenses = await _expenseRepository.GetTotalExpensesAsync();
+            var monthlyExpenses = await _expenseRepository.GetTotalExpensesByDateRangeAsync(startOfMonth, endOfMonth);
+            var totalRevenue = await _billingRepository.GetTotalRevenueAsync();
+
+            // Expense category grouping
+            var allExpenses = (await _expenseRepository.GetAllAsync()).ToList();
+            var categoryGroups = allExpenses
+                .GroupBy(e => e.Category)
+                .Select(g => new { Category = g.Key.ToString(), Amount = g.Sum(e => e.Amount) })
+                .OrderByDescending(g => g.Amount).ToList();
+
             return new FinanceDashboardViewModel
             {
-                TotalRevenue = await _billingRepository.GetTotalRevenueAsync(),
+                TotalRevenue = totalRevenue,
                 PendingPayments = await _billingRepository.CountAsync(b => b.Status == PaymentStatus.Pending),
                 CompletedPayments = await _billingRepository.CountAsync(b => b.Status == PaymentStatus.Completed),
                 TotalBillings = await _billingRepository.CountAsync(),
@@ -129,10 +149,15 @@ namespace Cab_Management_System.Services
                 MonthlyRevenue = monthlyBillings
                     .Where(b => b.Status == PaymentStatus.Completed)
                     .Sum(b => b.Amount),
+                TotalExpenses = totalExpenses,
+                MonthlyExpenses = monthlyExpenses,
+                NetProfit = totalRevenue - totalExpenses,
                 PaymentMethodLabels = paymentMethodGroups.Select(g => g.Method).ToList(),
                 PaymentMethodAmounts = paymentMethodGroups.Select(g => g.Amount).ToList(),
                 RevenueTrendLabels = revenueTrend.Select(r => r.Label).ToList(),
-                RevenueTrendData = revenueTrend.Select(r => r.Revenue).ToList()
+                RevenueTrendData = revenueTrend.Select(r => r.Revenue).ToList(),
+                ExpenseCategoryLabels = categoryGroups.Select(g => g.Category).ToList(),
+                ExpenseCategoryAmounts = categoryGroups.Select(g => g.Amount).ToList()
             };
         }
 
@@ -152,6 +177,9 @@ namespace Cab_Management_System.Services
                 .Select(g => new { Status = g.Key.ToString(), Count = g.Count() })
                 .OrderBy(g => g.Status).ToList();
 
+            // License expiry alerts
+            var expiringDrivers = await _driverRepository.GetDriversWithExpiringLicensesAsync(30);
+
             return new HRDashboardViewModel
             {
                 TotalEmployees = allEmployees.Count,
@@ -165,7 +193,9 @@ namespace Cab_Management_System.Services
                 PositionLabels = positionGroups.Select(g => g.Position).ToList(),
                 PositionCounts = positionGroups.Select(g => g.Count).ToList(),
                 DriverStatusLabels = driverStatusGroups.Select(g => g.Status).ToList(),
-                DriverStatusCounts = driverStatusGroups.Select(g => g.Count).ToList()
+                DriverStatusCounts = driverStatusGroups.Select(g => g.Count).ToList(),
+                ExpiringLicenses = expiringDrivers,
+                ExpiringLicenseCount = expiringDrivers.Count()
             };
         }
 

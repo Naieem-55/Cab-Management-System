@@ -1,3 +1,4 @@
+using Cab_Management_System.Models;
 using Cab_Management_System.Models.Enums;
 using Cab_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -11,11 +12,13 @@ namespace Cab_Management_System.Areas.Finance.Controllers
     {
         private readonly IBillingService _billingService;
         private readonly ITripService _tripService;
+        private readonly IExpenseService _expenseService;
 
-        public ReportsController(IBillingService billingService, ITripService tripService)
+        public ReportsController(IBillingService billingService, ITripService tripService, IExpenseService expenseService)
         {
             _billingService = billingService;
             _tripService = tripService;
+            _expenseService = expenseService;
         }
 
         public async Task<IActionResult> Index(DateTime? startDate, DateTime? endDate)
@@ -71,6 +74,19 @@ namespace Cab_Management_System.Areas.Finance.Controllers
 
             ViewBag.MonthlyLabels = monthlyData.Select(m => m.Label).ToList();
             ViewBag.MonthlyRevenue = monthlyData.Select(m => m.Revenue).ToList();
+
+            // Expense data
+            var allExpenses = await _expenseService.GetAllExpensesAsync();
+            var filteredExpenses = allExpenses.Where(e =>
+                e.Date >= startDate.Value && e.Date <= endDate.Value).ToList();
+
+            var totalExpenses = filteredExpenses.Sum(e => e.Amount);
+            var totalRevenue = filteredBillings
+                .Where(b => b.Status == PaymentStatus.Completed)
+                .Sum(b => b.Amount);
+
+            ViewBag.TotalExpenses = totalExpenses;
+            ViewBag.NetProfit = totalRevenue - totalExpenses;
 
             return View(filteredBillings);
         }

@@ -33,5 +33,11 @@ namespace Cab_Management_System.Repositories
         public async Task<Driver?> GetDriverWithEmployeeAsync(int id)
             => await _dbSet.Include(d => d.Employee)
                            .FirstOrDefaultAsync(d => d.Id == id);
+
+        public async Task<IEnumerable<Driver>> GetDriversWithExpiringLicensesAsync(int daysThreshold)
+            => await _dbSet.Include(d => d.Employee)
+                           .Where(d => d.LicenseExpiry <= DateTime.Today.AddDays(daysThreshold))
+                           .OrderBy(d => d.LicenseExpiry)
+                           .ToListAsync();
     }
 }

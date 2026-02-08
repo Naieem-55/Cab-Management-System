@@ -1,5 +1,6 @@
 using Cab_Management_System.Models;
 using Cab_Management_System.Models.ViewModels;
+using Cab_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,13 +11,16 @@ namespace Cab_Management_System.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IEmailService _emailService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -182,13 +186,15 @@ namespace Cab_Management_System.Controllers
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var resetLink = Url.Action("ResetPassword", "Account",
                     new { email = model.Email, token = token }, Request.Scheme);
-                TempData["SuccessMessage"] = $"Password reset link (copy this): {resetLink}";
+
+                if (resetLink != null)
+                {
+                    await _emailService.SendPasswordResetAsync(model.Email, resetLink);
+                }
             }
-            else
-            {
-                // Don't reveal that the user does not exist
-                TempData["SuccessMessage"] = "If an account with that email exists, a reset link has been generated.";
-            }
+
+            // Always show the same message to prevent email enumeration
+            TempData["SuccessMessage"] = "If an account with that email exists, a password reset email has been sent.";
 
             return View(model);
         }

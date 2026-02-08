@@ -91,5 +91,10 @@ namespace Cab_Management_System.Services
         {
             return await _tripRepository.CountAsync(t => t.DriverId == id);
         }
+
+        public async Task<IEnumerable<Driver>> GetDriversWithExpiringLicensesAsync(int daysThreshold = 30)
+        {
+            return await _driverRepository.GetDriversWithExpiringLicensesAsync(daysThreshold);
+        }
     }
 }

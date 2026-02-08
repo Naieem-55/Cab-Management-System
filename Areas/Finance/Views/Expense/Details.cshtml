@@ -1,0 +1,51 @@
+@model Expense
+
+@{
+    ViewData["Title"] = "Expense Details";
+}
+
+<div class="container">
+    <h2 class="mb-4">Expense Details</h2>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Expense #@Model.Id</h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Category</dt>
+                <dd class="col-sm-9"><span class="badge bg-secondary">@Model.Category</span></dd>
+
+                <dt class="col-sm-3">Amount</dt>
+                <dd class="col-sm-9 fw-bold">@Model.Amount.ToString("C")</dd>
+
+                <dt class="col-sm-3">Date</dt>
+                <dd class="col-sm-9">@Model.Date.ToString("MMM dd, yyyy")</dd>
+
+                <dt class="col-sm-3">Vehicle</dt>
+                <dd class="col-sm-9">@(Model.Vehicle?.RegistrationNumber ?? "N/A")</dd>
+
+                <dt class="col-sm-3">Trip</dt>
+                <dd class="col-sm-9">@(Model.TripId != null ? $"Trip #{Model.TripId}" : "N/A")</dd>
+
+                <dt class="col-sm-3">Description</dt>
+                <dd class="col-sm-9">@(Model.Description ?? "N/A")</dd>
+
+                <dt class="col-sm-3">Approved By</dt>
+                <dd class="col-sm-9">@(Model.ApprovedBy ?? "N/A")</dd>
+
+                <dt class="col-sm-3">Created Date</dt>
+                <dd class="col-sm-9">@Model.CreatedDate.ToString("MMM dd, yyyy")</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a asp-action="Index" class="btn btn-secondary ms-2">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>

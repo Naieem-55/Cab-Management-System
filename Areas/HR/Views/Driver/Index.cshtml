@@ -59,13 +59,14 @@
                                 <td>@driver.Employee.Name</td>
                                 <td>@driver.LicenseNumber</td>
                                 <td>
+                                    @driver.LicenseExpiry.ToString("MMM dd, yyyy")
                                     @if (driver.LicenseExpiry < DateTime.Today)
                                     {
-                                        <span class="text-danger fw-bold">@driver.LicenseExpiry.ToString("MMM dd, yyyy")</span>
+                                        <span class="badge bg-danger ms-1">Expired</span>
                                     }
-                                    else
+                                    else if (driver.LicenseExpiry <= DateTime.Today.AddDays(30))
                                     {
-                                        @driver.LicenseExpiry.ToString("MMM dd, yyyy")
+                                        <span class="badge bg-warning text-dark ms-1">Expiring Soon</span>
                                     }
                                 </td>
                                 <td>

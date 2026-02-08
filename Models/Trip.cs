@@ -60,6 +60,13 @@ namespace Cab_Management_System.Models
         [Range(0, double.MaxValue)]
         public decimal Cost { get; set; }
 
+        public int? CustomerId { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Schema.ForeignKey("CustomerId")]
+        public Customer? Customer { get; set; }
+
         public Billing? Billing { get; set; }
+
+        public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
     }
 }

@@ -15,12 +15,14 @@ namespace Cab_Management_System.Areas.Finance.Controllers
     {
         private readonly IBillingService _billingService;
         private readonly ITripService _tripService;
+        private readonly IInvoicePdfService _invoicePdfService;
         private readonly ILogger<BillingController> _logger;
 
-        public BillingController(IBillingService billingService, ITripService tripService, ILogger<BillingController> logger)
+        public BillingController(IBillingService billingService, ITripService tripService, IInvoicePdfService invoicePdfService, ILogger<BillingController> logger)
         {
             _billingService = billingService;
             _tripService = tripService;
+            _invoicePdfService = invoicePdfService;
             _logger = logger;
         }
 
@@ -235,6 +237,25 @@ namespace Cab_Management_System.Areas.Finance.Controllers
                 TempData["ErrorMessage"] = "An unexpected error occurred while deleting the billing record.";
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> GenerateInvoice(int id)
+        {
+            var billing = await _billingService.GetBillingWithTripAsync(id);
+            if (billing == null)
+                return NotFound();
+
+            try
+            {
+                var pdf = _invoicePdfService.GenerateInvoice(billing);
+                return File(pdf, "application/pdf", $"Invoice_INV-{billing.Id:D5}.pdf");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating invoice for billing {Id}", id);
+                TempData["ErrorMessage"] = "An error occurred while generating the invoice.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
         }
 
         public async Task<IActionResult> Export()

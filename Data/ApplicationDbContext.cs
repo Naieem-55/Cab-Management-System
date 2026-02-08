@@ -25,6 +25,8 @@ namespace Cab_Management_System.Data
         public DbSet<Billing> Billings { get; set; }
         public DbSet<MaintenanceRecord> MaintenanceRecords { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Expense> Expenses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -96,6 +98,34 @@ namespace Cab_Management_System.Data
 
             builder.Entity<MaintenanceRecord>()
                 .Property(m => m.Cost)
+                .HasPrecision(18, 2);
+
+            // Customer configuration
+            builder.Entity<Customer>()
+                .HasIndex(c => c.Email)
+                .IsUnique();
+
+            builder.Entity<Trip>()
+                .HasOne(t => t.Customer)
+                .WithMany(c => c.Trips)
+                .HasForeignKey(t => t.CustomerId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Expense configuration
+            builder.Entity<Expense>()
+                .HasOne(e => e.Vehicle)
+                .WithMany(v => v.Expenses)
+                .HasForeignKey(e => e.VehicleId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Entity<Expense>()
+                .HasOne(e => e.Trip)
+                .WithMany(t => t.Expenses)
+                .HasForeignKey(e => e.TripId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Entity<Expense>()
+                .Property(e => e.Amount)
                 .HasPrecision(18, 2);
         }
 

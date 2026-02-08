@@ -68,6 +68,28 @@
         </div>
     </div>
 
+    <!-- Profit/Loss Section -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-danger h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-cash-stack fs-1 text-danger"></i>
+                    <h5 class="card-title mt-2">Total Expenses</h5>
+                    <p class="card-text fs-4 fw-bold">@(((decimal)ViewBag.TotalExpenses).ToString("C"))</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-@(((decimal)ViewBag.NetProfit) >= 0 ? "success" : "danger") h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-graph-up-arrow fs-1 text-@(((decimal)ViewBag.NetProfit) >= 0 ? "success" : "danger")"></i>
+                    <h5 class="card-title mt-2">Net Profit/Loss</h5>
+                    <p class="card-text fs-4 fw-bold text-@(((decimal)ViewBag.NetProfit) >= 0 ? "success" : "danger")">@(((decimal)ViewBag.NetProfit).ToString("C"))</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Charts Row -->
     <div class="row g-4 mb-4">
         <div class="col-lg-6">
