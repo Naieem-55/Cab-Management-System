@@ -17,5 +17,9 @@ namespace Cab_Management_System.Services
         Task DeleteTripAsync(int id);
         Task<int> GetTripCountAsync();
         Task<int> GetActiveTripCountAsync();
+        Task<IEnumerable<Trip>> GetTripsByCustomerIdAsync(int customerId);
+        Task<int> GetTripCountByCustomerIdAsync(int customerId);
+        Task<int> GetActiveTripCountByCustomerIdAsync(int customerId);
+        Task<decimal> GetTotalSpentByCustomerIdAsync(int customerId);
     }
 }

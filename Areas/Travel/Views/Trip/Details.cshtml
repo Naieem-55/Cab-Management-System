@@ -131,11 +131,23 @@
         </div>
     </div>
 
-    <div class="mt-3">
+    <div class="mt-3 d-flex gap-2">
+        @if (Model.Status == TripStatus.Completed && Model.DriverRating == null)
+        {
+            <a asp-action="Rate" asp-route-id="@Model.Id" class="btn btn-warning">
+                <i class="bi bi-star"></i> Rate This Trip
+            </a>
+        }
+        else if (Model.DriverRating != null)
+        {
+            <span class="btn btn-success disabled">
+                <i class="bi bi-check-circle"></i> Rated (@Model.DriverRating.Rating/5)
+            </span>
+        }
         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
             <i class="bi bi-pencil"></i> Edit
         </a>
-        <a asp-action="Index" class="btn btn-secondary ms-2">
+        <a asp-action="Index" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Back to List
         </a>
     </div>

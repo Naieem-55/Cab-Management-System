@@ -16,5 +16,6 @@ namespace Cab_Management_System.Services
         Task<decimal> GetTotalRevenueAsync();
         Task<int> GetBillingCountAsync();
         Task<int> GetPendingBillingCountAsync();
+        Task<IEnumerable<Billing>> GetBillingsByCustomerIdAsync(int customerId);
     }
 }

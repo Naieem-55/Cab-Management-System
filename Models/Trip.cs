@@ -68,5 +68,7 @@ namespace Cab_Management_System.Models
         public Billing? Billing { get; set; }
 
         public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
+
+        public DriverRating? DriverRating { get; set; }
     }
 }

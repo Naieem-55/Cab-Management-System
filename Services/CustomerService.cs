@@ -65,5 +65,11 @@ namespace Cab_Management_System.Services
 
         public async Task<int> GetCustomerCountAsync()
             => await _customerRepository.CountAsync();
+
+        public async Task<Customer?> GetCustomerByEmailAsync(string email)
+        {
+            var customers = await _customerRepository.FindAsync(c => c.Email == email);
+            return customers.FirstOrDefault();
+        }
     }
 }

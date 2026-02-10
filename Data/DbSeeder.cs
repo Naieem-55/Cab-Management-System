@@ -13,7 +13,7 @@ namespace Cab_Management_System.Data
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            string[] roles = { "Admin", "FinanceManager", "HRManager", "TravelManager" };
+            string[] roles = { "Admin", "FinanceManager", "HRManager", "TravelManager", "Customer" };
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))

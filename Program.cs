@@ -43,6 +43,7 @@ builder.Services.AddScoped<IBillingRepository, BillingRepository>();
 builder.Services.AddScoped<IMaintenanceRepository, MaintenanceRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
+builder.Services.AddScoped<IDriverRatingRepository, DriverRatingRepository>();
 
 // Register services
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
@@ -54,6 +55,7 @@ builder.Services.AddScoped<IBillingService, BillingService>();
 builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
+builder.Services.AddScoped<IDriverRatingService, DriverRatingService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.Configure<Cab_Management_System.Models.EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));

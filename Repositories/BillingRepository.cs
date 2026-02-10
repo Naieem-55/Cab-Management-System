@@ -41,5 +41,12 @@ namespace Cab_Management_System.Repositories
         public async Task<decimal> GetTotalRevenueAsync()
             => await _dbSet.Where(b => b.Status == PaymentStatus.Completed)
                            .SumAsync(b => b.Amount);
+
+        public async Task<IEnumerable<Billing>> GetBillingsByCustomerIdAsync(int customerId)
+            => await _dbSet.Include(b => b.Trip)
+                               .ThenInclude(t => t.Route)
+                           .Where(b => b.Trip.CustomerId == customerId)
+                           .OrderByDescending(b => b.PaymentDate)
+                           .ToListAsync();
     }
 }

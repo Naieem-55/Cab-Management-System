@@ -1,0 +1,191 @@
+@model DriverPerformanceViewModel
+
+@{
+    ViewData["Title"] = "Driver Performance";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-graph-up"></i> Driver Performance</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Drivers
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-person-workspace"></i> @Model.Driver.Employee?.Name</h5>
+        </div>
+        <div class="card-body">
+            <div class="row text-center g-4">
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="bi bi-star-fill text-warning fs-1"></i>
+                        <h3 class="mt-2">@Model.AverageRating.ToString("F1")</h3>
+                        <div>
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= (int)Math.Round(Model.AverageRating))
+                                { <i class="bi bi-star-fill text-warning"></i> }
+                                else
+                                { <i class="bi bi-star text-muted"></i> }
+                            }
+                        </div>
+                        <p class="text-muted mb-0 mt-1">Average Rating (@Model.TotalRatings reviews)</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="bi bi-geo-alt text-primary fs-1"></i>
+                        <h3 class="mt-2">@Model.TotalTrips</h3>
+                        <p class="text-muted mb-0">Total Trips</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="bi bi-check-circle text-success fs-1"></i>
+                        <h3 class="mt-2">@Model.CompletionRate.ToString("F1")%</h3>
+                        <p class="text-muted mb-0">Completion Rate</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <i class="bi bi-currency-dollar text-success fs-1"></i>
+                        <h3 class="mt-2">@Model.TotalRevenue.ToString("C")</h3>
+                        <p class="text-muted mb-0">Total Revenue</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Rating Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="ratingDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-graph-up"></i> Monthly Trips</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyTripsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-chat-left-text"></i> Recent Ratings</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.RecentRatings.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Rating</th>
+                                <th>Comment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var rating in Model.RecentRatings)
+                            {
+                                <tr>
+                                    <td>@rating.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                    <td>@rating.CustomerName</td>
+                                    <td>
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            if (i <= rating.Rating)
+                                            { <i class="bi bi-star-fill text-warning"></i> }
+                                            else
+                                            { <i class="bi bi-star text-muted"></i> }
+                                        }
+                                        <span class="ms-1 text-muted">(@rating.Rating/5)</span>
+                                    </td>
+                                    <td>@(string.IsNullOrEmpty(rating.Comment) ? "-" : rating.Comment)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">No ratings yet for this driver.</p>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var _theme = document.documentElement.getAttribute('data-theme') || 'light';
+        Chart.defaults.color = _theme === 'dark' ? '#e4e6ea' : '#666';
+        Chart.defaults.borderColor = _theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+        var _gridColor = _theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
+        new Chart(document.getElementById('ratingDistributionChart'), {
+            type: 'bar',
+            data: {
+                labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+                datasets: [{
+                    label: 'Number of Ratings',
+                    data: @Html.Raw(Json.Serialize(Model.RatingDistribution)),
+                    backgroundColor: [
+                        'rgba(220, 53, 69, 0.7)',
+                        'rgba(253, 126, 20, 0.7)',
+                        'rgba(255, 193, 7, 0.7)',
+                        'rgba(25, 135, 84, 0.7)',
+                        'rgba(13, 110, 253, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgb(220, 53, 69)',
+                        'rgb(253, 126, 20)',
+                        'rgb(255, 193, 7)',
+                        'rgb(25, 135, 84)',
+                        'rgb(13, 110, 253)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: _gridColor } }, x: { grid: { color: _gridColor } } },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        new Chart(document.getElementById('monthlyTripsChart'), {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.MonthLabels)),
+                datasets: [{
+                    label: 'Trips Completed',
+                    data: @Html.Raw(Json.Serialize(Model.MonthlyCounts)),
+                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                    borderColor: 'rgb(13, 110, 253)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: _gridColor } }, x: { grid: { color: _gridColor } } }
+            }
+        });
+    </script>
+}

@@ -259,6 +259,48 @@ namespace Cab_Management_System.Migrations
                     b.ToTable("Drivers");
                 });
 
+            modelBuilder.Entity("Cab_Management_System.Models.DriverRating", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("DriverId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TripId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DriverId");
+
+                    b.HasIndex("TripId")
+                        .IsUnique();
+
+                    b.ToTable("DriverRatings");
+                });
+
             modelBuilder.Entity("Cab_Management_System.Models.Employee", b =>
                 {
                     b.Property<int>("Id")
@@ -715,6 +757,25 @@ namespace Cab_Management_System.Migrations
                     b.Navigation("Employee");
                 });
 
+            modelBuilder.Entity("Cab_Management_System.Models.DriverRating", b =>
+                {
+                    b.HasOne("Cab_Management_System.Models.Driver", "Driver")
+                        .WithMany("Ratings")
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Cab_Management_System.Models.Trip", "Trip")
+                        .WithOne("DriverRating")
+                        .HasForeignKey("Cab_Management_System.Models.DriverRating", "TripId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Driver");
+
+                    b.Navigation("Trip");
+                });
+
             modelBuilder.Entity("Cab_Management_System.Models.Expense", b =>
                 {
                     b.HasOne("Cab_Management_System.Models.Trip", "Trip")
@@ -835,6 +896,8 @@ namespace Cab_Management_System.Migrations
 
             modelBuilder.Entity("Cab_Management_System.Models.Driver", b =>
                 {
+                    b.Navigation("Ratings");
+
                     b.Navigation("Trips");
                 });
 
@@ -851,6 +914,8 @@ namespace Cab_Management_System.Migrations
             modelBuilder.Entity("Cab_Management_System.Models.Trip", b =>
                 {
                     b.Navigation("Billing");
+
+                    b.Navigation("DriverRating");
 
                     b.Navigation("Expenses");
                 });

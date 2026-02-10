@@ -119,6 +119,60 @@
         </div>
     }
 
+    <!-- Top Rated Drivers -->
+    @if (Model.TopRatedDrivers.Any())
+    {
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-star-fill"></i> Top Rated Drivers</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Driver Name</th>
+                                <th>Average Rating</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int rank = 1; }
+                            @foreach (var item in Model.TopRatedDrivers)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (rank == 1) { <span class="badge bg-warning text-dark"><i class="bi bi-trophy-fill"></i> #@rank</span> }
+                                        else { <span class="badge bg-secondary">#@rank</span> }
+                                    </td>
+                                    <td>@item.Driver.Employee?.Name</td>
+                                    <td>
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            if (i <= (int)Math.Round(item.AvgRating))
+                                            { <i class="bi bi-star-fill text-warning"></i> }
+                                            else
+                                            { <i class="bi bi-star text-muted"></i> }
+                                        }
+                                        <span class="ms-2 text-muted">(@item.AvgRating.ToString("F1"))</span>
+                                    </td>
+                                    <td>
+                                        <a asp-area="HR" asp-controller="Driver" asp-action="Performance" asp-route-id="@item.Driver.Id"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-graph-up"></i> Performance
+                                        </a>
+                                    </td>
+                                </tr>
+                                rank++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
     <!-- Charts Row -->
     <div class="row g-4 mb-4">
         <div class="col-lg-6">
@@ -200,6 +254,10 @@
 
 @section Scripts {
     <script>
+        var _theme = document.documentElement.getAttribute('data-theme') || 'light';
+        Chart.defaults.color = _theme === 'dark' ? '#e4e6ea' : '#666';
+        Chart.defaults.borderColor = _theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
         new Chart(document.getElementById('positionChart'), {
             type: 'pie',
             data: {

@@ -100,6 +100,35 @@
                     </a>
                 </li>
             }
+
+            @if (User.IsInRole("Customer"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="CustomerPortal" asp-controller="Dashboard" asp-action="Index">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="CustomerPortal" asp-controller="Trip" asp-action="Index">
+                        <i class="bi bi-list-ul"></i> My Trips
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="CustomerPortal" asp-controller="Trip" asp-action="Book">
+                        <i class="bi bi-plus-circle"></i> Book Trip
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="CustomerPortal" asp-controller="Invoice" asp-action="Index">
+                        <i class="bi bi-receipt"></i> Invoices
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="CustomerPortal" asp-controller="Profile" asp-action="Index">
+                        <i class="bi bi-person"></i> My Profile
+                    </a>
+                </li>
+            }
         </ul>
     </nav>
 }

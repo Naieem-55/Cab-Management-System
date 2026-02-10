@@ -79,7 +79,7 @@ body {
 
 .dashboard-card .stat-label {
     font-size: 0.9rem;
-    color: #6c757d;
+    color: var(--text-secondary, #6c757d);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -87,7 +87,7 @@ body {
 /* Cards */
 .card {
     border-radius: 10px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
 }
 
 .card-header {
@@ -101,7 +101,7 @@ body {
 }
 
 .table-hover tbody tr:hover {
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: var(--hover-bg, rgba(0, 0, 0, 0.02));
 }
 
 /* Status badges */

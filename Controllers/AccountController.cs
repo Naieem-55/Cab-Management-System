@@ -12,15 +12,18 @@ namespace Cab_Management_System.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailService _emailService;
+        private readonly ICustomerService _customerService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IEmailService emailService)
+            IEmailService emailService,
+            ICustomerService customerService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailService = emailService;
+            _customerService = customerService;
         }
 
         [HttpGet]
@@ -244,6 +247,65 @@ namespace Cab_Management_System.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public IActionResult Register()
+        {
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+                return RedirectToRoleDashboard();
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(CustomerRegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("Email", "An account with this email already exists.");
+                return View(model);
+            }
+
+            var nameParts = model.Name.Trim().Split(' ', 2);
+            var user = new ApplicationUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                FirstName = nameParts[0],
+                LastName = nameParts.Length > 1 ? nameParts[1] : string.Empty,
+                Role = "Customer",
+                EmailConfirmed = true
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (result.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(user, "Customer");
+
+                var customer = new Customer
+                {
+                    Name = model.Name.Trim(),
+                    Email = model.Email,
+                    Phone = model.Phone,
+                    Address = model.Address
+                };
+                await _customerService.CreateCustomerAsync(customer);
+
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                return RedirectToAction("Index", "Dashboard", new { area = "CustomerPortal" });
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return View(model);
+        }
+
         public IActionResult AccessDenied()
         {
             return View();
@@ -259,6 +321,8 @@ namespace Cab_Management_System.Controllers
                 return RedirectToAction("Index", "Dashboard", new { area = "HR" });
             if (User.IsInRole("TravelManager"))
                 return RedirectToAction("Index", "Dashboard", new { area = "Travel" });
+            if (User.IsInRole("Customer"))
+                return RedirectToAction("Index", "Dashboard", new { area = "CustomerPortal" });
             return RedirectToAction("Index", "Home");
         }
     }

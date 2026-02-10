@@ -1,0 +1,95 @@
+@model IEnumerable<Trip>
+
+@{
+    ViewData["Title"] = "My Trips";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-geo-alt"></i> My Trips</h1>
+        <a asp-action="Book" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Book New Trip
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Route</th>
+                                <th>Trip Date</th>
+                                <th>Driver</th>
+                                <th>Vehicle</th>
+                                <th>Cost</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var trip in Model)
+                            {
+                                <tr>
+                                    <td>@trip.Id</td>
+                                    <td>@trip.Route?.Origin → @trip.Route?.Destination</td>
+                                    <td>@trip.TripDate.ToString("MMM dd, yyyy")</td>
+                                    <td>@trip.Driver?.Employee?.Name</td>
+                                    <td>@trip.Vehicle?.RegistrationNumber</td>
+                                    <td>@trip.Cost.ToString("C")</td>
+                                    <td>
+                                        @switch (trip.Status)
+                                        {
+                                            case TripStatus.Pending:
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                break;
+                                            case TripStatus.Confirmed:
+                                                <span class="badge bg-info">Confirmed</span>
+                                                break;
+                                            case TripStatus.InProgress:
+                                                <span class="badge bg-primary">In Progress</span>
+                                                break;
+                                            case TripStatus.Completed:
+                                                <span class="badge bg-success">Completed</span>
+                                                break;
+                                            case TripStatus.Cancelled:
+                                                <span class="badge bg-danger">Cancelled</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@trip.Id"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-geo-alt text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-2 mb-3">You haven't booked any trips yet.</p>
+                    <a asp-action="Book" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Book Your First Trip
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

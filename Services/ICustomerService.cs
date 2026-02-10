@@ -13,5 +13,6 @@ namespace Cab_Management_System.Services
         Task DeleteCustomerAsync(int id);
         Task<bool> CanDeleteAsync(int id);
         Task<int> GetCustomerCountAsync();
+        Task<Customer?> GetCustomerByEmailAsync(string email);
     }
 }

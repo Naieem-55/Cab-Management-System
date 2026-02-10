@@ -196,6 +196,11 @@
 
 @section Scripts {
     <script>
+        var _theme = document.documentElement.getAttribute('data-theme') || 'light';
+        Chart.defaults.color = _theme === 'dark' ? '#e4e6ea' : '#666';
+        Chart.defaults.borderColor = _theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+        var _gridColor = _theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
         new Chart(document.getElementById('revenueTrendChart'), {
             type: 'bar',
             data: {
@@ -206,7 +211,7 @@
                     backgroundColor: '#0d6efd'
                 }]
             },
-            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            options: { responsive: true, scales: { y: { beginAtZero: true, grid: { color: _gridColor } }, x: { grid: { color: _gridColor } } } }
         });
     </script>
 }

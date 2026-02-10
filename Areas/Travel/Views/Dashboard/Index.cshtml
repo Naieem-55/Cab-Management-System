@@ -200,6 +200,10 @@
 
 @section Scripts {
     <script>
+        var _theme = document.documentElement.getAttribute('data-theme') || 'light';
+        Chart.defaults.color = _theme === 'dark' ? '#e4e6ea' : '#666';
+        Chart.defaults.borderColor = _theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
         new Chart(document.getElementById('tripStatusChart'), {
             type: 'pie',
             data: {

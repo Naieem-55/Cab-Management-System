@@ -9,5 +9,6 @@ namespace Cab_Management_System.Repositories
         Task<IEnumerable<Billing>> GetBillingsByStatusAsync(PaymentStatus status);
         Task<IEnumerable<Billing>> GetBillingsByDateRangeAsync(DateTime startDate, DateTime endDate);
         Task<decimal> GetTotalRevenueAsync();
+        Task<IEnumerable<Billing>> GetBillingsByCustomerIdAsync(int customerId);
     }
 }

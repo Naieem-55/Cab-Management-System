@@ -122,6 +122,22 @@ namespace Cab_Management_System.Services
         public async Task<int> GetActiveTripCountAsync()
             => await _tripRepository.CountAsync(t => t.Status == TripStatus.InProgress);
 
+        public async Task<IEnumerable<Trip>> GetTripsByCustomerIdAsync(int customerId)
+            => await _tripRepository.GetTripsByCustomerIdAsync(customerId);
+
+        public async Task<int> GetTripCountByCustomerIdAsync(int customerId)
+            => await _tripRepository.CountAsync(t => t.CustomerId == customerId);
+
+        public async Task<int> GetActiveTripCountByCustomerIdAsync(int customerId)
+            => await _tripRepository.CountAsync(t => t.CustomerId == customerId &&
+                (t.Status == TripStatus.Pending || t.Status == TripStatus.Confirmed || t.Status == TripStatus.InProgress));
+
+        public async Task<decimal> GetTotalSpentByCustomerIdAsync(int customerId)
+        {
+            var trips = await _tripRepository.FindAsync(t => t.CustomerId == customerId && t.Status == TripStatus.Completed);
+            return trips.Sum(t => t.Cost);
+        }
+
         private async Task SetDriverVehicleOnTrip(int driverId, int vehicleId)
         {
             var driver = await _driverRepository.GetByIdAsync(driverId);

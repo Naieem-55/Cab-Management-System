@@ -83,5 +83,10 @@ namespace Cab_Management_System.Services
         {
             return await _billingRepository.CountAsync(b => b.Status == PaymentStatus.Pending);
         }
+
+        public async Task<IEnumerable<Billing>> GetBillingsByCustomerIdAsync(int customerId)
+        {
+            return await _billingRepository.GetBillingsByCustomerIdAsync(customerId);
+        }
     }
 }

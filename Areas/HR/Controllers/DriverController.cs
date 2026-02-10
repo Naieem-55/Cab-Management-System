@@ -15,12 +15,14 @@ namespace Cab_Management_System.Areas.HR.Controllers
     {
         private readonly IDriverService _driverService;
         private readonly IEmployeeService _employeeService;
+        private readonly IDriverRatingService _driverRatingService;
         private readonly ILogger<DriverController> _logger;
 
-        public DriverController(IDriverService driverService, IEmployeeService employeeService, ILogger<DriverController> logger)
+        public DriverController(IDriverService driverService, IEmployeeService employeeService, IDriverRatingService driverRatingService, ILogger<DriverController> logger)
         {
             _driverService = driverService;
             _employeeService = employeeService;
+            _driverRatingService = driverRatingService;
             _logger = logger;
         }
 
@@ -243,6 +245,25 @@ namespace Cab_Management_System.Areas.HR.Controllers
                 TempData["ErrorMessage"] = "An unexpected error occurred while deleting the driver.";
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Performance(int id)
+        {
+            try
+            {
+                var model = await _driverRatingService.GetDriverPerformanceAsync(id);
+                return View(model);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading driver performance for driver {DriverId}", id);
+                TempData["ErrorMessage"] = "An error occurred while loading driver performance.";
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }

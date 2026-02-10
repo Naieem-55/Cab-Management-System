@@ -28,5 +28,7 @@ namespace Cab_Management_System.Models
         public DriverStatus Status { get; set; } = DriverStatus.Available;
 
         public ICollection<Trip> Trips { get; set; } = new List<Trip>();
+
+        public ICollection<DriverRating> Ratings { get; set; } = new List<DriverRating>();
     }
 }

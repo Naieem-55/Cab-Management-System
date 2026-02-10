@@ -1,0 +1,152 @@
+@model Trip
+
+@{
+    ViewData["Title"] = "Trip Details";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-geo-alt"></i> Trip Details</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to My Trips
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Trip #@Model.Id</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-muted mb-3">Route Information</h6>
+                    <dl class="row">
+                        <dt class="col-sm-4">Origin</dt>
+                        <dd class="col-sm-8">@Model.Route?.Origin</dd>
+
+                        <dt class="col-sm-4">Destination</dt>
+                        <dd class="col-sm-8">@Model.Route?.Destination</dd>
+
+                        <dt class="col-sm-4">Distance</dt>
+                        <dd class="col-sm-8">@Model.Route?.Distance km</dd>
+                    </dl>
+
+                    <hr />
+
+                    <h6 class="text-muted mb-3">Trip Details</h6>
+                    <dl class="row">
+                        <dt class="col-sm-4">Booking Date</dt>
+                        <dd class="col-sm-8">@Model.BookingDate.ToString("MMM dd, yyyy HH:mm")</dd>
+
+                        <dt class="col-sm-4">Trip Date</dt>
+                        <dd class="col-sm-8">@Model.TripDate.ToString("MMM dd, yyyy HH:mm")</dd>
+
+                        <dt class="col-sm-4">Status</dt>
+                        <dd class="col-sm-8">
+                            @switch (Model.Status)
+                            {
+                                case TripStatus.Pending:
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                    break;
+                                case TripStatus.Confirmed:
+                                    <span class="badge bg-info">Confirmed</span>
+                                    break;
+                                case TripStatus.InProgress:
+                                    <span class="badge bg-primary">In Progress</span>
+                                    break;
+                                case TripStatus.Completed:
+                                    <span class="badge bg-success">Completed</span>
+                                    break;
+                                case TripStatus.Cancelled:
+                                    <span class="badge bg-danger">Cancelled</span>
+                                    break;
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Cost</dt>
+                        <dd class="col-sm-8"><strong>@Model.Cost.ToString("C")</strong></dd>
+                    </dl>
+
+                    <hr />
+
+                    <h6 class="text-muted mb-3">Assignment</h6>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Driver</dt>
+                        <dd class="col-sm-8">@Model.Driver?.Employee?.Name</dd>
+
+                        <dt class="col-sm-4">Vehicle</dt>
+                        <dd class="col-sm-8">@Model.Vehicle?.RegistrationNumber (@Model.Vehicle?.Make @Model.Vehicle?.Model)</dd>
+                    </dl>
+                </div>
+            </div>
+
+            @if (Model.Billing != null)
+            {
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-receipt"></i> Payment Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">Amount</dt>
+                            <dd class="col-sm-8">@Model.Billing.Amount.ToString("C")</dd>
+
+                            <dt class="col-sm-4">Payment Method</dt>
+                            <dd class="col-sm-8">@Model.Billing.PaymentMethod</dd>
+
+                            <dt class="col-sm-4">Payment Status</dt>
+                            <dd class="col-sm-8">
+                                @switch (Model.Billing.Status)
+                                {
+                                    case PaymentStatus.Pending:
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        break;
+                                    case PaymentStatus.Completed:
+                                        <span class="badge bg-success">Completed</span>
+                                        break;
+                                    case PaymentStatus.Failed:
+                                        <span class="badge bg-danger">Failed</span>
+                                        break;
+                                    case PaymentStatus.Refunded:
+                                        <span class="badge bg-secondary">Refunded</span>
+                                        break;
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">Payment Date</dt>
+                            <dd class="col-sm-8">@Model.Billing.PaymentDate.ToString("MMM dd, yyyy")</dd>
+                        </dl>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Trip Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-circle-fill @(Model.Status >= TripStatus.Pending ? "text-success" : "text-muted") me-2"></i>
+                            <span>Booking Received</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-circle-fill @(Model.Status >= TripStatus.Confirmed ? "text-success" : "text-muted") me-2"></i>
+                            <span>Confirmed</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-circle-fill @(Model.Status >= TripStatus.InProgress ? "text-success" : "text-muted") me-2"></i>
+                            <span>In Progress</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-circle-fill @(Model.Status >= TripStatus.Completed ? "text-success" : "text-muted") me-2"></i>
+                            <span>Completed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

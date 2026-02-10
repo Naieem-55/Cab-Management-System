@@ -1,359 +1,425 @@
 <div align="center">
 
-# Cab Management System
+# 🚖 Cab Management System
 
-**Enterprise-grade fleet and operations management platform built with ASP.NET Core 8 MVC**
+### Enterprise-Grade Fleet & Operations Management Platform
 
-[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
-[![EF Core](https://img.shields.io/badge/EF%20Core-8.0-512BD4?logo=dotnet&logoColor=white)](https://learn.microsoft.com/en-us/ef/core/)
-[![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
-[![SQL Server](https://img.shields.io/badge/SQL%20Server-LocalDB-CC2927?logo=microsoftsqlserver&logoColor=white)](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb)
-[![MailKit](https://img.shields.io/badge/MailKit-4.3-blue)](https://github.com/jstedfast/MailKit)
-[![QuestPDF](https://img.shields.io/badge/QuestPDF-2024.3-orange)](https://www.questpdf.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+**Built with ASP.NET Core 8 MVC | Entity Framework Core | Bootstrap 5 | Chart.js**
 
----
+<br/>
 
-*A unified, role-based platform for managing fleet operations, trip booking, customer relationships, billing, expense tracking, HR, and vehicle maintenance.*
+[![.NET 8.0](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
+[![EF Core](https://img.shields.io/badge/EF%20Core-8.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://learn.microsoft.com/en-us/ef/core/)
+[![Bootstrap 5](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
+[![SQL Server](https://img.shields.io/badge/SQL%20Server-LocalDB-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white)](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb)
+[![Chart.js](https://img.shields.io/badge/Chart.js-4.4-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)](https://www.chartjs.org/)
+
+<br/>
+
+[![MailKit](https://img.shields.io/badge/MailKit-4.3-2196F3?style=flat-square)](https://github.com/jstedfast/MailKit)
+[![QuestPDF](https://img.shields.io/badge/QuestPDF-2024.3-FF6F00?style=flat-square)](https://www.questpdf.com/)
+[![Bootstrap Icons](https://img.shields.io/badge/Bootstrap%20Icons-1.11-7952B3?style=flat-square)](https://icons.getbootstrap.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](LICENSE)
+
+<br/>
+
+*A unified, role-based platform for managing fleet operations, trip booking, customer self-service, driver performance ratings, billing, expense tracking, HR, and vehicle maintenance — complete with dark mode support.*
 
 </div>
 
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Technology Stack](#technology-stack)
-- [Architecture](#architecture)
-- [Project Structure](#project-structure)
-- [Database Design](#database-design)
-- [Modules & Access Control](#modules--access-control)
-- [Getting Started](#getting-started)
-- [Default Credentials](#default-credentials)
-- [Configuration](#configuration)
-- [License](#license)
+<br/>
 
 ---
 
-## Overview
+## 📋 Table of Contents
 
-The Cab Management System is a full-featured web application designed to digitize and streamline the end-to-end operations of a cab or fleet agency. It provides dedicated workspaces for four operational roles -- **Admin**, **Finance Manager**, **HR Manager**, and **Travel Manager** -- each with tailored dashboards, analytics, and workflows.
+<details>
+<summary>Click to expand</summary>
 
-The platform covers the complete operational lifecycle: managing customers, onboarding employees and drivers, maintaining vehicles and routes, booking and tracking trips, processing payments, tracking expenses, generating PDF invoices, monitoring license compliance, and delivering email notifications.
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [Technology Stack](#-technology-stack)
+- [Architecture](#-architecture)
+- [Project Structure](#-project-structure)
+- [Database Design](#-database-design)
+- [Modules & Access Control](#-modules--access-control)
+- [Getting Started](#-getting-started)
+- [Default Credentials](#-default-credentials)
+- [Configuration](#-configuration)
+- [License](#-license)
 
----
-
-## Key Features
-
-### Core Operations
-- **Multi-Role Dashboard System** -- Four dedicated dashboards with role-specific KPIs, interactive Chart.js visualizations, activity feeds, and contextual alerts
-- **Full CRUD Operations** -- Create, view, edit, and delete across all 9 entity types with server-side validation and error handling
-- **Advanced Search & Filtering** -- Text search, enum-based dropdown filters, date range queries, and multi-criteria filtering on all list views
-- **Server-Side Pagination** -- Consistent pagination across all list views with query string preservation
-
-### Customer & Trip Management
-- **Customer Profiles** -- Centralized customer directory with contact details, trip history, and total spend tracking
-- **Trip Booking Workflow** -- Automated driver and vehicle status transitions as trips progress through states (Pending, Confirmed, InProgress, Completed, Cancelled)
-- **Customer-Trip Linking** -- Optional association between customer profiles and trip bookings for repeat customer tracking
-
-### Financial Management
-- **Billing & Payments** -- Payment records linked to trips with status tracking, payment method breakdown, and date-range filtering
-- **Expense Tracking** -- Categorized expense recording (Fuel, Toll, Parking, Driver Allowance, Insurance, Other) with optional vehicle and trip associations
-- **Profit & Loss Analysis** -- Real-time net profit calculations on the Finance dashboard and Reports page (revenue minus expenses)
-- **Revenue Reporting** -- Monthly and total revenue summaries with payment method distribution and trend analysis
-- **PDF Invoice Generation** -- Professional A4 invoices generated via QuestPDF with company branding, trip details, and billing summary
-
-### HR & Compliance
-- **Employee Management** -- Full workforce management with position classification and employment status tracking
-- **Driver Management** -- Driver registration linked to employee records with license number and expiry date tracking
-- **License Expiry Alerts** -- Proactive alerts on Admin and HR dashboards for drivers with licenses expiring within 30 days or already expired
-- **Visual Compliance Badges** -- "Expired" and "Expiring Soon" badges displayed directly on the Driver Index for at-a-glance compliance monitoring
-
-### Communication
-- **Email Notifications** -- MailKit-powered transactional email delivery with graceful degradation when SMTP is not configured
-- **Password Reset Emails** -- Secure password reset flow with tokenized email links replacing raw URL display
-- **Booking Confirmations** -- Automated email confirmations sent to customers upon trip creation
-
-### Platform Capabilities
-- **Role-Based Authorization** -- ASP.NET Identity with area-level route protection and per-controller role enforcement
-- **Comprehensive Audit Trail** -- Automatic change tracking via `SaveChangesAsync` override, recording entity name, action type, changed fields, and user identity
-- **CSV Data Export** -- One-click export to CSV on Customers, Vehicles, Trips, Billings, and Expenses
-- **Security Headers** -- X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, and Content-Security-Policy middleware
-- **Structured Logging** -- `ILogger<T>` throughout all controllers and services with semantic log templates
-- **Auto-Migration & Seeding** -- Database schema and sample data provisioned automatically on first run
-- **Responsive Design** -- Bootstrap 5 layout with collapsible sidebar, mobile-friendly tables, and status badges
+</details>
 
 ---
 
-## Technology Stack
+## 🔍 Overview
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Runtime** | .NET 8.0 | Cross-platform application framework |
-| **Web Framework** | ASP.NET Core MVC | Server-side request handling and view rendering |
-| **ORM** | Entity Framework Core 8.0 | Object-relational mapping, migrations, and change tracking |
-| **Database** | SQL Server (LocalDB) | Relational data storage |
-| **Authentication** | ASP.NET Core Identity | User management, password hashing, role-based claims |
-| **Email** | MailKit 4.3 | SMTP email delivery for notifications and password resets |
-| **PDF Generation** | QuestPDF 2024.3 | Fluent API for generating professional PDF invoices |
-| **Frontend** | Razor Views + Bootstrap 5 | Server-rendered HTML with responsive CSS framework |
-| **Charts** | Chart.js 4.4 | Interactive dashboard visualizations (pie, bar, line) |
-| **Icons** | Bootstrap Icons | UI iconography via CDN |
-| **Validation** | jQuery Validation Unobtrusive | Client-side form validation tied to server data annotations |
+The **Cab Management System** is a comprehensive web application designed to digitize and streamline the end-to-end operations of a cab or fleet agency. It provides dedicated workspaces for **five operational roles**:
+
+| Role | Area | Purpose |
+|:-----|:-----|:--------|
+| **Admin** | System-wide | Fleet, routes, customers, users, audit logs |
+| **Finance Manager** | Financial | Billing, expenses, revenue reports, invoices |
+| **HR Manager** | Workforce | Employees, drivers, license compliance, performance |
+| **Travel Manager** | Operations | Trips, maintenance, ratings |
+| **Customer** | Self-Service | Trip booking, invoices, profile management |
+
+The platform covers the **complete operational lifecycle**: customer self-service registration and trip booking, driver performance tracking with star ratings, employee and driver management, vehicle and route maintenance, payment processing, expense tracking, PDF invoice generation, license compliance monitoring, email notifications, and a system-wide **dark mode** for user comfort.
 
 ---
 
-## Architecture
+## ✨ Key Features
+
+### 🏢 Core Operations
+| Feature | Description |
+|:--------|:------------|
+| Multi-Role Dashboards | 5 dedicated dashboards with role-specific KPIs, Chart.js visualizations, and contextual alerts |
+| Full CRUD Operations | Create, view, edit, and delete across all 10 entity types with server-side validation |
+| Advanced Search & Filtering | Text search, enum dropdowns, date ranges, and multi-criteria filtering on all list views |
+| Server-Side Pagination | Consistent pagination across all list views with query string preservation |
+
+### 👤 Customer Self-Service Portal
+| Feature | Description |
+|:--------|:------------|
+| Customer Registration | Public sign-up form creating Identity user + Customer profile with auto-login |
+| Personalized Dashboard | Trip count, active trips, total spend, recent trips, and quick action buttons |
+| Self-Service Trip Booking | Select route and date; driver and vehicle are auto-assigned from available resources |
+| Trip History & Details | Full trip list with status badges, detailed view with visual progress tracker |
+| Invoice Access | Download PDF invoices directly from the customer portal |
+| Profile Management | View and edit personal information (name, phone, address) |
+
+### ⭐ Driver Performance & Ratings
+| Feature | Description |
+|:--------|:------------|
+| Trip Rating System | Interactive 5-star rating with hover effects on completed trips, one rating per trip |
+| Performance Dashboard | Per-driver analytics: average rating, total trips, completion rate, revenue, charts |
+| Top Rated Drivers | Ranked leaderboard on HR Dashboard with trophy badges and performance links |
+| Visual Star Display | Star ratings rendered inline on tables and detail views throughout the app |
+
+### 🚕 Customer & Trip Management
+| Feature | Description |
+|:--------|:------------|
+| Customer Profiles | Centralized directory with contact details, trip history, and total spend tracking |
+| Trip Booking Workflow | Automated driver/vehicle status transitions through trip states (Pending → Completed) |
+| Customer-Trip Linking | Optional association between customer profiles and bookings for repeat tracking |
+
+### 💰 Financial Management
+| Feature | Description |
+|:--------|:------------|
+| Billing & Payments | Payment records linked to trips with status tracking, method breakdown, and date filtering |
+| Expense Tracking | Categorized recording (Fuel, Toll, Parking, Driver Allowance, Insurance, Other) |
+| Profit & Loss Analysis | Real-time net profit calculations on Finance dashboard and Reports page |
+| Revenue Reporting | Monthly and total summaries with payment method distribution and trend analysis |
+| PDF Invoice Generation | Professional A4 invoices via QuestPDF with company branding and billing summary |
+
+### 👥 HR & Compliance
+| Feature | Description |
+|:--------|:------------|
+| Employee Management | Workforce management with position classification and employment status tracking |
+| Driver Management | Driver registration with license number and expiry date tracking |
+| License Expiry Alerts | Proactive alerts on Admin and HR dashboards for licenses expiring within 30 days |
+| Compliance Badges | "Expired" and "Expiring Soon" badges on Driver Index for at-a-glance monitoring |
+
+### 📧 Communication
+| Feature | Description |
+|:--------|:------------|
+| Email Notifications | MailKit-powered transactional email with graceful degradation when SMTP is unconfigured |
+| Password Reset Emails | Secure token-based password reset flow with email delivery |
+| Booking Confirmations | Automated email confirmations sent to customers upon trip creation |
+
+### 🔧 Platform Capabilities
+| Feature | Description |
+|:--------|:------------|
+| Role-Based Authorization | ASP.NET Identity with area-level route protection and per-controller enforcement |
+| Comprehensive Audit Trail | Automatic change tracking recording entity name, action, changed fields, and user |
+| CSV Data Export | One-click export on Customers, Vehicles, Trips, Billings, and Expenses |
+| 🌙 Dark Mode | System-wide theme with CSS variables, navbar toggle, localStorage, system preference detection, smooth transitions, and Chart.js color updates |
+| Security Headers | X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, CSP |
+| Structured Logging | `ILogger<T>` throughout all controllers and services with semantic templates |
+| Auto-Migration & Seeding | Database schema and sample data provisioned automatically on first run |
+| Responsive Design | Bootstrap 5 layout with collapsible sidebar, mobile-friendly tables, and badges |
+
+---
+
+## 🛠 Technology Stack
+
+| Layer | Technology | Version | Purpose |
+|:------|:-----------|:--------|:--------|
+| **Runtime** | .NET | 8.0 | Cross-platform application framework |
+| **Web Framework** | ASP.NET Core MVC | 8.0 | Server-side request handling and view rendering |
+| **ORM** | Entity Framework Core | 8.0 | Object-relational mapping, migrations, change tracking |
+| **Database** | SQL Server | LocalDB | Relational data storage |
+| **Authentication** | ASP.NET Core Identity | 8.0 | User management, password hashing, role-based claims |
+| **Email** | MailKit | 4.3 | SMTP email delivery for notifications |
+| **PDF** | QuestPDF | 2024.3 | Fluent API for professional PDF invoices |
+| **Frontend** | Razor Views + Bootstrap | 5.3 | Server-rendered HTML with responsive CSS |
+| **Charts** | Chart.js | 4.4 | Interactive visualizations (pie, bar, line) |
+| **Icons** | Bootstrap Icons | 1.11 | UI iconography via CDN |
+| **Validation** | jQuery Validation | Unobtrusive | Client-side form validation |
+
+---
+
+## 🏗 Architecture
 
 The application implements a **layered architecture** with clear separation of concerns:
 
 ```
-                    +-------------------------------------+
-                    |           Presentation               |
-                    |   Razor Views  .  Tag Helpers         |
-                    |   Bootstrap 5  .  Chart.js            |
-                    +----------------+--------------------+
-                                     |
-                    +----------------v--------------------+
-                    |           Controllers                 |
-                    |   Area-based  .  [Authorize(Roles)]   |
-                    |   ViewModels  .  TempData messages    |
-                    +----------------+--------------------+
-                                     |
-                    +----------------v--------------------+
-                    |          Service Layer                |
-                    |   Business rules  .  Orchestration    |
-                    |   Email  .  PDF  .  Logging           |
-                    +----------------+--------------------+
-                                     |
-                    +----------------v--------------------+
-                    |        Repository Layer               |
-                    |   Generic CRUD  .  Eager loading      |
-                    |   Custom queries . Filtering          |
-                    +----------------+--------------------+
-                                     |
-                    +----------------v--------------------+
-                    |     EF Core + ASP.NET Identity        |
-                    |   DbContext  .  Migrations             |
-                    |   Audit interceptor . Seeding          |
-                    +----------------+--------------------+
-                                     |
-                    +----------------v--------------------+
-                    |           SQL Server                  |
-                    +-------------------------------------+
+┌─────────────────────────────────────────┐
+│            Presentation Layer            │
+│    Razor Views  ·  Bootstrap 5           │
+│    Chart.js  ·  Dark Mode  ·  Tag Helpers│
+├─────────────────────────────────────────┤
+│            Controller Layer              │
+│    5 Area Controllers  ·  [Authorize]    │
+│    ViewModels  ·  TempData               │
+├─────────────────────────────────────────┤
+│             Service Layer                │
+│    Business Logic  ·  Orchestration      │
+│    Email  ·  PDF  ·  Dashboard Stats     │
+├─────────────────────────────────────────┤
+│            Repository Layer              │
+│    Generic CRUD  ·  Eager Loading        │
+│    Custom Queries  ·  Filtering          │
+├─────────────────────────────────────────┤
+│      EF Core + ASP.NET Identity          │
+│    DbContext  ·  Migrations              │
+│    Audit Interceptor  ·  Seeding         │
+├─────────────────────────────────────────┤
+│             SQL Server                   │
+└─────────────────────────────────────────┘
 ```
 
 ### Design Principles
 
 | Principle | Implementation |
-|-----------|---------------|
-| **Generic Repository** | `IRepository<T>` / `Repository<T>` provides CRUD, counting, and predicate-based queries; entity-specific repositories extend with custom methods and eager loading |
-| **Thin Controllers** | Controllers delegate to services; no direct repository or DbContext access from controllers |
-| **Area Isolation** | Each module (Admin, Finance, HR, Travel) resides in its own MVC Area with dedicated controllers, views, and `_ViewImports` |
-| **ViewModel Separation** | Domain models never bind directly to forms; ViewModels handle dropdowns, validation display, and form-specific concerns |
-| **Automatic Auditing** | `SaveChangesAsync` override in `ApplicationDbContext` sets `CreatedDate` on insert and `ModifiedDate` on update, with full change logging to the AuditLog table |
-| **Graceful Degradation** | Email and external services are wrapped in try-catch blocks to ensure core operations are never disrupted by third-party failures |
+|:----------|:---------------|
+| **Generic Repository** | `IRepository<T>` / `Repository<T>` provides CRUD, counting, and predicate queries; entity repos extend with custom methods |
+| **Thin Controllers** | Controllers delegate to services; no direct repository or DbContext access |
+| **Area Isolation** | Each module (Admin, Finance, HR, Travel, CustomerPortal) in its own MVC Area |
+| **ViewModel Separation** | Domain models never bind directly to forms; ViewModels handle all form concerns |
+| **Automatic Auditing** | `SaveChangesAsync` override sets audit timestamps and logs all changes to AuditLog |
+| **Graceful Degradation** | Email and external services wrapped in try-catch to prevent core operation disruptions |
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 Cab Management System/
-|-- Areas/
-|   |-- Admin/
-|   |   |-- Controllers/            # Dashboard, UserManagement, Vehicle, Route, Customer
-|   |   +-- Views/                  # 21 views (dashboards, CRUD, customer management)
-|   |-- Finance/
-|   |   |-- Controllers/            # Dashboard, Billing, Expense, Reports
-|   |   +-- Views/                  # 17 views (dashboards, CRUD, expense tracking)
-|   |-- HR/
-|   |   |-- Controllers/            # Dashboard, Employee, Driver
-|   |   +-- Views/                  # 11 views (dashboards, CRUD, license alerts)
-|   +-- Travel/
-|       |-- Controllers/            # Dashboard, Trip, Maintenance
-|       +-- Views/                  # 11 views (dashboards, CRUD, booking)
-|
-|-- Controllers/
-|   |-- AccountController.cs        # Authentication, profile, password reset with email
-|   +-- HomeController.cs           # Landing page with role-based redirect
-|
-|-- Data/
-|   |-- ApplicationDbContext.cs     # DbContext, entity config, audit interceptor
-|   +-- DbSeeder.cs                # Role, user, and sample data seeding
-|
-|-- Helpers/
-|   +-- CsvExportHelper.cs         # Generic CSV export utility
-|
-|-- Models/
-|   |-- Enums/                      # 10 enums (DriverStatus, TripStatus, ExpenseCategory, etc.)
-|   |-- ViewModels/                 # 14 ViewModels (auth, dashboards, entities)
-|   |-- BaseEntity.cs               # Abstract base with audit timestamps
-|   |-- EmailSettings.cs            # SMTP configuration POCO
-|   |-- PaginatedList.cs            # Generic pagination helper
-|   +-- [9 domain models]           # Employee, Driver, Vehicle, Route, Trip, Billing,
-|                                   # MaintenanceRecord, Customer, Expense
-|
-|-- Repositories/
-|   |-- IRepository.cs              # Generic repository interface
-|   |-- Repository.cs               # Generic repository implementation
-|   +-- [9 entity repositories]     # Interface + implementation pairs
-|
-|-- Services/
-|   |-- IEmailService.cs            # Email notification contract
-|   |-- EmailService.cs             # MailKit SMTP implementation
-|   |-- IInvoicePdfService.cs       # PDF generation contract
-|   |-- InvoicePdfService.cs        # QuestPDF invoice implementation
-|   |-- IDashboardService.cs        # Dashboard aggregation contract
-|   |-- DashboardService.cs         # Multi-role dashboard statistics
-|   +-- [9 entity services]         # Business logic implementations
-|
-|-- Views/
-|   |-- Account/                    # Login, ChangePassword, ForgotPassword, ResetPassword, Profile
-|   |-- Home/                       # Landing page
-|   +-- Shared/                     # _Layout, _SidebarPartial, _LoginPartial, _PaginationPartial
-|
-|-- wwwroot/                        # Static assets (CSS, JS, client libraries)
-|-- Migrations/                     # EF Core migration files
-|-- Program.cs                      # Entry point, DI registration, middleware pipeline
-+-- appsettings.json                # Connection strings, logging, email settings
+│
+├── Areas/
+│   ├── Admin/                        # System administration
+│   │   ├── Controllers/              # Dashboard, UserManagement, Vehicle, Route, Customer
+│   │   └── Views/                    # 21 views
+│   ├── CustomerPortal/               # Customer self-service
+│   │   ├── Controllers/              # Dashboard, Trip, Invoice, Profile
+│   │   └── Views/                    # 9 views
+│   ├── Finance/                      # Financial management
+│   │   ├── Controllers/              # Dashboard, Billing, Expense, Reports
+│   │   └── Views/                    # 17 views
+│   ├── HR/                           # Human resources
+│   │   ├── Controllers/              # Dashboard, Employee, Driver
+│   │   └── Views/                    # 13 views
+│   └── Travel/                       # Trip operations
+│       ├── Controllers/              # Dashboard, Trip, Maintenance
+│       └── Views/                    # 13 views
+│
+├── Controllers/
+│   ├── AccountController.cs          # Auth, registration, profile, password reset
+│   └── HomeController.cs             # Landing page with role-based redirect
+│
+├── Data/
+│   ├── ApplicationDbContext.cs        # DbContext, entity config, audit interceptor
+│   └── DbSeeder.cs                   # Role, user, and sample data seeding
+│
+├── Helpers/
+│   └── CsvExportHelper.cs            # Generic CSV export utility
+│
+├── Models/
+│   ├── Enums/                         # 10 enums (DriverStatus, TripStatus, etc.)
+│   ├── ViewModels/                    # 17 ViewModels
+│   ├── BaseEntity.cs                  # Abstract base with audit timestamps
+│   └── [10 domain models]            # Employee, Driver, Vehicle, Route, Trip,
+│                                      # Billing, MaintenanceRecord, Customer,
+│                                      # Expense, DriverRating
+│
+├── Repositories/
+│   ├── IRepository.cs                 # Generic repository interface
+│   ├── Repository.cs                  # Generic repository implementation
+│   └── [10 entity repositories]       # Interface + implementation pairs
+│
+├── Services/
+│   ├── EmailService.cs                # MailKit SMTP implementation
+│   ├── InvoicePdfService.cs           # QuestPDF invoice implementation
+│   ├── DashboardService.cs            # Multi-role dashboard statistics
+│   └── [10 entity services]           # Business logic implementations
+│
+├── Views/
+│   ├── Account/                       # Login, Register, Profile, Password flows
+│   ├── Home/                          # Landing page
+│   └── Shared/                        # _Layout, _Sidebar, _Login, _Pagination
+│
+├── wwwroot/
+│   ├── css/
+│   │   ├── site.css                   # Core styles with CSS variables
+│   │   └── dark-mode.css              # Dark theme definitions & overrides
+│   └── js/
+│       └── site.js                    # Sidebar highlighting & theme toggle
+│
+├── Migrations/                        # EF Core migration files
+├── Program.cs                         # Entry point, DI, middleware pipeline
+└── appsettings.json                   # Connection strings, email, logging
 ```
 
 ---
 
-## Database Design
+## 🗄 Database Design
 
 ### Entity Relationship Diagram
 
 ```
-+----------------+         +----------------+         +----------------+
-|    Employee    |         |     Driver     |         |    Customer    |
-+----------------+         +----------------+         +----------------+
-| Id          PK |--1---1--| Id          PK |         | Id          PK |
-| Name           |         | EmployeeId  FK |         | Name           |
-| Email     (UQ) |         | LicenseNo (UQ) |         | Email     (UQ) |
-| Phone          |         | LicenseExpiry  |         | Phone          |
-| Position       |         | Status         |         | Address        |
-| Status         |         +----------------+         +-------+--------+
-| HireDate       |                |                           |
-| Salary         |                1                           |
-+----------------+                |                           |
-                                  *                       0..* (optional)
-+----------------+         +------+----------+                |
-|    Vehicle     |         |      Trip       |<-------+-------+
-+----------------+         +-----------------+        |
-| Id          PK |--1---*--| Id           PK |        |
-| RegNo     (UQ) |         | DriverId     FK |        |
-| Make           |         | VehicleId    FK |        |
-| Model          |         | RouteId      FK |        |
-| Year           |         | CustomerId   FK |  (nullable, SET NULL)
-| Color          |         | CustomerName    |
-| Capacity       |         | CustomerPhone   |
-| FuelType       |         | CustomerEmail   |
-| Status         |         | BookingDate     |
-| Mileage        |         | TripDate        |
-+-------+--------+         | Status          |
-        |                   | Cost            |
-        |                   +-----+-----+-----+
-        |                         |     |
-        1                         1     *
-        |                         |     |
-+-------+--------+         +-----+--+  +-----+------+
-|  Maintenance   |         | Billing |  |  Expense   |
-|    Record      |         +--------+   +------------+
-+----------------+         | Id   PK |  | Id      PK |
-| Id          PK |         | TripId FK|  | VehicleId FK|
-| VehicleId   FK |         | Amount   |  | TripId   FK |
-| Description    |         | PayDate  |  | Category    |
-| Cost           |         | Method   |  | Amount      |
-| Date           |         | Status   |  | Date        |
-| NextMaintDate  |         +----------+  | Description |
-| Status         |                       | ApprovedBy  |
-+----------------+                       +-------------+
+┌────────────────┐       ┌────────────────┐       ┌────────────────┐
+│    Employee     │       │     Driver     │       │    Customer    │
+├────────────────┤       ├────────────────┤       ├────────────────┤
+│ Id          PK │──1─1──│ Id          PK │       │ Id          PK │
+│ Name           │       │ EmployeeId  FK │       │ Name           │
+│ Email     (UQ) │       │ LicenseNo (UQ) │       │ Email     (UQ) │
+│ Phone          │       │ LicenseExpiry  │       │ Phone          │
+│ Position       │       │ Status         │       │ Address        │
+│ Status         │       └───────┬────────┘       └───────┬────────┘
+│ HireDate       │               │                        │
+│ Salary         │               1                    0..* (optional)
+└────────────────┘               │                        │
+                                 *                        │
+┌────────────────┐       ┌──────┴─────────┐◄──────────────┘
+│    Vehicle     │       │      Trip      │
+├────────────────┤       ├────────────────┤
+│ Id          PK │──1─*──│ Id          PK │
+│ RegNo     (UQ) │       │ DriverId    FK │
+│ Make           │       │ VehicleId   FK │
+│ Model          │       │ RouteId     FK │
+│ Year           │       │ CustomerId  FK │  (nullable)
+│ Color          │       │ CustomerName   │
+│ Capacity       │       │ CustomerPhone  │
+│ FuelType       │       │ BookingDate    │
+│ Status         │       │ TripDate       │
+│ Mileage        │       │ Status         │
+└───────┬────────┘       │ Cost           │
+        │                └──┬──────┬──────┘
+        │                   │      │
+        1                   1      *
+        │                   │      │
+┌───────┴────────┐   ┌─────┴──┐  ┌┴───────────┐  ┌────────────────┐
+│  Maintenance   │   │Billing │  │  Expense   │  │ DriverRating   │
+│    Record      │   ├────────┤  ├────────────┤  ├────────────────┤
+├────────────────┤   │ Id  PK │  │ Id      PK │  │ Id          PK │
+│ Id          PK │   │TripId FK│  │VehicleId FK│  │ TripId  FK(UQ) │
+│ VehicleId   FK │   │ Amount  │  │ TripId  FK │  │ DriverId    FK │
+│ Description    │   │PayDate  │  │ Category   │  │ Rating   (1-5) │
+│ Cost           │   │ Method  │  │ Amount     │  │ Comment        │
+│ Date           │   │ Status  │  │ Date       │  │ CustomerName   │
+│ NextMaintDate  │   └────────┘  │ Description │  └────────────────┘
+│ Status         │               │ ApprovedBy  │
+└────────────────┘               └────────────┘
 
-+----------------+         +----------------+
-|     Route      |         |   AuditLog     |
-+----------------+         +----------------+
-| Id          PK |--1---*--Trip             | Id          PK |
-| Origin         |                          | EntityName     |
-| Destination    |                          | EntityId       |
-| Distance       |                          | Action         |
-| EstTimeHours   |                          | Changes (JSON) |
-| BaseCost       |                          | UserId         |
-+----------------+                          | UserName       |
-                                            | Timestamp      |
-+ ASP.NET Identity tables                  +----------------+
-  (AspNetUsers, AspNetRoles,
-   AspNetUserRoles, etc.)
+┌────────────────┐       ┌────────────────┐
+│     Route      │       │   AuditLog     │
+├────────────────┤       ├────────────────┤
+│ Id          PK │──1─*──Trip             │ Id          PK │
+│ Origin         │                        │ EntityName     │
+│ Destination    │                        │ EntityId       │
+│ Distance       │                        │ Action         │
+│ EstTimeHours   │                        │ Changes (JSON) │
+│ BaseCost       │                        │ UserId         │
+└────────────────┘                        │ Timestamp      │
+                                          └────────────────┘
++ ASP.NET Identity tables (AspNetUsers, AspNetRoles, AspNetUserRoles, etc.)
 ```
 
 ### Referential Integrity Rules
 
 | Relationship | Delete Behavior | Rationale |
-|-------------|----------------|-----------|
-| Employee -> Driver | Restrict | Prevent orphaned driver records |
-| Driver -> Trip | Restrict | Prevent deletion of drivers with trip history |
-| Vehicle -> Trip | Restrict | Prevent deletion of vehicles with trip history |
-| Route -> Trip | Restrict | Prevent deletion of routes with trip history |
-| Customer -> Trip | Set Null | Trips persist after customer deletion; CustomerId becomes null |
-| Trip -> Billing | Cascade | Billing is meaningless without its trip |
-| Trip -> Expense | Set Null | Expenses persist after trip deletion for financial records |
-| Vehicle -> MaintenanceRecord | Cascade | Maintenance history follows vehicle lifecycle |
-| Vehicle -> Expense | Set Null | Expenses persist after vehicle deletion for financial records |
+|:-------------|:---------------|:----------|
+| Employee → Driver | **Restrict** | Prevent orphaned driver records |
+| Driver → Trip | **Restrict** | Preserve trip history |
+| Vehicle → Trip | **Restrict** | Preserve trip history |
+| Route → Trip | **Restrict** | Preserve trip history |
+| Customer → Trip | **Set Null** | Trips persist; `CustomerId` becomes null |
+| Trip → Billing | **Cascade** | Billing follows trip lifecycle |
+| Trip → Expense | **Set Null** | Expenses persist for financial records |
+| Trip → DriverRating | **Cascade** | Rating follows trip lifecycle; unique TripId constraint |
+| Driver → DriverRating | **Restrict** | Preserve rating history |
+| Vehicle → Maintenance | **Cascade** | Maintenance follows vehicle lifecycle |
+| Vehicle → Expense | **Set Null** | Expenses persist for financial records |
 
 ---
 
-## Modules & Access Control
+## 🔐 Modules & Access Control
 
-### Admin Module
-> Full system oversight, configuration, and customer management
-
-| Feature | Description |
-|---------|-------------|
-| **Dashboard** | System-wide KPIs: vehicles, drivers, employees, active trips, users, revenue. Includes trip status and monthly revenue charts. Displays license expiry alerts for drivers within 30 days of expiration. |
-| **User Management** | Create and manage system users; assign roles (Admin, FinanceManager, HRManager, TravelManager) |
-| **Vehicle Management** | Fleet CRUD with search; track registration, capacity, fuel type, mileage, and availability status |
-| **Route Management** | Define origin-destination routes with distance, estimated time, and base cost |
-| **Customer Management** | Customer directory with CRUD, search, pagination, and CSV export. Details view shows trip history and total spend. |
-| **Audit Logs** | Searchable audit trail of all create, update, and delete operations across the system |
-
-### Finance Module
-> Revenue tracking, expense management, and financial reporting
+### 🛡 Admin Module
+> *Full system oversight, configuration, and customer management*
 
 | Feature | Description |
-|---------|-------------|
-| **Dashboard** | Financial KPIs: total revenue, monthly revenue, pending/completed payments, total expenses, monthly expenses, net profit. Includes payment method, revenue trend, and expense category charts. |
-| **Billing** | Create and manage billing records linked to trips; filter by payment status and date range. Download PDF invoices from billing details. |
-| **Expense Tracking** | Record and manage expenses categorized by type (Fuel, Toll, Parking, etc.) with optional vehicle and trip associations. Filter by category, vehicle, and date range. CSV export supported. |
-| **Reports** | Revenue summaries with payment method breakdown, period-based analysis, total expenses, and net profit/loss calculations |
+|:--------|:------------|
+| **Dashboard** | System-wide KPIs with trip status charts, monthly revenue, and license expiry alerts |
+| **User Management** | Create and manage users; assign roles (Admin, Finance, HR, Travel) |
+| **Vehicle Management** | Fleet CRUD with search; registration, capacity, fuel type, mileage tracking |
+| **Route Management** | Origin-destination routes with distance, estimated time, and base cost |
+| **Customer Management** | Customer directory with CRUD, search, pagination, CSV export, and trip history |
+| **Audit Logs** | Searchable trail of all create, update, and delete operations |
 
-### HR Module
-> Workforce administration and compliance monitoring
-
-| Feature | Description |
-|---------|-------------|
-| **Dashboard** | Workforce KPIs: total/active employees, available drivers, employees on leave. Displays license expiry alerts for drivers approaching or past license expiration. |
-| **Employee Management** | Full CRUD with position (Driver, Receptionist, Mechanic, Cleaner) and status filters |
-| **Driver Management** | Register drivers linked to employee records; track license numbers and expiry dates. Visual badges indicate expired or expiring-soon licenses. |
-
-### Travel Module
-> Trip operations and vehicle maintenance
+### 💳 Finance Module
+> *Revenue tracking, expense management, and financial reporting*
 
 | Feature | Description |
-|---------|-------------|
-| **Dashboard** | Operations KPIs: total/active/completed trips, vehicle availability, overdue maintenance count |
-| **Trip Management** | Book trips with driver, vehicle, route, and optional customer selection. Automated status workflow updates driver/vehicle availability. Email confirmations sent to customers when configured. |
-| **Maintenance** | Schedule and track vehicle maintenance; flag overdue service records |
+|:--------|:------------|
+| **Dashboard** | Revenue, expenses, net profit KPIs with payment method, trend, and expense charts |
+| **Billing** | Manage billing records; filter by status and date range; download PDF invoices |
+| **Expense Tracking** | Categorized expenses with vehicle/trip associations; filter and CSV export |
+| **Reports** | Revenue summaries, payment breakdowns, period analysis, and profit/loss |
+
+### 👨‍💼 HR Module
+> *Workforce administration, compliance monitoring, and driver performance*
+
+| Feature | Description |
+|:--------|:------------|
+| **Dashboard** | Workforce KPIs, license expiry alerts, and Top Rated Drivers leaderboard |
+| **Employee Management** | Full CRUD with position and status filters |
+| **Driver Management** | License tracking with visual compliance badges and performance links |
+| **Driver Performance** | Analytics dashboard: average rating, trips, completion rate, revenue, charts |
+
+### 🗺 Travel Module
+> *Trip operations, vehicle maintenance, and trip ratings*
+
+| Feature | Description |
+|:--------|:------------|
+| **Dashboard** | Trip and vehicle status KPIs with pie chart visualizations |
+| **Trip Management** | Book trips with automated driver/vehicle assignment and email confirmations |
+| **Trip Rating** | Interactive 5-star rating on completed trips with comments; one per trip |
+| **Maintenance** | Schedule and track vehicle maintenance; flag overdue records |
+
+### 🧑‍💻 Customer Portal
+> *Self-service trip booking, tracking, and invoice management*
+
+| Feature | Description |
+|:--------|:------------|
+| **Registration** | Public sign-up creating Identity user + Customer profile with auto-login |
+| **Dashboard** | Personalized stats, recent trips table, and quick action buttons |
+| **Trip Booking** | Select route and date; driver/vehicle auto-assigned; trip created as Pending |
+| **My Trips** | Trip history with status badges, detailed view with progress tracker |
+| **Invoices** | Billing list with PDF download buttons for each invoice |
+| **Profile** | View and edit personal information |
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later
-- SQL Server LocalDB (included with Visual Studio) or any SQL Server instance
+| Requirement | Version |
+|:------------|:--------|
+| [.NET SDK](https://dotnet.microsoft.com/download/dotnet/8.0) | 8.0 or later |
+| SQL Server | LocalDB (included with Visual Studio) or any instance |
 
 ### Quick Start
 
@@ -369,20 +435,18 @@ dotnet restore
 dotnet run
 ```
 
-The application will automatically:
-- Create the database and apply all EF Core migrations
-- Seed roles, default users, and sample data
+> **Note:** The application will automatically create the database, apply all EF Core migrations, and seed roles, default users, and sample data on first run.
 
 ### Access the Application
 
 | Protocol | URL |
-|----------|-----|
+|:---------|:----|
 | HTTPS | `https://localhost:7188` |
 | HTTP | `http://localhost:5195` |
 
 ### Custom Database Connection
 
-To use a different SQL Server instance, update `appsettings.json`:
+Update `appsettings.json` to use a different SQL Server instance:
 
 ```json
 {
@@ -394,40 +458,40 @@ To use a different SQL Server instance, update `appsettings.json`:
 
 ---
 
-## Default Credentials
+## 🔑 Default Credentials
 
 The application seeds the following accounts on first run:
 
 | Role | Email | Password |
-|------|-------|----------|
+|:-----|:------|:---------|
 | **Admin** | `admin@cabsystem.com` | `Admin@123` |
 | **Finance Manager** | `finance@cabsystem.com` | `Finance@123` |
 | **HR Manager** | `hr@cabsystem.com` | `HR@1234` |
 | **Travel Manager** | `travel@cabsystem.com` | `Travel@123` |
 
-> The Admin account can create additional users through the User Management module.
+> **Tip:** The Admin account can create additional users through User Management. Customers can self-register via the **Register** link on the login page.
 
 ### Sample Data
 
-The seeder provisions realistic sample data across all entities:
+The seeder provisions realistic sample data for immediate testing:
 
 | Entity | Count | Notes |
-|--------|-------|-------|
+|:-------|:------|:------|
 | Employees | 8 | 4 drivers, 2 receptionists, 1 mechanic, 1 cleaner |
 | Drivers | 4 | Linked to driver-position employees |
 | Vehicles | 6 | Mixed fuel types and statuses |
 | Routes | 5 | Indian city-to-city routes |
 | Trips | 6 | Various statuses (Pending through Completed) |
 | Billings | 4 | Pending and completed payments |
-| Maintenance Records | 3 | Scheduled, in-progress, and completed |
+| Maintenance | 3 | Scheduled, in-progress, and completed |
 
 ---
 
-## Configuration
+## ⚙ Configuration
 
 ### Email Settings
 
-Configure SMTP in `appsettings.json` to enable email notifications (password resets, booking confirmations):
+Configure SMTP in `appsettings.json` to enable email notifications:
 
 ```json
 {
@@ -445,49 +509,67 @@ Configure SMTP in `appsettings.json` to enable email notifications (password res
 
 > When SMTP is not configured, the application logs a warning and continues without sending emails. No functionality is blocked.
 
-### Password Policy
+### Security Configuration
 
-Configured in `Program.cs`:
+<details>
+<summary><strong>Password Policy</strong></summary>
 
 | Rule | Value |
-|------|-------|
+|:-----|:------|
 | Minimum length | 6 characters |
 | Require uppercase | Yes |
 | Require lowercase | Yes |
 | Require digit | Yes |
 | Require special character | Yes |
 
-### Authentication
+</details>
+
+<details>
+<summary><strong>Authentication</strong></summary>
 
 | Setting | Value |
-|---------|-------|
+|:--------|:------|
 | Login path | `/Account/Login` |
 | Access denied path | `/Account/AccessDenied` |
 | Session expiry | 30 days (sliding) |
 
-### Security Headers
+</details>
 
-The following HTTP security headers are applied to all responses:
+<details>
+<summary><strong>Security Headers</strong></summary>
 
 | Header | Value |
-|--------|-------|
-| X-Frame-Options | DENY |
-| X-Content-Type-Options | nosniff |
-| X-XSS-Protection | 1; mode=block |
-| Referrer-Policy | strict-origin-when-cross-origin |
+|:-------|:------|
+| X-Frame-Options | `DENY` |
+| X-Content-Type-Options | `nosniff` |
+| X-XSS-Protection | `1; mode=block` |
+| Referrer-Policy | `strict-origin-when-cross-origin` |
 | Content-Security-Policy | Configured for self, inline styles/scripts, and CDN assets |
 
-### Logging
+</details>
 
-Structured logging is enabled across all controllers and services using `ILogger<T>`. Log levels are configured in `appsettings.json`:
+<details>
+<summary><strong>Logging</strong></summary>
+
+Structured logging via `ILogger<T>` across all controllers and services:
 
 | Category | Level |
-|----------|-------|
+|:---------|:------|
 | Default | Information |
 | Microsoft.AspNetCore | Warning |
 
+</details>
+
 ---
 
-## License
+## 📄 License
 
 This project is developed for educational and demonstration purposes.
+
+---
+
+<div align="center">
+
+**Made with ❤️ using ASP.NET Core 8**
+
+</div>

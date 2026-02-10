@@ -1,0 +1,82 @@
+@model IEnumerable<Billing>
+
+@{
+    ViewData["Title"] = "My Invoices";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4"><i class="bi bi-receipt"></i> My Invoices</h1>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Route</th>
+                                <th>Amount</th>
+                                <th>Payment Method</th>
+                                <th>Payment Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var billing in Model)
+                            {
+                                <tr>
+                                    <td>INV-@billing.Id.ToString("D4")</td>
+                                    <td>@billing.Trip?.Route?.Origin → @billing.Trip?.Route?.Destination</td>
+                                    <td>@billing.Amount.ToString("C")</td>
+                                    <td>@billing.PaymentMethod</td>
+                                    <td>@billing.PaymentDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        @switch (billing.Status)
+                                        {
+                                            case PaymentStatus.Pending:
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                break;
+                                            case PaymentStatus.Completed:
+                                                <span class="badge bg-success">Completed</span>
+                                                break;
+                                            case PaymentStatus.Failed:
+                                                <span class="badge bg-danger">Failed</span>
+                                                break;
+                                            case PaymentStatus.Refunded:
+                                                <span class="badge bg-secondary">Refunded</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-action="Download" asp-route-id="@billing.Id"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-download"></i> PDF
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-2">No invoices yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

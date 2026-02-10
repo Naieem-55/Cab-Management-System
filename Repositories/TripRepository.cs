@@ -44,5 +44,15 @@ namespace Cab_Management_System.Repositories
                            .Where(t => t.TripDate >= startDate && t.TripDate <= endDate)
                            .OrderByDescending(t => t.BookingDate)
                            .ToListAsync();
+
+        public async Task<IEnumerable<Trip>> GetTripsByCustomerIdAsync(int customerId)
+            => await _dbSet.Include(t => t.Driver)
+                               .ThenInclude(d => d.Employee)
+                           .Include(t => t.Vehicle)
+                           .Include(t => t.Route)
+                           .Include(t => t.Billing)
+                           .Where(t => t.CustomerId == customerId)
+                           .OrderByDescending(t => t.BookingDate)
+                           .ToListAsync();
     }
 }

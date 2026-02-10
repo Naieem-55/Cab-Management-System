@@ -19,6 +19,7 @@ namespace Cab_Management_System.Areas.Travel.Controllers
         private readonly IRouteService _routeService;
         private readonly ICustomerService _customerService;
         private readonly IEmailService _emailService;
+        private readonly IDriverRatingService _driverRatingService;
         private readonly ILogger<TripController> _logger;
 
         public TripController(
@@ -28,6 +29,7 @@ namespace Cab_Management_System.Areas.Travel.Controllers
             IRouteService routeService,
             ICustomerService customerService,
             IEmailService emailService,
+            IDriverRatingService driverRatingService,
             ILogger<TripController> logger)
         {
             _tripService = tripService;
@@ -36,6 +38,7 @@ namespace Cab_Management_System.Areas.Travel.Controllers
             _routeService = routeService;
             _customerService = customerService;
             _emailService = emailService;
+            _driverRatingService = driverRatingService;
             _logger = logger;
         }
 
@@ -291,6 +294,79 @@ namespace Cab_Management_System.Areas.Travel.Controllers
 
             var csvData = Helpers.CsvExportHelper.ExportToCsv(trips, columns);
             return File(csvData, "text/csv", $"Trips_{DateTime.Now:yyyyMMdd}.csv");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Rate(int id)
+        {
+            var trip = await _tripService.GetTripWithDetailsAsync(id);
+            if (trip == null)
+                return NotFound();
+
+            if (trip.Status != TripStatus.Completed)
+            {
+                TempData["ErrorMessage"] = "Only completed trips can be rated.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var canRate = await _driverRatingService.CanRateTripAsync(id);
+            if (!canRate)
+            {
+                TempData["ErrorMessage"] = "This trip has already been rated.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var model = new RateTripViewModel
+            {
+                TripId = trip.Id,
+                DriverName = trip.Driver?.Employee?.Name ?? "Unknown",
+                RouteInfo = trip.Route != null ? $"{trip.Route.Origin} → {trip.Route.Destination}" : "N/A",
+                TripDate = trip.TripDate
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Rate(RateTripViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var trip = await _tripService.GetTripWithDetailsAsync(model.TripId);
+                    if (trip == null)
+                        return NotFound();
+
+                    var canRate = await _driverRatingService.CanRateTripAsync(model.TripId);
+                    if (!canRate)
+                    {
+                        TempData["ErrorMessage"] = "This trip cannot be rated.";
+                        return RedirectToAction(nameof(Details), new { id = model.TripId });
+                    }
+
+                    var rating = new DriverRating
+                    {
+                        TripId = model.TripId,
+                        DriverId = trip.DriverId,
+                        Rating = model.Rating,
+                        Comment = model.Comment,
+                        CustomerName = trip.CustomerName
+                    };
+
+                    await _driverRatingService.CreateRatingAsync(rating);
+                    TempData["SuccessMessage"] = "Thank you for rating this trip!";
+                    return RedirectToAction(nameof(Details), new { id = model.TripId });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error creating rating for trip {TripId}", model.TripId);
+                    TempData["ErrorMessage"] = "An error occurred while submitting the rating.";
+                }
+            }
+
+            return View(model);
         }
 
         private async Task PopulateDropdownsAsync(TripViewModel model)

@@ -15,6 +15,9 @@ namespace Cab_Management_System.Models.ViewModels
         public IEnumerable<Driver> ExpiringLicenses { get; set; } = new List<Driver>();
         public int ExpiringLicenseCount { get; set; }
 
+        // Top rated drivers
+        public List<(Driver Driver, double AvgRating)> TopRatedDrivers { get; set; } = new();
+
         // Chart data
         public List<string> PositionLabels { get; set; } = new();
         public List<int> PositionCounts { get; set; } = new();

@@ -17,6 +17,7 @@ namespace Cab_Management_System.Services
         private readonly IBillingRepository _billingRepository;
         private readonly IMaintenanceRepository _maintenanceRepository;
         private readonly IExpenseRepository _expenseRepository;
+        private readonly IDriverRatingRepository _driverRatingRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<DashboardService> _logger;
 
@@ -29,6 +30,7 @@ namespace Cab_Management_System.Services
             IBillingRepository billingRepository,
             IMaintenanceRepository maintenanceRepository,
             IExpenseRepository expenseRepository,
+            IDriverRatingRepository driverRatingRepository,
             UserManager<ApplicationUser> userManager,
             ILogger<DashboardService> logger)
         {
@@ -40,6 +42,7 @@ namespace Cab_Management_System.Services
             _billingRepository = billingRepository;
             _maintenanceRepository = maintenanceRepository;
             _expenseRepository = expenseRepository;
+            _driverRatingRepository = driverRatingRepository;
             _userManager = userManager;
             _logger = logger;
         }
@@ -180,6 +183,16 @@ namespace Cab_Management_System.Services
             // License expiry alerts
             var expiringDrivers = await _driverRepository.GetDriversWithExpiringLicensesAsync(30);
 
+            // Top rated drivers
+            var topRatedDrivers = new List<(Driver Driver, double AvgRating)>();
+            foreach (var driver in allDrivers)
+            {
+                var avgRating = await _driverRatingRepository.GetAverageRatingForDriverAsync(driver.Id);
+                if (avgRating > 0)
+                    topRatedDrivers.Add((driver, avgRating));
+            }
+            topRatedDrivers = topRatedDrivers.OrderByDescending(x => x.AvgRating).Take(5).ToList();
+
             return new HRDashboardViewModel
             {
                 TotalEmployees = allEmployees.Count,
@@ -190,6 +203,7 @@ namespace Cab_Management_System.Services
                 RecentEmployees = allEmployees
                     .OrderByDescending(e => e.HireDate)
                     .Take(5),
+                TopRatedDrivers = topRatedDrivers,
                 PositionLabels = positionGroups.Select(g => g.Position).ToList(),
                 PositionCounts = positionGroups.Select(g => g.Count).ToList(),
                 DriverStatusLabels = driverStatusGroups.Select(g => g.Status).ToList(),

@@ -27,6 +27,7 @@ namespace Cab_Management_System.Data
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Expense> Expenses { get; set; }
+        public DbSet<DriverRating> DriverRatings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -127,6 +128,23 @@ namespace Cab_Management_System.Data
             builder.Entity<Expense>()
                 .Property(e => e.Amount)
                 .HasPrecision(18, 2);
+
+            // DriverRating configuration
+            builder.Entity<DriverRating>()
+                .HasOne(dr => dr.Trip)
+                .WithOne(t => t.DriverRating)
+                .HasForeignKey<DriverRating>(dr => dr.TripId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<DriverRating>()
+                .HasOne(dr => dr.Driver)
+                .WithMany(d => d.Ratings)
+                .HasForeignKey(dr => dr.DriverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<DriverRating>()
+                .HasIndex(dr => dr.TripId)
+                .IsUnique();
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
