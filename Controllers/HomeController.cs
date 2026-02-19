@@ -18,6 +18,8 @@ namespace Cab_Management_System.Controllers
                     return RedirectToAction("Index", "Dashboard", new { area = "HR" });
                 if (User.IsInRole("TravelManager"))
                     return RedirectToAction("Index", "Dashboard", new { area = "Travel" });
+                if (User.IsInRole("Customer"))
+                    return RedirectToAction("Index", "Dashboard", new { area = "CustomerPortal" });
             }
             return View();
         }

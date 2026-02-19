@@ -79,6 +79,126 @@ function updateChartColors(theme) {
     });
 }
 
+// ===== Double-Submit Prevention =====
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('form').forEach(function (form) {
+        form.addEventListener('submit', function () {
+            var buttons = this.querySelectorAll('button[type="submit"], input[type="submit"]');
+            buttons.forEach(function (btn) {
+                if (btn.disabled) return;
+                btn.disabled = true;
+                var originalText = btn.innerHTML;
+                btn.dataset.originalText = originalText;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Processing...';
+                // Re-enable after 5s as fallback (e.g. validation errors that don't navigate)
+                setTimeout(function () {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }, 5000);
+            });
+        });
+    });
+});
+
+// ===== Confirmation Dialogs =====
+
+// Auto-attach confirm dialogs to forms with data-confirm attribute
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+            if (!confirm(this.dataset.confirm)) {
+                e.preventDefault();
+            }
+        });
+    });
+});
+
+// ===== Notification Bell =====
+
+document.addEventListener('DOMContentLoaded', function () {
+    var bell = document.getElementById('notificationBell');
+    if (!bell) return;
+
+    function updateBadge(count) {
+        var badge = document.getElementById('notificationBadge');
+        if (!badge) return;
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.classList.remove('d-none');
+        } else {
+            badge.classList.add('d-none');
+        }
+    }
+
+    function loadNotifications() {
+        fetch('/Notification/GetRecent')
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                var list = document.getElementById('notificationList');
+                if (!list) return;
+                if (!data || data.length === 0) {
+                    list.innerHTML = '<div class="text-center text-muted py-3"><small>No notifications</small></div>';
+                    return;
+                }
+                var html = '';
+                data.forEach(function (n) {
+                    var cls = n.isRead ? '' : 'bg-light';
+                    html += '<a href="' + (n.link || '#') + '" class="dropdown-item py-2 border-bottom ' + cls + '" data-id="' + n.id + '">' +
+                        '<div class="fw-semibold small">' + escapeHtml(n.title) + '</div>' +
+                        '<div class="text-muted small text-truncate">' + escapeHtml(n.message) + '</div>' +
+                        '<div class="text-muted" style="font-size:0.7rem;">' + n.time + '</div>' +
+                        '</a>';
+                });
+                list.innerHTML = html;
+
+                // Mark as read on click
+                list.querySelectorAll('a[data-id]').forEach(function (a) {
+                    a.addEventListener('click', function () {
+                        fetch('/Notification/MarkAsRead?id=' + this.dataset.id, { method: 'POST' });
+                    });
+                });
+            })
+            .catch(function () { });
+    }
+
+    function fetchUnreadCount() {
+        fetch('/Notification/GetUnreadCount')
+            .then(function (r) { return r.json(); })
+            .then(function (data) { updateBadge(data.count); })
+            .catch(function () { });
+    }
+
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Load on bell click
+    bell.addEventListener('click', function () {
+        loadNotifications();
+    });
+
+    // Mark all as read
+    var markAllBtn = document.getElementById('markAllRead');
+    if (markAllBtn) {
+        markAllBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            fetch('/Notification/MarkAllAsRead', { method: 'POST' })
+                .then(function () {
+                    updateBadge(0);
+                    loadNotifications();
+                });
+        });
+    }
+
+    // Initial load + poll every 60s
+    fetchUnreadCount();
+    setInterval(fetchUnreadCount, 60000);
+});
+
 // Listen for system preference changes
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
     if (!localStorage.getItem('theme')) {

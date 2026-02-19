@@ -44,5 +44,17 @@ namespace Cab_Management_System.Repositories
 
             return ratings.Count > 0 ? ratings.Average() : 0;
         }
+
+        public async Task<List<(int DriverId, double AvgRating)>> GetTopRatedDriverIdsAsync(int count)
+        {
+            var results = await _context.DriverRatings
+                .GroupBy(dr => dr.DriverId)
+                .Select(g => new { DriverId = g.Key, AvgRating = g.Average(r => r.Rating) })
+                .OrderByDescending(x => x.AvgRating)
+                .Take(count)
+                .ToListAsync();
+
+            return results.Select(x => (x.DriverId, x.AvgRating)).ToList();
+        }
     }
 }

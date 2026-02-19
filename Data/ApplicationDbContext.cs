@@ -28,6 +28,7 @@ namespace Cab_Management_System.Data
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<DriverRating> DriverRatings { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -145,6 +146,10 @@ namespace Cab_Management_System.Data
             builder.Entity<DriverRating>()
                 .HasIndex(dr => dr.TripId)
                 .IsUnique();
+
+            // Notification configuration
+            builder.Entity<Notification>()
+                .HasIndex(n => new { n.UserId, n.IsRead });
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

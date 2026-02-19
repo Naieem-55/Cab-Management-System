@@ -71,6 +71,20 @@ namespace Cab_Management_System.Services
             await SendEmailAsync(to, subject, htmlBody);
         }
 
+        public async Task SendTripStatusUpdateAsync(string to, string customerName, int tripId, string newStatus)
+        {
+            var subject = $"Trip #{tripId} Status Update - Cab Management System";
+            var htmlBody = $@"
+                <h2>Trip Status Update</h2>
+                <p>Dear {customerName},</p>
+                <p>Your trip <strong>#{tripId}</strong> status has been updated to: <strong>{newStatus}</strong></p>
+                <p>Log in to your account to view full trip details.</p>
+                <p>Thank you for choosing our service!</p>
+                <p><em>Cab Management System</em></p>";
+
+            await SendEmailAsync(to, subject, htmlBody);
+        }
+
         public async Task SendPasswordResetAsync(string to, string resetLink)
         {
             var subject = "Password Reset - Cab Management System";

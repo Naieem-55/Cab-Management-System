@@ -183,15 +183,12 @@ namespace Cab_Management_System.Services
             // License expiry alerts
             var expiringDrivers = await _driverRepository.GetDriversWithExpiringLicensesAsync(30);
 
-            // Top rated drivers
-            var topRatedDrivers = new List<(Driver Driver, double AvgRating)>();
-            foreach (var driver in allDrivers)
-            {
-                var avgRating = await _driverRatingRepository.GetAverageRatingForDriverAsync(driver.Id);
-                if (avgRating > 0)
-                    topRatedDrivers.Add((driver, avgRating));
-            }
-            topRatedDrivers = topRatedDrivers.OrderByDescending(x => x.AvgRating).Take(5).ToList();
+            // Top rated drivers (single batch query instead of N+1)
+            var topRatedIds = await _driverRatingRepository.GetTopRatedDriverIdsAsync(5);
+            var topRatedDrivers = topRatedIds
+                .Select(x => (Driver: allDrivers.FirstOrDefault(d => d.Id == x.DriverId)!, AvgRating: x.AvgRating))
+                .Where(x => x.Driver != null)
+                .ToList();
 
             return new HRDashboardViewModel
             {

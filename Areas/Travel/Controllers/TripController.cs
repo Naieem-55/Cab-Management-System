@@ -3,6 +3,7 @@ using Cab_Management_System.Models.Enums;
 using Cab_Management_System.Models.ViewModels;
 using Cab_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,8 @@ namespace Cab_Management_System.Areas.Travel.Controllers
         private readonly ICustomerService _customerService;
         private readonly IEmailService _emailService;
         private readonly IDriverRatingService _driverRatingService;
+        private readonly INotificationService _notificationService;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<TripController> _logger;
 
         public TripController(
@@ -30,6 +33,8 @@ namespace Cab_Management_System.Areas.Travel.Controllers
             ICustomerService customerService,
             IEmailService emailService,
             IDriverRatingService driverRatingService,
+            INotificationService notificationService,
+            UserManager<ApplicationUser> userManager,
             ILogger<TripController> logger)
         {
             _tripService = tripService;
@@ -39,6 +44,8 @@ namespace Cab_Management_System.Areas.Travel.Controllers
             _customerService = customerService;
             _emailService = emailService;
             _driverRatingService = driverRatingService;
+            _notificationService = notificationService;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -212,6 +219,41 @@ namespace Cab_Management_System.Areas.Travel.Controllers
                     if (oldStatus != model.Status)
                     {
                         await _tripService.UpdateTripStatusAsync(id, model.Status);
+
+                        // Send email + in-app notification on status change
+                        if (!string.IsNullOrWhiteSpace(existingTrip.CustomerEmail))
+                        {
+                            try
+                            {
+                                await _emailService.SendTripStatusUpdateAsync(
+                                    existingTrip.CustomerEmail,
+                                    existingTrip.CustomerName,
+                                    id,
+                                    model.Status.ToString());
+                            }
+                            catch (Exception emailEx)
+                            {
+                                _logger.LogWarning(emailEx, "Failed to send status update email for trip {TripId}", id);
+                            }
+
+                            // Create in-app notification
+                            try
+                            {
+                                var appUser = await _userManager.FindByEmailAsync(existingTrip.CustomerEmail);
+                                if (appUser != null)
+                                {
+                                    await _notificationService.CreateNotificationAsync(
+                                        appUser.Id,
+                                        $"Trip #{id} Status Updated",
+                                        $"Your trip status has been changed to {model.Status}.",
+                                        $"/CustomerPortal/Trip/Details/{id}");
+                                }
+                            }
+                            catch (Exception notifEx)
+                            {
+                                _logger.LogWarning(notifEx, "Failed to create notification for trip {TripId}", id);
+                            }
+                        }
                     }
                     else
                     {

@@ -1,4 +1,4 @@
-@model IEnumerable<Trip>
+@model PaginatedList<Trip>
 
 @{
     ViewData["Title"] = "My Trips";
@@ -19,11 +19,46 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-circle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Search & Filter -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label">Search by Route</label>
+                    <input type="text" name="searchTerm" class="form-control"
+                           value="@ViewData["SearchTerm"]" placeholder="Search origin or destination..." />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Filter by Status</label>
+                    <select name="status" class="form-select" asp-items="@(ViewBag.Statuses as SelectList)">
+                        <option value="">All Statuses</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <div class="card">
         <div class="card-body">
             @if (Model.Any())
             {
+                <p class="text-muted mb-3">Showing @Model.Count of @ViewBag.TotalCount trips</p>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
                         <thead class="table-dark">
@@ -73,21 +108,43 @@
                                            class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-eye"></i> Details
                                         </a>
+                                        @if (trip.Status == TripStatus.Pending || trip.Status == TripStatus.Confirmed)
+                                        {
+                                            <form asp-action="Cancel" asp-route-id="@trip.Id" method="post" class="d-inline"
+                                                  onsubmit="return confirm('Are you sure you want to cancel this trip?')">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-x-circle"></i> Cancel
+                                                </button>
+                                            </form>
+                                        }
                                     </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
                 </div>
+
+                <partial name="_PaginationPartial" />
             }
             else
             {
                 <div class="text-center py-5">
                     <i class="bi bi-geo-alt text-muted" style="font-size: 3rem;"></i>
-                    <p class="text-muted mt-2 mb-3">You haven't booked any trips yet.</p>
-                    <a asp-action="Book" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Book Your First Trip
-                    </a>
+                    @if (ViewData["SearchTerm"] != null || ViewData["SelectedStatus"] != null)
+                    {
+                        <p class="text-muted mt-2 mb-3">No trips match your search criteria.</p>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg"></i> Clear Filters
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="text-muted mt-2 mb-3">You haven't booked any trips yet.</p>
+                        <a asp-action="Book" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Book Your First Trip
+                        </a>
+                    }
                 </div>
             }
         </div>

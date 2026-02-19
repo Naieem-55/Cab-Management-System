@@ -70,7 +70,7 @@
                     </dl>
                 </div>
                 <div class="card-footer">
-                    <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" data-confirm="Are you sure you want to permanently delete this vehicle?">
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-danger">
                                 <i class="bi bi-trash me-1"></i> Confirm Delete

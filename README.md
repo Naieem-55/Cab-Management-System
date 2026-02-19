@@ -84,7 +84,9 @@ The platform covers the **complete operational lifecycle**: customer self-servic
 | Customer Registration | Public sign-up form creating Identity user + Customer profile with auto-login |
 | Personalized Dashboard | Trip count, active trips, total spend, recent trips, and quick action buttons |
 | Self-Service Trip Booking | Select route and date; driver and vehicle are auto-assigned from available resources |
-| Trip History & Details | Full trip list with status badges, detailed view with visual progress tracker |
+| Trip History & Details | Full trip list with search, status filter, pagination, and visual progress tracker |
+| Trip Cancellation | Cancel pending or confirmed trips with confirmation dialog; auto-releases driver/vehicle |
+| Trip Rating | Rate completed trips with interactive 5-star rating from the customer portal |
 | Invoice Access | Download PDF invoices directly from the customer portal |
 | Profile Management | View and edit personal information (name, phone, address) |
 
@@ -120,12 +122,14 @@ The platform covers the **complete operational lifecycle**: customer self-servic
 | License Expiry Alerts | Proactive alerts on Admin and HR dashboards for licenses expiring within 30 days |
 | Compliance Badges | "Expired" and "Expiring Soon" badges on Driver Index for at-a-glance monitoring |
 
-### 📧 Communication
+### 📧 Communication & Notifications
 | Feature | Description |
 |:--------|:------------|
 | Email Notifications | MailKit-powered transactional email with graceful degradation when SMTP is unconfigured |
+| Trip Status Emails | Automated email sent to customers when trip status is updated by Travel Manager |
 | Password Reset Emails | Secure token-based password reset flow with email delivery |
 | Booking Confirmations | Automated email confirmations sent to customers upon trip creation |
+| In-App Notifications | Bell icon with unread count badge, dropdown feed, mark-as-read, and 60s auto-polling |
 
 ### 🔧 Platform Capabilities
 | Feature | Description |
@@ -134,6 +138,8 @@ The platform covers the **complete operational lifecycle**: customer self-servic
 | Comprehensive Audit Trail | Automatic change tracking recording entity name, action, changed fields, and user |
 | CSV Data Export | One-click export on Customers, Vehicles, Trips, Billings, and Expenses |
 | 🌙 Dark Mode | System-wide theme with CSS variables, navbar toggle, localStorage, system preference detection, smooth transitions, and Chart.js color updates |
+| Confirmation Dialogs | JavaScript confirm prompts on all delete forms and destructive actions via `data-confirm` |
+| Double-Submit Prevention | Global form handler disables submit buttons and shows spinner after first click |
 | Security Headers | X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, CSP |
 | Structured Logging | `ILogger<T>` throughout all controllers and services with semantic templates |
 | Auto-Migration & Seeding | Database schema and sample data provisioned automatically on first run |
@@ -226,7 +232,8 @@ Cab Management System/
 │
 ├── Controllers/
 │   ├── AccountController.cs          # Auth, registration, profile, password reset
-│   └── HomeController.cs             # Landing page with role-based redirect
+│   ├── HomeController.cs             # Landing page with role-based redirect
+│   └── NotificationController.cs     # AJAX notification endpoints (get, mark read)
 │
 ├── Data/
 │   ├── ApplicationDbContext.cs        # DbContext, entity config, audit interceptor
@@ -239,9 +246,9 @@ Cab Management System/
 │   ├── Enums/                         # 10 enums (DriverStatus, TripStatus, etc.)
 │   ├── ViewModels/                    # 17 ViewModels
 │   ├── BaseEntity.cs                  # Abstract base with audit timestamps
-│   └── [10 domain models]            # Employee, Driver, Vehicle, Route, Trip,
+│   └── [11 domain models]            # Employee, Driver, Vehicle, Route, Trip,
 │                                      # Billing, MaintenanceRecord, Customer,
-│                                      # Expense, DriverRating
+│                                      # Expense, DriverRating, Notification
 │
 ├── Repositories/
 │   ├── IRepository.cs                 # Generic repository interface
@@ -264,7 +271,7 @@ Cab Management System/
 │   │   ├── site.css                   # Core styles with CSS variables
 │   │   └── dark-mode.css              # Dark theme definitions & overrides
 │   └── js/
-│       └── site.js                    # Sidebar highlighting & theme toggle
+│       └── site.js                    # Sidebar, theme, notifications, form UX
 │
 ├── Migrations/                        # EF Core migration files
 ├── Program.cs                         # Entry point, DI, middleware pipeline
@@ -322,17 +329,17 @@ Cab Management System/
 │ Status         │               │ ApprovedBy  │
 └────────────────┘               └────────────┘
 
-┌────────────────┐       ┌────────────────┐
-│     Route      │       │   AuditLog     │
-├────────────────┤       ├────────────────┤
-│ Id          PK │──1─*──Trip             │ Id          PK │
-│ Origin         │                        │ EntityName     │
-│ Destination    │                        │ EntityId       │
-│ Distance       │                        │ Action         │
-│ EstTimeHours   │                        │ Changes (JSON) │
-│ BaseCost       │                        │ UserId         │
-└────────────────┘                        │ Timestamp      │
-                                          └────────────────┘
+┌────────────────┐       ┌────────────────┐       ┌────────────────┐
+│     Route      │       │   AuditLog     │       │  Notification  │
+├────────────────┤       ├────────────────┤       ├────────────────┤
+│ Id          PK │──1─*──Trip             │ Id          PK │       │ Id          PK │
+│ Origin         │                        │ EntityName     │       │ UserId      FK │
+│ Destination    │                        │ EntityId       │       │ Title          │
+│ Distance       │                        │ Action         │       │ Message        │
+│ EstTimeHours   │                        │ Changes (JSON) │       │ IsRead         │
+│ BaseCost       │                        │ UserId         │       │ Link           │
+└────────────────┘                        │ Timestamp      │       │ CreatedDate    │
+                                          └────────────────┘       └────────────────┘
 + ASP.NET Identity tables (AspNetUsers, AspNetRoles, AspNetUserRoles, etc.)
 ```
 
@@ -399,14 +406,16 @@ Cab Management System/
 | **Maintenance** | Schedule and track vehicle maintenance; flag overdue records |
 
 ### 🧑‍💻 Customer Portal
-> *Self-service trip booking, tracking, and invoice management*
+> *Self-service trip booking, tracking, rating, and invoice management*
 
 | Feature | Description |
 |:--------|:------------|
 | **Registration** | Public sign-up creating Identity user + Customer profile with auto-login |
 | **Dashboard** | Personalized stats, recent trips table, and quick action buttons |
-| **Trip Booking** | Select route and date; driver/vehicle auto-assigned; trip created as Pending |
-| **My Trips** | Trip history with status badges, detailed view with progress tracker |
+| **Trip Booking** | Select route and date; driver/vehicle auto-assigned from available pool; trip created as Pending |
+| **My Trips** | Trip history with search by route, status filter, pagination, and progress tracker |
+| **Trip Cancellation** | Cancel pending/confirmed trips with confirm dialog; releases assigned driver and vehicle |
+| **Trip Rating** | Interactive 5-star rating on completed trips with comments; "Rated" badge display |
 | **Invoices** | Billing list with PDF download buttons for each invoice |
 | **Profile** | View and edit personal information |
 
