@@ -1,4 +1,5 @@
 using Cab_Management_System.Data;
+using Cab_Management_System.Hubs;
 using Cab_Management_System.Models;
 using Cab_Management_System.Repositories;
 using Cab_Management_System.Services;
@@ -66,6 +67,8 @@ QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<TripSimulationService>();
 
 builder.Services.AddControllersWithViews();
 
@@ -88,7 +91,7 @@ app.Use(async (context, next) =>
     context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
     context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
     context.Response.Headers["Content-Security-Policy"] =
-        "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:;";
+        "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self' ws: wss:;";
     await next();
 });
 
@@ -104,6 +107,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHub<TripTrackingHub>("/hubs/trip-tracking");
 
 app.MapControllerRoute(
     name: "areas",

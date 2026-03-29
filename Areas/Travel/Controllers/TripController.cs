@@ -22,6 +22,7 @@ namespace Cab_Management_System.Areas.Travel.Controllers
         private readonly IEmailService _emailService;
         private readonly IDriverRatingService _driverRatingService;
         private readonly INotificationService _notificationService;
+        private readonly TripSimulationService _simulationService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<TripController> _logger;
 
@@ -34,6 +35,7 @@ namespace Cab_Management_System.Areas.Travel.Controllers
             IEmailService emailService,
             IDriverRatingService driverRatingService,
             INotificationService notificationService,
+            TripSimulationService simulationService,
             UserManager<ApplicationUser> userManager,
             ILogger<TripController> logger)
         {
@@ -45,6 +47,7 @@ namespace Cab_Management_System.Areas.Travel.Controllers
             _emailService = emailService;
             _driverRatingService = driverRatingService;
             _notificationService = notificationService;
+            _simulationService = simulationService;
             _userManager = userManager;
             _logger = logger;
         }
@@ -318,6 +321,20 @@ namespace Cab_Management_System.Areas.Travel.Controllers
                 TempData["ErrorMessage"] = "An unexpected error occurred while deleting the trip.";
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> StartSimulation(int id)
+        {
+            var trip = await _tripService.GetTripByIdAsync(id);
+            if (trip == null)
+                return NotFound();
+
+            if (trip.Status != TripStatus.Pending)
+                return Json(new { success = false, message = "Only pending trips can be simulated." });
+
+            _simulationService.StartSimulation(id);
+            return Json(new { success = true, message = "Simulation started. Trip will progress through statuses automatically." });
         }
 
         public async Task<IActionResult> Export()
