@@ -19,6 +19,8 @@ namespace Cab_Management_System.Areas.CustomerPortal.Controllers
         private readonly IDriverService _driverService;
         private readonly IVehicleService _vehicleService;
         private readonly IDriverRatingService _driverRatingService;
+        private readonly IEmailService _emailService;
+        private readonly INotificationService _notificationService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<TripController> _logger;
 
@@ -29,6 +31,8 @@ namespace Cab_Management_System.Areas.CustomerPortal.Controllers
             IDriverService driverService,
             IVehicleService vehicleService,
             IDriverRatingService driverRatingService,
+            IEmailService emailService,
+            INotificationService notificationService,
             UserManager<ApplicationUser> userManager,
             ILogger<TripController> logger)
         {
@@ -38,6 +42,8 @@ namespace Cab_Management_System.Areas.CustomerPortal.Controllers
             _driverService = driverService;
             _vehicleService = vehicleService;
             _driverRatingService = driverRatingService;
+            _emailService = emailService;
+            _notificationService = notificationService;
             _userManager = userManager;
             _logger = logger;
         }
@@ -327,6 +333,39 @@ namespace Cab_Management_System.Areas.CustomerPortal.Controllers
                 }
 
                 await _tripService.UpdateTripStatusAsync(id, TripStatus.Cancelled);
+
+                // Send cancellation email
+                if (!string.IsNullOrWhiteSpace(trip.CustomerEmail))
+                {
+                    try
+                    {
+                        await _emailService.SendTripStatusUpdateAsync(
+                            trip.CustomerEmail, trip.CustomerName, id, "Cancelled");
+                    }
+                    catch (Exception emailEx)
+                    {
+                        _logger.LogWarning(emailEx, "Failed to send cancellation email for trip {TripId}", id);
+                    }
+                }
+
+                // Create in-app notification
+                try
+                {
+                    var user = await _userManager.GetUserAsync(User);
+                    if (user != null)
+                    {
+                        await _notificationService.CreateNotificationAsync(
+                            user.Id,
+                            "Trip Cancelled",
+                            $"Your trip #{id} has been cancelled successfully.",
+                            $"/CustomerPortal/Trip/Details/{id}");
+                    }
+                }
+                catch (Exception notifEx)
+                {
+                    _logger.LogWarning(notifEx, "Failed to create cancellation notification for trip {TripId}", id);
+                }
+
                 TempData["SuccessMessage"] = "Trip has been cancelled successfully.";
                 return RedirectToAction(nameof(Index));
             }
