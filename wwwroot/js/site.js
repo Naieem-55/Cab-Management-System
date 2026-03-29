@@ -12,6 +12,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initialize theme
     initializeTheme();
+
+    // Auto-show toast notifications
+    document.querySelectorAll('.toast').forEach(function (toastEl) {
+        new bootstrap.Toast(toastEl).show();
+    });
 });
 
 // ===== Dark Mode / Theme Toggle =====

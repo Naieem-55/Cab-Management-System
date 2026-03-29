@@ -206,6 +206,13 @@
     color: #f08080;
 }
 
+/* Toasts */
+[data-theme="dark"] .toast {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
 /* Text utilities */
 [data-theme="dark"] .text-dark {
     color: var(--text-primary) !important;

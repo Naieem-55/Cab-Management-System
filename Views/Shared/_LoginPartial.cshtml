@@ -14,18 +14,18 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li>
-                    <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                    <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Profile">
                         <i class="bi bi-person"></i> My Profile
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">
+                    <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="ChangePassword">
                         <i class="bi bi-key"></i> Change Password
                     </a>
                 </li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
-                    <form asp-controller="Account" asp-action="Logout" method="post">
+                    <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
                         <button type="submit" class="dropdown-item">
                             <i class="bi bi-box-arrow-right"></i> Logout
                         </button>

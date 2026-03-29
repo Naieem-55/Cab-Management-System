@@ -70,25 +70,37 @@
         <partial name="_SidebarPartial" />
         <div id="main-content" class="flex-grow-1 @(User.Identity != null && User.Identity.IsAuthenticated ? "with-sidebar" : "")">
             <div class="container-fluid p-4">
-                @if (TempData["SuccessMessage"] != null)
-                {
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        @TempData["SuccessMessage"]
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                }
-                @if (TempData["ErrorMessage"] != null)
-                {
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        @TempData["ErrorMessage"]
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                }
                 <main role="main">
                     @RenderBody()
                 </main>
             </div>
         </div>
+    </div>
+
+    <!-- Toast Container (fixed top-right) -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;" id="toastContainer">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="toast align-items-center text-bg-success border-0" role="alert" data-bs-autohide="true" data-bs-delay="5000">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="toast align-items-center text-bg-danger border-0" role="alert" data-bs-autohide="true" data-bs-delay="7000">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>@TempData["ErrorMessage"]
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        }
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
