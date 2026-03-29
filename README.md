@@ -600,6 +600,6 @@ This project is developed for educational and demonstration purposes.
 
 <div align="center">
 
-**Made with ❤️ using ASP.NET Core 8**
+**Developed by [@Naieem-55](https://github.com/Naieem-55) using ASP.NET Core 8**
 
 </div>
