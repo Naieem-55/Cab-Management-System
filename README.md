@@ -4,7 +4,7 @@
 
 ### Enterprise-Grade Fleet & Operations Management Platform
 
-**Built with ASP.NET Core 8 MVC | Entity Framework Core | Bootstrap 5 | Chart.js**
+**Built with ASP.NET Core 8 MVC | Entity Framework Core | SignalR | Bootstrap 5 | Chart.js**
 
 <br/>
 
@@ -16,6 +16,7 @@
 
 <br/>
 
+[![SignalR](https://img.shields.io/badge/SignalR-8.0-512BD4?style=flat-square&logo=dotnet&logoColor=white)](https://learn.microsoft.com/en-us/aspnet/core/signalr/)
 [![MailKit](https://img.shields.io/badge/MailKit-4.3-2196F3?style=flat-square)](https://github.com/jstedfast/MailKit)
 [![QuestPDF](https://img.shields.io/badge/QuestPDF-2024.3-FF6F00?style=flat-square)](https://www.questpdf.com/)
 [![Bootstrap Icons](https://img.shields.io/badge/Bootstrap%20Icons-1.11-7952B3?style=flat-square)](https://icons.getbootstrap.com/)
@@ -23,7 +24,7 @@
 
 <br/>
 
-*A unified, role-based platform for managing fleet operations, trip booking, customer self-service, driver performance ratings, billing, expense tracking, HR, and vehicle maintenance — complete with dark mode support.*
+*A unified, role-based platform for managing fleet operations, trip booking, customer self-service, real-time trip tracking, driver performance ratings, billing, expense tracking, HR, and vehicle maintenance — with SignalR real-time updates, toast notifications, and dark mode.*
 
 </div>
 
@@ -64,7 +65,7 @@ The **Cab Management System** is a comprehensive web application designed to dig
 | **Travel Manager** | Operations | Trips, maintenance, ratings |
 | **Customer** | Self-Service | Trip booking, invoices, profile management |
 
-The platform covers the **complete operational lifecycle**: customer self-service registration and trip booking, driver performance tracking with star ratings, employee and driver management, vehicle and route maintenance, payment processing, expense tracking, PDF invoice generation, license compliance monitoring, email notifications, and a system-wide **dark mode** for user comfort.
+The platform covers the **complete operational lifecycle**: customer self-service registration and trip booking, **real-time trip tracking via SignalR**, driver performance tracking with star ratings, employee and driver management, vehicle and route maintenance, payment processing, expense tracking, PDF invoice generation, license compliance monitoring, email and in-app notifications, toast alerts, and a system-wide **dark mode** for user comfort.
 
 ---
 
@@ -98,6 +99,16 @@ The platform covers the **complete operational lifecycle**: customer self-servic
 | Top Rated Drivers | Ranked leaderboard on HR Dashboard with trophy badges and performance links |
 | Visual Star Display | Star ratings rendered inline on tables and detail views throughout the app |
 
+### 📡 Real-Time Trip Tracking (SignalR)
+| Feature | Description |
+|:--------|:------------|
+| Trip Simulation | TravelManager triggers auto-progression: Pending → Confirmed (5s) → InProgress (8s) → Completed (12s) |
+| WebSocket Push | SignalR hub pushes status updates instantly to all connected clients viewing the trip |
+| Live UI Updates | Customer sees status badge, progress tracker, and action buttons update without page reload |
+| Group-Based Routing | Each trip has its own SignalR group — only users viewing that trip receive updates |
+| Cancellation-Safe | Simulation stops automatically if customer cancels the trip mid-progression |
+| Auto Notifications | Each status change creates an in-app notification visible in the bell icon |
+
 ### 🚕 Customer & Trip Management
 | Feature | Description |
 |:--------|:------------|
@@ -126,10 +137,12 @@ The platform covers the **complete operational lifecycle**: customer self-servic
 | Feature | Description |
 |:--------|:------------|
 | Email Notifications | MailKit-powered transactional email with graceful degradation when SMTP is unconfigured |
-| Trip Status Emails | Automated email sent to customers when trip status is updated by Travel Manager |
+| Trip Status Emails | Automated email sent to customers when trip status is updated or cancelled |
+| Cancellation Emails | Email + in-app notification sent when customer cancels a trip from the portal |
 | Password Reset Emails | Secure token-based password reset flow with email delivery |
 | Booking Confirmations | Automated email confirmations sent to customers upon trip creation |
 | In-App Notifications | Bell icon with unread count badge, dropdown feed, mark-as-read, and 60s auto-polling |
+| Toast Notifications | Bootstrap 5 toast overlays (fixed top-right, auto-dismiss) replacing inline page alerts |
 
 ### 🔧 Platform Capabilities
 | Feature | Description |
@@ -138,9 +151,10 @@ The platform covers the **complete operational lifecycle**: customer self-servic
 | Comprehensive Audit Trail | Automatic change tracking recording entity name, action, changed fields, and user |
 | CSV Data Export | One-click export on Customers, Vehicles, Trips, Billings, and Expenses |
 | 🌙 Dark Mode | System-wide theme with CSS variables, navbar toggle, localStorage, system preference detection, smooth transitions, and Chart.js color updates |
+| Styled Empty States | Consistent icon + message + CTA button shown when no data exists across all list views |
 | Confirmation Dialogs | JavaScript confirm prompts on all delete forms and destructive actions via `data-confirm` |
 | Double-Submit Prevention | Global form handler disables submit buttons and shows spinner after first click |
-| Security Headers | X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, CSP |
+| Security Headers | X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, CSP with WebSocket support |
 | Structured Logging | `ILogger<T>` throughout all controllers and services with semantic templates |
 | Auto-Migration & Seeding | Database schema and sample data provisioned automatically on first run |
 | Responsive Design | Bootstrap 5 layout with collapsible sidebar, mobile-friendly tables, and badges |
@@ -155,6 +169,7 @@ The platform covers the **complete operational lifecycle**: customer self-servic
 | **Web Framework** | ASP.NET Core MVC | 8.0 | Server-side request handling and view rendering |
 | **ORM** | Entity Framework Core | 8.0 | Object-relational mapping, migrations, change tracking |
 | **Database** | SQL Server | LocalDB | Relational data storage |
+| **Real-Time** | ASP.NET Core SignalR | 8.0 | WebSocket-based real-time push for trip tracking |
 | **Authentication** | ASP.NET Core Identity | 8.0 | User management, password hashing, role-based claims |
 | **Email** | MailKit | 4.3 | SMTP email delivery for notifications |
 | **PDF** | QuestPDF | 2024.3 | Fluent API for professional PDF invoices |
@@ -173,15 +188,15 @@ The application implements a **layered architecture** with clear separation of c
 ┌─────────────────────────────────────────┐
 │            Presentation Layer            │
 │    Razor Views  ·  Bootstrap 5           │
-│    Chart.js  ·  Dark Mode  ·  Tag Helpers│
+│    Chart.js  ·  Dark Mode  ·  Toasts     │
 ├─────────────────────────────────────────┤
-│            Controller Layer              │
-│    5 Area Controllers  ·  [Authorize]    │
-│    ViewModels  ·  TempData               │
+│        Real-Time + Controller Layer      │
+│    SignalR Hub  ·  5 Area Controllers    │
+│    [Authorize]  ·  ViewModels            │
 ├─────────────────────────────────────────┤
 │             Service Layer                │
 │    Business Logic  ·  Orchestration      │
-│    Email  ·  PDF  ·  Dashboard Stats     │
+│    Email  ·  PDF  ·  Trip Simulation     │
 ├─────────────────────────────────────────┤
 │            Repository Layer              │
 │    Generic CRUD  ·  Eager Loading        │
@@ -235,6 +250,9 @@ Cab Management System/
 │   ├── HomeController.cs             # Landing page with role-based redirect
 │   └── NotificationController.cs     # AJAX notification endpoints (get, mark read)
 │
+├── Hubs/
+│   └── TripTrackingHub.cs            # SignalR hub for real-time trip status updates
+│
 ├── Data/
 │   ├── ApplicationDbContext.cs        # DbContext, entity config, audit interceptor
 │   └── DbSeeder.cs                   # Role, user, and sample data seeding
@@ -259,6 +277,7 @@ Cab Management System/
 │   ├── EmailService.cs                # MailKit SMTP implementation
 │   ├── InvoicePdfService.cs           # QuestPDF invoice implementation
 │   ├── DashboardService.cs            # Multi-role dashboard statistics
+│   ├── TripSimulationService.cs       # SignalR-powered trip status simulation
 │   └── [10 entity services]           # Business logic implementations
 │
 ├── Views/
@@ -396,12 +415,13 @@ Cab Management System/
 | **Driver Performance** | Analytics dashboard: average rating, trips, completion rate, revenue, charts |
 
 ### 🗺 Travel Module
-> *Trip operations, vehicle maintenance, and trip ratings*
+> *Trip operations, real-time tracking, vehicle maintenance, and trip ratings*
 
 | Feature | Description |
 |:--------|:------------|
 | **Dashboard** | Trip and vehicle status KPIs with pie chart visualizations |
 | **Trip Management** | Book trips with automated driver/vehicle assignment and email confirmations |
+| **Trip Simulation** | One-click simulation auto-progresses trip through all statuses with real-time SignalR push |
 | **Trip Rating** | Interactive 5-star rating on completed trips with comments; one per trip |
 | **Maintenance** | Schedule and track vehicle maintenance; flag overdue records |
 
@@ -414,7 +434,8 @@ Cab Management System/
 | **Dashboard** | Personalized stats, recent trips table, and quick action buttons |
 | **Trip Booking** | Select route and date; driver/vehicle auto-assigned from available pool; trip created as Pending |
 | **My Trips** | Trip history with search by route, status filter, pagination, and progress tracker |
-| **Trip Cancellation** | Cancel pending/confirmed trips with confirm dialog; releases assigned driver and vehicle |
+| **Live Trip Tracking** | Real-time status updates via SignalR — progress tracker, badge, and buttons update without page reload |
+| **Trip Cancellation** | Cancel pending/confirmed trips with confirm dialog; releases driver/vehicle; sends email + notification |
 | **Trip Rating** | Interactive 5-star rating on completed trips with comments; "Rated" badge display |
 | **Invoices** | Billing list with PDF download buttons for each invoice |
 | **Profile** | View and edit personal information |
