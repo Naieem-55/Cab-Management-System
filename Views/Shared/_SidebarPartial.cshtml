@@ -1,3 +1,4 @@
+@using Cab_Management_System.Models.Enums
 @if (User.Identity != null && User.Identity.IsAuthenticated)
 {
     <nav id="sidebar" class="bg-dark text-white">
@@ -5,7 +6,7 @@
             <h5 class="mb-0"><i class="bi bi-taxi-front"></i> Cab System</h5>
         </div>
         <ul class="nav flex-column px-2 mt-2">
-            @if (User.IsInRole("Admin"))
+            @if (User.IsInRole(nameof(UserRole.Admin)))
             {
                 <li class="nav-item">
                     <a class="nav-link text-white" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
@@ -39,7 +40,7 @@
                 </li>
             }
 
-            @if (User.IsInRole("FinanceManager"))
+            @if (User.IsInRole(nameof(UserRole.FinanceManager)))
             {
                 <li class="nav-item">
                     <a class="nav-link text-white" asp-area="Finance" asp-controller="Dashboard" asp-action="Index">
@@ -63,7 +64,7 @@
                 </li>
             }
 
-            @if (User.IsInRole("HRManager"))
+            @if (User.IsInRole(nameof(UserRole.HRManager)))
             {
                 <li class="nav-item">
                     <a class="nav-link text-white" asp-area="HR" asp-controller="Dashboard" asp-action="Index">
@@ -82,7 +83,7 @@
                 </li>
             }
 
-            @if (User.IsInRole("TravelManager"))
+            @if (User.IsInRole(nameof(UserRole.TravelManager)))
             {
                 <li class="nav-item">
                     <a class="nav-link text-white" asp-area="Travel" asp-controller="Dashboard" asp-action="Index">
@@ -101,7 +102,7 @@
                 </li>
             }
 
-            @if (User.IsInRole("Customer"))
+            @if (User.IsInRole(nameof(UserRole.Customer)))
             {
                 <li class="nav-item">
                     <a class="nav-link text-white" asp-area="CustomerPortal" asp-controller="Dashboard" asp-action="Index">

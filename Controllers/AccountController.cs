@@ -1,4 +1,5 @@
 using Cab_Management_System.Models;
+using Cab_Management_System.Models.Enums;
 using Cab_Management_System.Models.ViewModels;
 using Cab_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -277,14 +278,14 @@ namespace Cab_Management_System.Controllers
                 Email = model.Email,
                 FirstName = nameParts[0],
                 LastName = nameParts.Length > 1 ? nameParts[1] : string.Empty,
-                Role = "Customer",
+                Role = nameof(UserRole.Customer),
                 EmailConfirmed = true
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(user, "Customer");
+                await _userManager.AddToRoleAsync(user, nameof(UserRole.Customer));
 
                 var customer = new Customer
                 {
@@ -313,15 +314,15 @@ namespace Cab_Management_System.Controllers
 
         private IActionResult RedirectToRoleDashboard()
         {
-            if (User.IsInRole("Admin"))
+            if (User.IsInRole(nameof(UserRole.Admin)))
                 return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
-            if (User.IsInRole("FinanceManager"))
+            if (User.IsInRole(nameof(UserRole.FinanceManager)))
                 return RedirectToAction("Index", "Dashboard", new { area = "Finance" });
-            if (User.IsInRole("HRManager"))
+            if (User.IsInRole(nameof(UserRole.HRManager)))
                 return RedirectToAction("Index", "Dashboard", new { area = "HR" });
-            if (User.IsInRole("TravelManager"))
+            if (User.IsInRole(nameof(UserRole.TravelManager)))
                 return RedirectToAction("Index", "Dashboard", new { area = "Travel" });
-            if (User.IsInRole("Customer"))
+            if (User.IsInRole(nameof(UserRole.Customer)))
                 return RedirectToAction("Index", "Dashboard", new { area = "CustomerPortal" });
             return RedirectToAction("Index", "Home");
         }

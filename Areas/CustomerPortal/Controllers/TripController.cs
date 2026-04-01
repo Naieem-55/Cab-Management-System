@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Cab_Management_System.Areas.CustomerPortal.Controllers
 {
     [Area("CustomerPortal")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = nameof(UserRole.Customer))]
     public class TripController : Controller
     {
         private readonly ICustomerService _customerService;

@@ -1,3 +1,4 @@
+@using Cab_Management_System.Models.Enums
 @model UserViewModel
 
 @{
@@ -28,16 +29,16 @@
                         <dd class="col-sm-8">
                             @switch (Model.Role)
                             {
-                                case "Admin":
+                                case nameof(UserRole.Admin):
                                     <span class="badge bg-danger">@Model.Role</span>
                                     break;
-                                case "FinanceManager":
+                                case nameof(UserRole.FinanceManager):
                                     <span class="badge bg-success">@Model.Role</span>
                                     break;
-                                case "HRManager":
+                                case nameof(UserRole.HRManager):
                                     <span class="badge bg-info">@Model.Role</span>
                                     break;
-                                case "TravelManager":
+                                case nameof(UserRole.TravelManager):
                                     <span class="badge bg-warning">@Model.Role</span>
                                     break;
                                 default:

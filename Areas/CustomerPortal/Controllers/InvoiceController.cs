@@ -1,4 +1,5 @@
 using Cab_Management_System.Models;
+using Cab_Management_System.Models.Enums;
 using Cab_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -7,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cab_Management_System.Areas.CustomerPortal.Controllers
 {
     [Area("CustomerPortal")]
-    [Authorize(Roles = "Customer")]
+    [Authorize(Roles = nameof(UserRole.Customer))]
     public class InvoiceController : Controller
     {
         private readonly ICustomerService _customerService;

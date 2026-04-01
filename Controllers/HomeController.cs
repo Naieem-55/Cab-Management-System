@@ -1,4 +1,5 @@
 using Cab_Management_System.Models;
+using Cab_Management_System.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -10,15 +11,15 @@ namespace Cab_Management_System.Controllers
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                if (User.IsInRole("Admin"))
+                if (User.IsInRole(nameof(UserRole.Admin)))
                     return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
-                if (User.IsInRole("FinanceManager"))
+                if (User.IsInRole(nameof(UserRole.FinanceManager)))
                     return RedirectToAction("Index", "Dashboard", new { area = "Finance" });
-                if (User.IsInRole("HRManager"))
+                if (User.IsInRole(nameof(UserRole.HRManager)))
                     return RedirectToAction("Index", "Dashboard", new { area = "HR" });
-                if (User.IsInRole("TravelManager"))
+                if (User.IsInRole(nameof(UserRole.TravelManager)))
                     return RedirectToAction("Index", "Dashboard", new { area = "Travel" });
-                if (User.IsInRole("Customer"))
+                if (User.IsInRole(nameof(UserRole.Customer)))
                     return RedirectToAction("Index", "Dashboard", new { area = "CustomerPortal" });
             }
             return View();

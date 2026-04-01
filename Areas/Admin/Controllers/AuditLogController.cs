@@ -1,4 +1,5 @@
 using Cab_Management_System.Models;
+using Cab_Management_System.Models.Enums;
 using Cab_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cab_Management_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = nameof(UserRole.Admin))]
     public class AuditLogController : Controller
     {
         private readonly IAuditLogService _auditLogService;

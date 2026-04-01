@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Cab_Management_System.Areas.Travel.Controllers
 {
     [Area("Travel")]
-    [Authorize(Roles = "TravelManager")]
+    [Authorize(Roles = nameof(UserRole.TravelManager))]
     public class TripController : Controller
     {
         private readonly ITripService _tripService;

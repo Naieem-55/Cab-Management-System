@@ -13,7 +13,7 @@ namespace Cab_Management_System.Data
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            string[] roles = { "Admin", "FinanceManager", "HRManager", "TravelManager", "Customer" };
+            string[] roles = Enum.GetNames<UserRole>();
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
@@ -32,14 +32,14 @@ namespace Cab_Management_System.Data
                     Email = adminEmail,
                     FirstName = "System",
                     LastName = "Administrator",
-                    Role = "Admin",
+                    Role = nameof(UserRole.Admin),
                     EmailConfirmed = true
                 };
 
                 var result = await userManager.CreateAsync(adminUser, "Admin@123");
                 if (result.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                    await userManager.AddToRoleAsync(adminUser, nameof(UserRole.Admin));
                 }
             }
 
@@ -63,9 +63,9 @@ namespace Cab_Management_System.Data
             // ---------------------------------------------------------------
             var managers = new[]
             {
-                new { Email = "finance@cabsystem.com", Password = "Finance@123", FirstName = "Anita", LastName = "Verma", Role = "FinanceManager" },
-                new { Email = "hr@cabsystem.com", Password = "HR@1234", FirstName = "Vikram", LastName = "Mehta", Role = "HRManager" },
-                new { Email = "travel@cabsystem.com", Password = "Travel@123", FirstName = "Deepa", LastName = "Nair", Role = "TravelManager" }
+                new { Email = "finance@cabsystem.com", Password = "Finance@123", FirstName = "Anita", LastName = "Verma", Role = nameof(UserRole.FinanceManager) },
+                new { Email = "hr@cabsystem.com", Password = "HR@1234", FirstName = "Vikram", LastName = "Mehta", Role = nameof(UserRole.HRManager) },
+                new { Email = "travel@cabsystem.com", Password = "Travel@123", FirstName = "Deepa", LastName = "Nair", Role = nameof(UserRole.TravelManager) }
             };
 
             foreach (var mgr in managers)

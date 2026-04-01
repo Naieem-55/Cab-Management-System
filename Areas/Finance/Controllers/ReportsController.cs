@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cab_Management_System.Areas.Finance.Controllers
 {
     [Area("Finance")]
-    [Authorize(Roles = "FinanceManager")]
+    [Authorize(Roles = nameof(UserRole.FinanceManager))]
     public class ReportsController : Controller
     {
         private readonly IBillingService _billingService;

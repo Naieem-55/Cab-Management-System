@@ -1,4 +1,5 @@
 using Cab_Management_System.Models;
+using Cab_Management_System.Models.Enums;
 using Cab_Management_System.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -9,14 +10,14 @@ using Microsoft.EntityFrameworkCore;
 namespace Cab_Management_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = nameof(UserRole.Admin))]
     public class UserManagementController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<UserManagementController> _logger;
 
-        private readonly string[] _availableRoles = { "Admin", "FinanceManager", "HRManager", "TravelManager" };
+        private readonly string[] _availableRoles = Enum.GetNames<UserRole>().Where(r => r != nameof(UserRole.Customer)).ToArray();
 
         public UserManagementController(
             UserManager<ApplicationUser> userManager,
@@ -142,7 +143,7 @@ namespace Cab_Management_System.Areas.Admin.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email ?? string.Empty,
-                Role = roles.FirstOrDefault() ?? "Admin"
+                Role = roles.FirstOrDefault() ?? nameof(UserRole.Admin)
             };
 
             ViewBag.UserId = user.Id;

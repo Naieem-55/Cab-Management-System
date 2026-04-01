@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Cab_Management_System.Areas.HR.Controllers
 {
     [Area("HR")]
-    [Authorize(Roles = "HRManager")]
+    [Authorize(Roles = nameof(UserRole.HRManager))]
     public class DriverController : Controller
     {
         private readonly IDriverService _driverService;

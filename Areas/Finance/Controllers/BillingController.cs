@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Cab_Management_System.Areas.Finance.Controllers
 {
     [Area("Finance")]
-    [Authorize(Roles = "FinanceManager")]
+    [Authorize(Roles = nameof(UserRole.FinanceManager))]
     public class BillingController : Controller
     {
         private readonly IBillingService _billingService;

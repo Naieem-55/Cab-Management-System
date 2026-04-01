@@ -1,3 +1,4 @@
+using Cab_Management_System.Models.Enums;
 using Cab_Management_System.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -5,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cab_Management_System.Areas.Finance.Controllers
 {
     [Area("Finance")]
-    [Authorize(Roles = "FinanceManager")]
+    [Authorize(Roles = nameof(UserRole.FinanceManager))]
     public class DashboardController : Controller
     {
         private readonly IDashboardService _dashboardService;

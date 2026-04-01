@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Cab_Management_System.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = nameof(UserRole.Admin))]
     public class VehicleController : Controller
     {
         private readonly IVehicleService _vehicleService;
