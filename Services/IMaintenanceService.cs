@@ -1,6 +1,6 @@
-using Cab_Management_System.Models;
+using CabManagementSystem.Models;
 
-namespace Cab_Management_System.Services
+namespace CabManagementSystem.Services
 {
     public interface IMaintenanceService
     {

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Cab_Management_System.Models.ViewModels
+namespace CabManagementSystem.Models.ViewModels
 {
     public class RegisterViewModel
     {

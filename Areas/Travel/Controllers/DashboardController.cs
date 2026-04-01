@@ -1,9 +1,9 @@
-using Cab_Management_System.Models.Enums;
-using Cab_Management_System.Services;
+using CabManagementSystem.Models.Enums;
+using CabManagementSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Cab_Management_System.Areas.Travel.Controllers
+namespace CabManagementSystem.Areas.Travel.Controllers
 {
     [Area("Travel")]
     [Authorize(Roles = nameof(UserRole.TravelManager))]

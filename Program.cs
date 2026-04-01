@@ -1,8 +1,8 @@
-using Cab_Management_System.Data;
-using Cab_Management_System.Hubs;
-using Cab_Management_System.Models;
-using Cab_Management_System.Repositories;
-using Cab_Management_System.Services;
+using CabManagementSystem.Data;
+using CabManagementSystem.Hubs;
+using CabManagementSystem.Models;
+using CabManagementSystem.Repositories;
+using CabManagementSystem.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -59,7 +59,7 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IDriverRatingService, DriverRatingService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
-builder.Services.Configure<Cab_Management_System.Models.EmailSettings>(
+builder.Services.Configure<CabManagementSystem.Models.EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IInvoicePdfService, InvoicePdfService>();

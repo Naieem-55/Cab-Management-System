@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Cab_Management_System.Models.Enums;
+using CabManagementSystem.Models.Enums;
 
-namespace Cab_Management_System.Models
+namespace CabManagementSystem.Models
 {
     public class Expense : BaseEntity
     {

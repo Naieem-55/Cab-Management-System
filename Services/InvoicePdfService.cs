@@ -1,9 +1,9 @@
-using Cab_Management_System.Models;
+using CabManagementSystem.Models;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
-namespace Cab_Management_System.Services
+namespace CabManagementSystem.Services
 {
     public class InvoicePdfService : IInvoicePdfService
     {

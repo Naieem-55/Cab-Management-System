@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Cab_Management_System.Models
+namespace CabManagementSystem.Models
 {
     public class AuditLog
     {

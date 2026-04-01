@@ -1,9 +1,9 @@
-using Cab_Management_System.Data;
-using Cab_Management_System.Models;
-using Cab_Management_System.Models.Enums;
+using CabManagementSystem.Data;
+using CabManagementSystem.Models;
+using CabManagementSystem.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cab_Management_System.Repositories
+namespace CabManagementSystem.Repositories
 {
     public class TripRepository : Repository<Trip>, ITripRepository
     {

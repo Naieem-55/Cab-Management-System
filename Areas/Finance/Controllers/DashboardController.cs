@@ -1,9 +1,9 @@
-using Cab_Management_System.Models.Enums;
-using Cab_Management_System.Services;
+using CabManagementSystem.Models.Enums;
+using CabManagementSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Cab_Management_System.Areas.Finance.Controllers
+namespace CabManagementSystem.Areas.Finance.Controllers
 {
     [Area("Finance")]
     [Authorize(Roles = nameof(UserRole.FinanceManager))]

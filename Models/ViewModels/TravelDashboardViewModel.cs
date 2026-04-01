@@ -1,6 +1,6 @@
-using Cab_Management_System.Models;
+using CabManagementSystem.Models;
 
-namespace Cab_Management_System.Models.ViewModels
+namespace CabManagementSystem.Models.ViewModels
 {
     public class TravelDashboardViewModel
     {

@@ -1,8 +1,8 @@
-using Cab_Management_System.Data;
-using Cab_Management_System.Models;
+using CabManagementSystem.Data;
+using CabManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cab_Management_System.Repositories
+namespace CabManagementSystem.Repositories
 {
     public class CustomerRepository : Repository<Customer>, ICustomerRepository
     {

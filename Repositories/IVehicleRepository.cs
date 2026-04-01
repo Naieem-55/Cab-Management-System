@@ -1,6 +1,6 @@
-using Cab_Management_System.Models;
+using CabManagementSystem.Models;
 
-namespace Cab_Management_System.Repositories
+namespace CabManagementSystem.Repositories
 {
     public interface IVehicleRepository : IRepository<Vehicle>
     {

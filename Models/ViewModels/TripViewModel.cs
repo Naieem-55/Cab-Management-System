@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using Cab_Management_System.Models.Enums;
+using CabManagementSystem.Models.Enums;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Cab_Management_System.Models.ViewModels
+namespace CabManagementSystem.Models.ViewModels
 {
     public class TripViewModel
     {

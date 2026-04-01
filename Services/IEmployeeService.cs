@@ -1,7 +1,7 @@
-using Cab_Management_System.Models;
-using Cab_Management_System.Models.Enums;
+using CabManagementSystem.Models;
+using CabManagementSystem.Models.Enums;
 
-namespace Cab_Management_System.Services
+namespace CabManagementSystem.Services
 {
     public interface IEmployeeService
     {

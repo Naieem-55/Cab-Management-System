@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace Cab_Management_System.Repositories
+namespace CabManagementSystem.Repositories
 {
     public interface IRepository<T> where T : class
     {

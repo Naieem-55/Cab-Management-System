@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Cab_Management_System.Hubs
+namespace CabManagementSystem.Hubs
 {
     [Authorize]
     public class TripTrackingHub : Hub

@@ -1,9 +1,9 @@
-using Cab_Management_System.Models;
+using CabManagementSystem.Models;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace Cab_Management_System.Services
+namespace CabManagementSystem.Services
 {
     public class EmailService : IEmailService
     {

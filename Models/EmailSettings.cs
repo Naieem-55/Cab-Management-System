@@ -1,4 +1,4 @@
-namespace Cab_Management_System.Models
+namespace CabManagementSystem.Models
 {
     public class EmailSettings
     {

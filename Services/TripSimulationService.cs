@@ -1,8 +1,8 @@
-using Cab_Management_System.Hubs;
-using Cab_Management_System.Models.Enums;
+using CabManagementSystem.Hubs;
+using CabManagementSystem.Models.Enums;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Cab_Management_System.Services
+namespace CabManagementSystem.Services
 {
     public class TripSimulationService
     {

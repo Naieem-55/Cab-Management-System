@@ -1,12 +1,12 @@
-using Cab_Management_System.Models;
-using Cab_Management_System.Models.Enums;
-using Cab_Management_System.Models.ViewModels;
-using Cab_Management_System.Services;
+using CabManagementSystem.Models;
+using CabManagementSystem.Models.Enums;
+using CabManagementSystem.Models.ViewModels;
+using CabManagementSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Cab_Management_System.Controllers
+namespace CabManagementSystem.Controllers
 {
     public class AccountController : Controller
     {

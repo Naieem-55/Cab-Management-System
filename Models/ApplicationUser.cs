@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
-namespace Cab_Management_System.Models
+namespace CabManagementSystem.Models
 {
     public class ApplicationUser : IdentityUser
     {

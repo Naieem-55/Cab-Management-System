@@ -1,9 +1,9 @@
-using Cab_Management_System.Models;
-using Cab_Management_System.Models.Enums;
-using Cab_Management_System.Models.ViewModels;
-using Cab_Management_System.Repositories;
+using CabManagementSystem.Models;
+using CabManagementSystem.Models.Enums;
+using CabManagementSystem.Models.ViewModels;
+using CabManagementSystem.Repositories;
 
-namespace Cab_Management_System.Services
+namespace CabManagementSystem.Services
 {
     public class DriverRatingService : IDriverRatingService
     {

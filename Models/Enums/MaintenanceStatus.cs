@@ -1,4 +1,4 @@
-namespace Cab_Management_System.Models.Enums
+namespace CabManagementSystem.Models.Enums
 {
     public enum MaintenanceStatus
     {

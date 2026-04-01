@@ -1,4 +1,4 @@
-namespace Cab_Management_System.Services
+namespace CabManagementSystem.Services
 {
     public interface IEmailService
     {

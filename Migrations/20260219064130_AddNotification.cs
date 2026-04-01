@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Cab_Management_System.Migrations
+namespace CabManagementSystem.Migrations
 {
     /// <inheritdoc />
     public partial class AddNotification : Migration

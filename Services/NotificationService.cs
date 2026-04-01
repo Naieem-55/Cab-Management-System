@@ -1,7 +1,7 @@
-using Cab_Management_System.Models;
-using Cab_Management_System.Repositories;
+using CabManagementSystem.Models;
+using CabManagementSystem.Repositories;
 
-namespace Cab_Management_System.Services
+namespace CabManagementSystem.Services
 {
     public class NotificationService : INotificationService
     {

@@ -1,11 +1,11 @@
-using Cab_Management_System.Models;
+using CabManagementSystem.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace Cab_Management_System.Data
+namespace CabManagementSystem.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {

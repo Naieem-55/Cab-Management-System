@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Cab_Management_System.Models.ViewModels
+namespace CabManagementSystem.Models.ViewModels
 {
     public class CustomerBookTripViewModel
     {

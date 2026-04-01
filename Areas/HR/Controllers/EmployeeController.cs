@@ -1,12 +1,12 @@
-using Cab_Management_System.Models;
-using Cab_Management_System.Models.Enums;
-using Cab_Management_System.Services;
+using CabManagementSystem.Models;
+using CabManagementSystem.Models.Enums;
+using CabManagementSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cab_Management_System.Areas.HR.Controllers
+namespace CabManagementSystem.Areas.HR.Controllers
 {
     [Area("HR")]
     [Authorize(Roles = nameof(UserRole.HRManager))]

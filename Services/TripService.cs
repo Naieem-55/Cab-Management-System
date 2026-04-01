@@ -1,9 +1,9 @@
-using Cab_Management_System.Models;
-using Cab_Management_System.Models.Enums;
-using Cab_Management_System.Repositories;
+using CabManagementSystem.Models;
+using CabManagementSystem.Models.Enums;
+using CabManagementSystem.Repositories;
 using Microsoft.Extensions.Logging;
 
-namespace Cab_Management_System.Services
+namespace CabManagementSystem.Services
 {
     public class TripService : ITripService
     {

@@ -1,7 +1,7 @@
-using Cab_Management_System.Models;
-using Cab_Management_System.Models.Enums;
+using CabManagementSystem.Models;
+using CabManagementSystem.Models.Enums;
 
-namespace Cab_Management_System.Repositories
+namespace CabManagementSystem.Repositories
 {
     public interface IExpenseRepository : IRepository<Expense>
     {

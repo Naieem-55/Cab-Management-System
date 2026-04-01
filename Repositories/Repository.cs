@@ -1,8 +1,8 @@
 using System.Linq.Expressions;
-using Cab_Management_System.Data;
+using CabManagementSystem.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cab_Management_System.Repositories
+namespace CabManagementSystem.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {

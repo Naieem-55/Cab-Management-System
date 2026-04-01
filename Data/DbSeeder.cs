@@ -1,10 +1,10 @@
-using Cab_Management_System.Data;
-using Cab_Management_System.Models;
-using Cab_Management_System.Models.Enums;
+using CabManagementSystem.Data;
+using CabManagementSystem.Models;
+using CabManagementSystem.Models.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cab_Management_System.Data
+namespace CabManagementSystem.Data
 {
     public static class DbSeeder
     {

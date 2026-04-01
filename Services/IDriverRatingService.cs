@@ -1,7 +1,7 @@
-using Cab_Management_System.Models;
-using Cab_Management_System.Models.ViewModels;
+using CabManagementSystem.Models;
+using CabManagementSystem.Models.ViewModels;
 
-namespace Cab_Management_System.Services
+namespace CabManagementSystem.Services
 {
     public interface IDriverRatingService
     {

@@ -1,12 +1,12 @@
-using Cab_Management_System.Models.Enums;
-using Cab_Management_System.Models.ViewModels;
-using Cab_Management_System.Services;
+using CabManagementSystem.Models.Enums;
+using CabManagementSystem.Models.ViewModels;
+using CabManagementSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Cab_Management_System.Models;
+using CabManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Cab_Management_System.Areas.CustomerPortal.Controllers
+namespace CabManagementSystem.Areas.CustomerPortal.Controllers
 {
     [Area("CustomerPortal")]
     [Authorize(Roles = nameof(UserRole.Customer))]

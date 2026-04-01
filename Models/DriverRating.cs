@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Cab_Management_System.Models
+namespace CabManagementSystem.Models
 {
     public class DriverRating : BaseEntity
     {

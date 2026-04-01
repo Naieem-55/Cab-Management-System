@@ -1,9 +1,9 @@
-using Cab_Management_System.Models;
-using Cab_Management_System.Models.Enums;
+using CabManagementSystem.Models;
+using CabManagementSystem.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace Cab_Management_System.Controllers
+namespace CabManagementSystem.Controllers
 {
     public class HomeController : Controller
     {
