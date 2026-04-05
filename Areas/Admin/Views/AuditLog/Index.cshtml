@@ -1,122 +1,276 @@
 @model PaginatedList<CabManagementSystem.Models.AuditLog>
 @{
     ViewData["Title"] = "Audit Logs";
+    var totalCreate = Model.Count(l => l.Action == "Create");
+    var totalUpdate = Model.Count(l => l.Action == "Update");
+    var totalDelete = Model.Count(l => l.Action == "Delete");
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-journal-text"></i> Audit Logs</h2>
+<style>
+    .change-table thead th { background:#f8fafc;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;font-weight:600;padding:0.6rem 0.75rem;border-bottom:2px solid #e2e8f0; }
+    .change-table tbody td { padding:0.65rem 0.75rem;font-size:0.85rem;border-bottom:1px solid #f1f5f9;vertical-align:middle; }
+    .change-table tbody tr:last-child td { border-bottom:none; }
+    .change-old { background:#fef2f2;color:#991b1b;padding:2px 8px;border-radius:4px;font-size:0.82rem;text-decoration:line-through; }
+    .change-new { background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:4px;font-size:0.82rem;font-weight:600; }
+    .change-arrow { color:#94a3b8;font-size:0.8rem;margin:0 4px; }
+    .modal-entity-icon { width:40px;height:40px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0; }
+    .modal-meta { display:flex;gap:12px;flex-wrap:wrap;margin-top:6px; }
+    .modal-meta-item { display:inline-flex;align-items:center;gap:4px;font-size:0.78rem;color:#64748b;background:#f8fafc;padding:3px 10px;border-radius:20px; }
+    .changes-modal .modal-content { border:none;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,0.15); }
+    .changes-modal .modal-header { padding:1.25rem 1.5rem 0.75rem;border:none; }
+    .changes-modal .modal-body { padding:0 1.5rem 1.5rem; }
+    [data-theme="dark"] .change-table thead th { background:#1e293b;color:#94a3b8;border-color:#334155; }
+    [data-theme="dark"] .change-table tbody td { border-color:#1e293b; }
+    [data-theme="dark"] .change-old { background:#450a0a;color:#fca5a5; }
+    [data-theme="dark"] .change-new { background:#052e16;color:#86efac; }
+    [data-theme="dark"] .modal-meta-item { background:#1e293b;color:#94a3b8; }
+    [data-theme="dark"] .changes-modal .modal-content { background:#0f172a; }
+</style>
+
+<!-- Header -->
+<div class="pro-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2><i class="bi bi-shield-check me-2"></i>Audit Logs</h2>
+            <p>Comprehensive record of all system changes and user activity</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <span class="pro-stat"><span class="dot" style="background:#22c55e;"></span> @totalCreate Created</span>
+            <span class="pro-stat"><span class="dot" style="background:#f59e0b;"></span> @totalUpdate Updated</span>
+            <span class="pro-stat"><span class="dot" style="background:#ef4444;"></span> @totalDelete Deleted</span>
+            <span class="pro-stat" style="background:rgba(59,130,246,0.2);"><i class="bi bi-database"></i> @ViewBag.TotalCount Total</span>
+        </div>
+    </div>
 </div>
 
-<div class="card shadow-sm mb-4">
-    <div class="card-body">
-        <form method="get" class="row g-3">
-            <div class="col-md-10">
-                <input type="text" name="searchTerm" class="form-control" placeholder="Search by entity, action, user, or changes..." value="@ViewBag.SearchTerm" />
+<!-- Search -->
+<div class="pro-search">
+    <div class="p-3">
+        <form method="get" class="d-flex gap-2">
+            <div class="flex-grow-1 position-relative">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" name="searchTerm" class="form-control has-icon"
+                       placeholder="Search by entity, action, user, or changes..." value="@ViewBag.SearchTerm" />
             </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Search</button>
-            </div>
+            <button type="submit" class="btn btn-dark px-4" style="border-radius:8px;height:42px;">Search</button>
+            @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
+            {
+                <a href="@ViewBag.BaseUrl" class="btn btn-outline-secondary px-3" style="border-radius:8px;height:42px;line-height:30px;">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            }
         </form>
     </div>
 </div>
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        <p class="text-muted mb-3">Total Records: @ViewBag.TotalCount</p>
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
+<!-- Table -->
+<div class="pro-card">
+    <div class="table-responsive">
+        <table class="table pro-table">
+            <thead>
+                <tr>
+                    <th style="width:15%">Timestamp</th>
+                    <th style="width:18%">Entity</th>
+                    <th style="width:12%">Action</th>
+                    <th style="width:20%">User</th>
+                    <th style="width:25%">Summary</th>
+                    <th style="width:10%" class="text-end">Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count == 0)
+                {
                     <tr>
-                        <th>Timestamp</th>
-                        <th>Entity</th>
-                        <th>ID</th>
-                        <th>Action</th>
-                        <th>User</th>
-                        <th>Changes</th>
+                        <td colspan="6" class="pro-empty">
+                            <i class="bi bi-inbox d-block mb-2"></i>
+                            <p>No audit logs found</p>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @if (Model.Count == 0)
-                    {
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">No audit logs found.</td>
-                        </tr>
-                    }
-                    @foreach (var log in Model)
-                    {
-                        <tr>
-                            <td>@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                            <td>@log.EntityName</td>
-                            <td>@log.EntityId</td>
-                            <td>
-                                @if (log.Action == "Create")
-                                {
-                                    <span class="badge bg-success">Create</span>
-                                }
-                                else if (log.Action == "Update")
-                                {
-                                    <span class="badge bg-warning text-dark">Update</span>
-                                }
-                                else if (log.Action == "Delete")
-                                {
-                                    <span class="badge bg-danger">Delete</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">@log.Action</span>
-                                }
-                            </td>
-                            <td>@(log.UserName ?? "System")</td>
-                            <td>
-                                @if (!string.IsNullOrEmpty(log.Changes))
-                                {
-                                    <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#changesModal-@log.Id">
-                                        <i class="bi bi-eye"></i> View
-                                    </button>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">-</span>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                }
+                @foreach (var log in Model)
+                {
+                    var entityIconMap = new Dictionary<string, (string icon, string bg, string color)> {
+                        { "Vehicle", ("bi-truck", "#dbeafe", "#2563eb") },
+                        { "Driver", ("bi-person-badge", "#fce7f3", "#db2777") },
+                        { "Trip", ("bi-geo-alt", "#d1fae5", "#059669") },
+                        { "Employee", ("bi-people", "#fef3c7", "#d97706") },
+                        { "Customer", ("bi-person-heart", "#e0e7ff", "#4f46e5") },
+                        { "MaintenanceRecord", ("bi-wrench", "#f3e8ff", "#7c3aed") },
+                        { "Route", ("bi-signpost-2", "#ccfbf1", "#0d9488") },
+                        { "Billing", ("bi-receipt", "#fef9c3", "#ca8a04") },
+                        { "Expense", ("bi-cash-stack", "#ffe4e6", "#e11d48") },
+                    };
+                    var (icon, bg, color) = entityIconMap.ContainsKey(log.EntityName) ? entityIconMap[log.EntityName] : ("bi-file-earmark", "#f1f5f9", "#64748b");
+                    var actionBadge = log.Action == "Create" ? "pro-badge-green" : log.Action == "Update" ? "pro-badge-yellow" : log.Action == "Delete" ? "pro-badge-red" : "pro-badge-gray";
 
-        @if (ViewBag.TotalPages > 1)
-        {
-            <nav>
-                <ul class="pagination justify-content-center">
-                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    var summary = "";
+                    if (!string.IsNullOrEmpty(log.Changes))
                     {
-                        <li class="page-item @(i == ViewBag.PageIndex ? "active" : "")">
-                            <a class="page-link" href="@ViewBag.BaseUrl?page=@i@ViewBag.QueryString">@i</a>
-                        </li>
+                        try
+                        {
+                            var json = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, System.Text.Json.JsonElement>>(log.Changes);
+                            if (json != null)
+                            {
+                                var fieldNames = json.Keys.Take(3).Select(k => System.Text.RegularExpressions.Regex.Replace(k, "([A-Z])", " $1").Trim());
+                                summary = string.Join(", ", fieldNames);
+                                if (json.Count > 3) summary += $" +{json.Count - 3} more";
+                            }
+                        }
+                        catch { summary = "View changes"; }
                     }
-                </ul>
-            </nav>
-        }
+
+                    <tr>
+                        <td>
+                            <div class="fw-medium" style="font-size:0.85rem;">@log.Timestamp.ToString("MMM dd, yyyy")</div>
+                            <div class="text-muted" style="font-size:0.75rem;">@log.Timestamp.ToString("hh:mm:ss tt")</div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="pro-icon" style="background:@bg;color:@color;">
+                                    <i class="bi @icon"></i>
+                                </span>
+                                <div>
+                                    <div class="fw-medium" style="font-size:0.85rem;">@log.EntityName</div>
+                                    <div class="text-muted" style="font-size:0.72rem;">ID: @log.EntityId</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="pro-badge @actionBadge"><span class="bdot"></span> @log.Action</span></td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="pro-avatar"><i class="bi bi-person-fill"></i></div>
+                                <span style="font-size:0.85rem;">@(log.UserName ?? "System")</span>
+                            </div>
+                        </td>
+                        <td><span class="text-muted" style="font-size:0.82rem;">@(string.IsNullOrEmpty(summary) ? "-" : summary)</span></td>
+                        <td class="text-end">
+                            @if (!string.IsNullOrEmpty(log.Changes))
+                            {
+                                <button type="button" class="pro-action"
+                                        data-change-id="@log.Id"
+                                        data-entity="@log.EntityName"
+                                        data-entity-id="@log.EntityId"
+                                        data-action="@log.Action"
+                                        data-time="@log.Timestamp.ToString("MMM dd, yyyy hh:mm:ss tt")"
+                                        data-user="@(log.UserName ?? "System")"
+                                        data-entity-icon="@icon"
+                                        data-entity-bg="@bg"
+                                        data-entity-color="@color">
+                                    <i class="bi bi-arrow-right"></i>
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        <div class="pro-pagination">
+            <span class="text-muted" style="font-size:0.82rem;">Page @ViewBag.PageIndex of @ViewBag.TotalPages</span>
+            <div class="d-flex">
+                @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+                {
+                    <a href="@ViewBag.BaseUrl?page=@i@ViewBag.QueryString"
+                       class="pro-page-link @(i == (int)ViewBag.PageIndex ? "active" : "")">@i</a>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal -->
+<div class="modal fade changes-modal" id="changesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="modal-entity-icon" id="modalIcon"></span>
+                    <div>
+                        <h5 class="mb-0 fw-bold" id="changesModalTitle" style="font-size:1.1rem;"></h5>
+                        <div class="modal-meta" id="changesModalMeta"></div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="changesModalBody"></div>
+        </div>
     </div>
 </div>
 
 @foreach (var log in Model.Where(l => !string.IsNullOrEmpty(l.Changes)))
 {
-    <div class="modal fade" id="changesModal-@log.Id" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Changes - @log.EntityName #@log.EntityId (@log.Action)</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">@log.Changes</pre>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <script type="application/json" id="changes-data-@log.Id">@Html.Raw(log.Changes)</script>
+}
+
+@section Scripts {
+<script>
+(function () {
+    var modal = document.getElementById('changesModal');
+    var actionClasses = { 'Create': 'pro-badge-green', 'Update': 'pro-badge-yellow', 'Delete': 'pro-badge-red' };
+
+    document.querySelectorAll('[data-change-id]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var id = this.getAttribute('data-change-id');
+            var entity = this.getAttribute('data-entity');
+            var entityId = this.getAttribute('data-entity-id');
+            var action = this.getAttribute('data-action');
+            var time = this.getAttribute('data-time');
+            var user = this.getAttribute('data-user');
+            var entityIcon = this.getAttribute('data-entity-icon');
+            var entityBg = this.getAttribute('data-entity-bg');
+            var entityColor = this.getAttribute('data-entity-color');
+
+            var iconEl = document.getElementById('modalIcon');
+            iconEl.innerHTML = '<i class="bi ' + entityIcon + '"></i>';
+            iconEl.style.background = entityBg;
+            iconEl.style.color = entityColor;
+
+            document.getElementById('changesModalTitle').textContent = entity + ' #' + entityId;
+            var cls = actionClasses[action] || 'pro-badge-gray';
+            var meta = '<span class="modal-meta-item"><span class="pro-badge ' + cls + '" style="font-size:0.7rem;padding:2px 8px;"><span class="bdot"></span> ' + action + '</span></span>';
+            meta += '<span class="modal-meta-item"><i class="bi bi-clock"></i> ' + time + '</span>';
+            meta += '<span class="modal-meta-item"><i class="bi bi-person"></i> ' + user + '</span>';
+            document.getElementById('changesModalMeta').innerHTML = meta;
+
+            var body = document.getElementById('changesModalBody');
+            var dataEl = document.getElementById('changes-data-' + id);
+            var raw = dataEl ? dataEl.textContent : '';
+
+            try {
+                var data = JSON.parse(raw);
+                var keys = Object.keys(data);
+                if (keys.length === 0) {
+                    body.innerHTML = '<div class="text-center py-4"><i class="bi bi-check-circle text-success fs-3"></i><p class="text-muted mt-2 mb-0">No field changes recorded</p></div>';
+                } else if (action === 'Update' && data[keys[0]] && typeof data[keys[0]] === 'object' && ('Old' in data[keys[0]] || 'New' in data[keys[0]])) {
+                    var html = '<div class="table-responsive"><table class="table change-table"><thead><tr><th style="width:22%">Field</th><th style="width:33%">Previous Value</th><th style="width:12px"></th><th style="width:33%">New Value</th></tr></thead><tbody>';
+                    keys.forEach(function (key) {
+                        var c = data[key], o = c.Old != null ? String(c.Old) : '-', n = c.New != null ? String(c.New) : '-';
+                        html += '<tr><td class="fw-medium">' + fmt(key) + '</td>';
+                        if (o !== n) { html += '<td><span class="change-old">' + esc(o) + '</span></td><td class="text-center"><i class="bi bi-arrow-right change-arrow"></i></td><td><span class="change-new">' + esc(n) + '</span></td>'; }
+                        else { html += '<td colspan="3"><span class="text-muted" style="font-size:0.82rem;">' + esc(o) + ' <span style="font-size:0.7rem;">(unchanged)</span></span></td>'; }
+                        html += '</tr>';
+                    });
+                    body.innerHTML = html + '</tbody></table></div>';
+                } else {
+                    var html = '<div class="table-responsive"><table class="table change-table"><thead><tr><th style="width:30%">Field</th><th>Value</th></tr></thead><tbody>';
+                    keys.forEach(function (key) {
+                        var v = data[key]; if (typeof v === 'object' && v !== null) v = JSON.stringify(v);
+                        html += '<tr><td class="fw-medium">' + fmt(key) + '</td><td>' + esc(String(v != null ? v : '-')) + '</td></tr>';
+                    });
+                    body.innerHTML = html + '</tbody></table></div>';
+                }
+            } catch (e) {
+                body.innerHTML = '<pre class="bg-light p-3 rounded small mb-0" style="max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;">' + esc(raw) + '</pre>';
+            }
+            new bootstrap.Modal(modal).show();
+        });
+    });
+
+    function fmt(n) { return n.replace(/([A-Z])/g, ' $1').replace(/^./, function(s) { return s.toUpperCase(); }).trim(); }
+    function esc(s) { var d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+})();
+</script>
 }

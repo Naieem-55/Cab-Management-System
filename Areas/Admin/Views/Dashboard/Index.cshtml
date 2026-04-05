@@ -4,152 +4,150 @@
     ViewData["Title"] = "Admin Dashboard";
 }
 
-<div class="container-fluid">
-    <h1 class="mb-4">Admin Dashboard</h1>
+<!-- Header -->
+<div class="pro-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h2>
+            <p>Overview of system operations and key metrics</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <span class="pro-stat"><i class="bi bi-people"></i> @Model.TotalUsers Users</span>
+            <span class="pro-stat"><i class="bi bi-geo-alt"></i> @Model.ActiveTrips Active Trips</span>
+        </div>
+    </div>
+</div>
 
-    @if (TempData["StatusMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["StatusMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    <!-- Stat Cards Row 1 -->
-    <div class="row g-4 mb-4">
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-primary h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Total Vehicles</h6>
-                            <h3 class="mb-0">@Model.TotalVehicles</h3>
-                        </div>
-                        <div class="text-primary">
-                            <i class="bi bi-truck fs-1"></i>
-                        </div>
-                    </div>
+<!-- Stat Cards Row 1 -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="pro-stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Total Vehicles</div>
+                    <h3>@Model.TotalVehicles</h3>
                 </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-success h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Available Vehicles</h6>
-                            <h3 class="mb-0">@Model.AvailableVehicles</h3>
-                        </div>
-                        <div class="text-success">
-                            <i class="bi bi-check-circle fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-info h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Total Drivers</h6>
-                            <h3 class="mb-0">@Model.TotalDrivers</h3>
-                        </div>
-                        <div class="text-info">
-                            <i class="bi bi-person-workspace fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-success h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Available Drivers</h6>
-                            <h3 class="mb-0">@Model.AvailableDrivers</h3>
-                        </div>
-                        <div class="text-success">
-                            <i class="bi bi-person-check fs-1"></i>
-                        </div>
-                    </div>
+                <div class="stat-icon" style="background:#dbeafe;color:#2563eb;">
+                    <i class="bi bi-truck"></i>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Stat Cards Row 2 -->
-    <div class="row g-4 mb-4">
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-warning h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Total Employees</h6>
-                            <h3 class="mb-0">@Model.TotalEmployees</h3>
-                        </div>
-                        <div class="text-warning">
-                            <i class="bi bi-people fs-1"></i>
-                        </div>
-                    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="pro-stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Available Vehicles</div>
+                    <h3>@Model.AvailableVehicles</h3>
                 </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-secondary h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Total Routes</h6>
-                            <h3 class="mb-0">@Model.TotalRoutes</h3>
-                        </div>
-                        <div class="text-secondary">
-                            <i class="bi bi-signpost-2 fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-danger h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Active Trips</h6>
-                            <h3 class="mb-0">@Model.ActiveTrips</h3>
-                        </div>
-                        <div class="text-danger">
-                            <i class="bi bi-geo-alt fs-1"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-primary h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Total Revenue</h6>
-                            <h3 class="mb-0">@Model.TotalRevenue.ToString("C")</h3>
-                        </div>
-                        <div class="text-primary">
-                            <i class="bi bi-currency-dollar fs-1"></i>
-                        </div>
-                    </div>
+                <div class="stat-icon" style="background:#dcfce7;color:#16a34a;">
+                    <i class="bi bi-check-circle"></i>
                 </div>
             </div>
         </div>
     </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="pro-stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Total Drivers</div>
+                    <h3>@Model.TotalDrivers</h3>
+                </div>
+                <div class="stat-icon" style="background:#e0e7ff;color:#4f46e5;">
+                    <i class="bi bi-person-workspace"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="pro-stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Available Drivers</div>
+                    <h3>@Model.AvailableDrivers</h3>
+                </div>
+                <div class="stat-icon" style="background:#dcfce7;color:#16a34a;">
+                    <i class="bi bi-person-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <!-- License Expiry Alerts -->
-    @if (Model.ExpiringLicenses.Any())
-    {
-        <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
-            <h5 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> License Expiry Alerts (@Model.ExpiringLicenseCount)</h5>
+<!-- Stat Cards Row 2 -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="pro-stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Total Employees</div>
+                    <h3>@Model.TotalEmployees</h3>
+                </div>
+                <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="pro-stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Total Routes</div>
+                    <h3>@Model.TotalRoutes</h3>
+                </div>
+                <div class="stat-icon" style="background:#ccfbf1;color:#0d9488;">
+                    <i class="bi bi-signpost-2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="pro-stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Active Trips</div>
+                    <h3>@Model.ActiveTrips</h3>
+                </div>
+                <div class="stat-icon" style="background:#fee2e2;color:#dc2626;">
+                    <i class="bi bi-geo-alt"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="pro-stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Total Revenue</div>
+                    <h3 style="font-size:1.3rem;">@Model.TotalRevenue.ToString("C")</h3>
+                </div>
+                <div class="stat-icon" style="background:#dbeafe;color:#2563eb;">
+                    <i class="bi bi-currency-dollar"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- License Expiry Alerts -->
+@if (Model.ExpiringLicenses.Any())
+{
+    <div class="pro-card mb-4" style="border-left:4px solid #f59e0b;">
+        <div class="p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="pro-icon" style="background:#fef3c7;color:#d97706;">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </span>
+                    <div>
+                        <h6 class="mb-0 fw-bold">License Expiry Alerts</h6>
+                        <small class="text-muted">@Model.ExpiringLicenseCount drivers need attention</small>
+                    </div>
+                </div>
+            </div>
             <div class="table-responsive">
-                <table class="table table-sm table-borderless mb-0">
+                <table class="table pro-table">
                     <thead>
                         <tr>
                             <th>Driver Name</th>
@@ -162,17 +160,17 @@
                         @foreach (var driver in Model.ExpiringLicenses)
                         {
                             <tr>
-                                <td>@driver.Employee?.Name</td>
-                                <td>@driver.LicenseNumber</td>
+                                <td class="fw-medium">@driver.Employee?.Name</td>
+                                <td><code>@driver.LicenseNumber</code></td>
                                 <td>@driver.LicenseExpiry.ToString("MMM dd, yyyy")</td>
                                 <td>
                                     @if (driver.LicenseExpiry < DateTime.Today)
                                     {
-                                        <span class="badge bg-danger">Expired</span>
+                                        <span class="pro-badge pro-badge-red"><span class="bdot"></span> Expired</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-warning text-dark">Expiring Soon</span>
+                                        <span class="pro-badge pro-badge-yellow"><span class="bdot"></span> Expiring Soon</span>
                                     }
                                 </td>
                             </tr>
@@ -180,159 +178,132 @@
                     </tbody>
                 </table>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    }
+    </div>
+}
 
-    <!-- Charts Row -->
-    <div class="row g-4 mb-4">
-        <div class="col-lg-5">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Trip Status Distribution</h5>
-                    <span class="badge bg-secondary">@Model.TripStatusCounts.Sum() Total</span>
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-5">
+        <div class="pro-card h-100">
+            <div class="d-flex justify-content-between align-items-center p-3 pb-0">
+                <h6 class="fw-bold mb-0">Trip Status Distribution</h6>
+                <span class="pro-badge pro-badge-gray">@Model.TripStatusCounts.Sum() Total</span>
+            </div>
+            <div class="p-3 d-flex flex-column">
+                <div class="position-relative mx-auto" style="max-width:240px;max-height:240px;">
+                    <canvas id="tripStatusChart"></canvas>
                 </div>
-                <div class="card-body d-flex flex-column">
-                    <div class="position-relative mx-auto" style="max-width: 260px; max-height: 260px;">
-                        <canvas id="tripStatusChart"></canvas>
-                    </div>
-                    <div class="mt-3">
-                        <div class="row g-2 text-center" id="tripStatusLegend"></div>
-                    </div>
+                <div class="mt-3">
+                    <div class="row g-2 text-center" id="tripStatusLegend"></div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-7">
-            <div class="card h-100">
-                <div class="card-header"><h5 class="mb-0">Monthly Revenue</h5></div>
-                <div class="card-body"><canvas id="monthlyRevenueChart"></canvas></div>
+    </div>
+    <div class="col-lg-7">
+        <div class="pro-card h-100">
+            <div class="p-3 pb-0">
+                <h6 class="fw-bold mb-0">Monthly Revenue</h6>
+            </div>
+            <div class="p-3"><canvas id="monthlyRevenueChart"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<!-- Tables Row -->
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="pro-card h-100">
+            <div class="d-flex justify-content-between align-items-center p-3 pb-0">
+                <h6 class="fw-bold mb-0">Recent Trips</h6>
+                <a asp-area="Travel" asp-controller="Trip" asp-action="Index" class="small text-decoration-none">View All <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="table-responsive">
+                <table class="table pro-table">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Route</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.RecentTrips.Any())
+                        {
+                            @foreach (var trip in Model.RecentTrips)
+                            {
+                                var statusClass = trip.Status switch {
+                                    TripStatus.Confirmed => "pro-badge-blue",
+                                    TripStatus.InProgress => "pro-badge-yellow",
+                                    TripStatus.Completed => "pro-badge-green",
+                                    TripStatus.Cancelled => "pro-badge-red",
+                                    _ => "pro-badge-gray"
+                                };
+                                <tr>
+                                    <td>
+                                        <a asp-area="Travel" asp-controller="Trip" asp-action="Details" asp-route-id="@trip.Id" class="text-decoration-none fw-medium">@trip.CustomerName</a>
+                                    </td>
+                                    <td class="text-muted">@trip.Route?.Origin - @trip.Route?.Destination</td>
+                                    <td><span class="pro-badge @statusClass"><span class="bdot"></span> @trip.Status</span></td>
+                                    <td style="font-size:0.82rem;">@trip.TripDate.ToString("MMM dd, yyyy")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="4" class="text-center text-muted py-4">No recent trips found.</td></tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- Tables Row -->
-    <div class="row g-4">
-        <!-- Recent Trips -->
-        <div class="col-lg-6">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Recent Trips</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Customer</th>
-                                    <th>Route</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (Model.RecentTrips.Any())
-                                {
-                                    @foreach (var trip in Model.RecentTrips)
-                                    {
-                                        <tr>
-                                            <td><a asp-area="Travel" asp-controller="Trip" asp-action="Details" asp-route-id="@trip.Id" class="text-decoration-none">@trip.CustomerName</a></td>
-                                            <td>@trip.Route?.Origin - @trip.Route?.Destination</td>
-                                            <td>
-                                                @switch (trip.Status)
-                                                {
-                                                    case TripStatus.Confirmed:
-                                                        <span class="badge bg-success">@trip.Status</span>
-                                                        break;
-                                                    case TripStatus.InProgress:
-                                                        <span class="badge bg-warning">@trip.Status</span>
-                                                        break;
-                                                    case TripStatus.Completed:
-                                                        <span class="badge bg-info">@trip.Status</span>
-                                                        break;
-                                                    case TripStatus.Cancelled:
-                                                        <span class="badge bg-danger">@trip.Status</span>
-                                                        break;
-                                                    default:
-                                                        <span class="badge bg-secondary">@trip.Status</span>
-                                                        break;
-                                                }
-                                            </td>
-                                            <td>@trip.TripDate.ToString("MMM dd, yyyy")</td>
-                                        </tr>
-                                    }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted">No recent trips found.</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    <div class="col-lg-6">
+        <div class="pro-card h-100">
+            <div class="d-flex justify-content-between align-items-center p-3 pb-0">
+                <h6 class="fw-bold mb-0">Upcoming Maintenance</h6>
+                <a asp-area="Travel" asp-controller="Maintenance" asp-action="Index" class="small text-decoration-none">View All <i class="bi bi-arrow-right"></i></a>
             </div>
-        </div>
-
-        <!-- Upcoming Maintenance -->
-        <div class="col-lg-6">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Upcoming Maintenance</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="table-dark">
+            <div class="table-responsive">
+                <table class="table pro-table">
+                    <thead>
+                        <tr>
+                            <th>Vehicle</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.UpcomingMaintenance.Any())
+                        {
+                            @foreach (var record in Model.UpcomingMaintenance)
+                            {
+                                var mStatusClass = record.Status switch {
+                                    MaintenanceStatus.Scheduled => "pro-badge-blue",
+                                    MaintenanceStatus.InProgress => "pro-badge-yellow",
+                                    MaintenanceStatus.Completed => "pro-badge-green",
+                                    MaintenanceStatus.Overdue => "pro-badge-red",
+                                    _ => "pro-badge-gray"
+                                };
                                 <tr>
-                                    <th>Vehicle</th>
-                                    <th>Description</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
+                                    <td>
+                                        <a asp-area="Travel" asp-controller="Maintenance" asp-action="Details" asp-route-id="@record.Id" class="text-decoration-none fw-medium">@record.Vehicle?.RegistrationNumber</a>
+                                    </td>
+                                    <td class="text-muted">@(record.Description.Length > 35 ? record.Description[..35] + "..." : record.Description)</td>
+                                    <td style="font-size:0.82rem;">@record.Date.ToString("MMM dd, yyyy")</td>
+                                    <td><span class="pro-badge @mStatusClass"><span class="bdot"></span> @record.Status</span></td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @if (Model.UpcomingMaintenance.Any())
-                                {
-                                    @foreach (var record in Model.UpcomingMaintenance)
-                                    {
-                                        <tr>
-                                            <td><a asp-area="Travel" asp-controller="Maintenance" asp-action="Details" asp-route-id="@record.Id" class="text-decoration-none">@record.Vehicle?.RegistrationNumber</a></td>
-                                            <td>@(record.Description.Length > 40 ? record.Description[..40] + "..." : record.Description)</td>
-                                            <td>@record.Date.ToString("MMM dd, yyyy")</td>
-                                            <td>
-                                                @switch (record.Status)
-                                                {
-                                                    case MaintenanceStatus.Scheduled:
-                                                        <span class="badge bg-info">@record.Status</span>
-                                                        break;
-                                                    case MaintenanceStatus.InProgress:
-                                                        <span class="badge bg-warning">@record.Status</span>
-                                                        break;
-                                                    case MaintenanceStatus.Completed:
-                                                        <span class="badge bg-success">@record.Status</span>
-                                                        break;
-                                                    case MaintenanceStatus.Overdue:
-                                                        <span class="badge bg-danger">@record.Status</span>
-                                                        break;
-                                                    default:
-                                                        <span class="badge bg-secondary">@record.Status</span>
-                                                        break;
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted">No upcoming maintenance records.</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="4" class="text-center text-muted py-4">No upcoming maintenance records.</td></tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -344,138 +315,53 @@
         Chart.defaults.color = _theme === 'dark' ? '#e4e6ea' : '#666';
         Chart.defaults.borderColor = _theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
         var _gridColor = _theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
-        var _bgColor = _theme === 'dark' ? '#212529' : '#ffffff';
+        var _bgColor = _theme === 'dark' ? '#0f172a' : '#ffffff';
 
-        // Trip Status - Professional Doughnut Chart
         var tripLabels = @Html.Raw(Json.Serialize(Model.TripStatusLabels));
         var tripCounts = @Html.Raw(Json.Serialize(Model.TripStatusCounts));
         var totalTrips = tripCounts.reduce(function(a, b) { return a + b; }, 0);
 
-        var statusColorMap = {
-            'Pending': '#f59e0b',
-            'Confirmed': '#3b82f6',
-            'InProgress': '#8b5cf6',
-            'Completed': '#10b981',
-            'Cancelled': '#ef4444'
-        };
+        var statusColorMap = { 'Pending':'#f59e0b','Confirmed':'#3b82f6','InProgress':'#8b5cf6','Completed':'#10b981','Cancelled':'#ef4444' };
         var tripColors = tripLabels.map(function(l) { return statusColorMap[l] || '#6b7280'; });
 
-        // Center text plugin
         var centerTextPlugin = {
             id: 'centerText',
             afterDraw: function(chart) {
-                var ctx = chart.ctx;
-                var width = chart.width;
-                var height = chart.height;
+                var ctx = chart.ctx, w = chart.width, h = chart.height;
                 ctx.save();
-                ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.font = 'bold 26px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif';
                 ctx.fillStyle = _theme === 'dark' ? '#e4e6ea' : '#1f2937';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(totalTrips, width / 2, height / 2 - 8);
-                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(totalTrips, w/2, h/2 - 8);
+                ctx.font = '11px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif';
                 ctx.fillStyle = _theme === 'dark' ? '#9ca3af' : '#6b7280';
-                ctx.fillText('TRIPS', width / 2, height / 2 + 14);
+                ctx.fillText('TRIPS', w/2, h/2 + 14);
                 ctx.restore();
             }
         };
 
         new Chart(document.getElementById('tripStatusChart'), {
-            type: 'doughnut',
-            plugins: [centerTextPlugin],
-            data: {
-                labels: tripLabels,
-                datasets: [{
-                    data: tripCounts,
-                    backgroundColor: tripColors,
-                    borderColor: _bgColor,
-                    borderWidth: 3,
-                    hoverBorderColor: _bgColor,
-                    hoverOffset: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                cutout: '68%',
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                        titleFont: { size: 13, weight: 'bold' },
-                        bodyFont: { size: 12 },
-                        padding: 10,
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: function(ctx) {
-                                var pct = totalTrips > 0 ? ((ctx.raw / totalTrips) * 100).toFixed(1) : 0;
-                                return ' ' + ctx.label + ': ' + ctx.raw + ' (' + pct + '%)';
-                            }
-                        }
-                    }
-                }
-            }
+            type: 'doughnut', plugins: [centerTextPlugin],
+            data: { labels: tripLabels, datasets: [{ data: tripCounts, backgroundColor: tripColors, borderColor: _bgColor, borderWidth: 3, hoverOffset: 6 }] },
+            options: { responsive: true, maintainAspectRatio: true, cutout: '68%', plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(17,24,39,0.9)', cornerRadius: 8, callbacks: { label: function(ctx) { var p = totalTrips > 0 ? ((ctx.raw/totalTrips)*100).toFixed(1) : 0; return ' '+ctx.label+': '+ctx.raw+' ('+p+'%)'; } } } } }
         });
 
-        // Custom legend below chart
         var legendContainer = document.getElementById('tripStatusLegend');
         tripLabels.forEach(function(label, i) {
-            var pct = totalTrips > 0 ? ((tripCounts[i] / totalTrips) * 100).toFixed(0) : 0;
-            var col = document.createElement('div');
-            col.className = 'col-6';
-            col.innerHTML =
-                '<div class="d-flex align-items-center gap-2 px-2 py-1 rounded" style="background: ' + tripColors[i] + '12;">' +
-                    '<span style="width:10px;height:10px;border-radius:50%;background:' + tripColors[i] + ';flex-shrink:0;"></span>' +
-                    '<span class="small text-truncate">' + label + '</span>' +
-                    '<span class="small fw-semibold ms-auto">' + tripCounts[i] + '</span>' +
-                    '<span class="small text-muted">(' + pct + '%)</span>' +
-                '</div>';
+            var pct = totalTrips > 0 ? ((tripCounts[i]/totalTrips)*100).toFixed(0) : 0;
+            var col = document.createElement('div'); col.className = 'col-6';
+            col.innerHTML = '<div class="d-flex align-items-center gap-2 px-2 py-1 rounded" style="background:'+tripColors[i]+'12;"><span style="width:10px;height:10px;border-radius:50%;background:'+tripColors[i]+';flex-shrink:0;"></span><span class="small text-truncate">'+label+'</span><span class="small fw-semibold ms-auto">'+tripCounts[i]+'</span><span class="small text-muted">('+pct+'%)</span></div>';
             legendContainer.appendChild(col);
         });
 
-        // Monthly Revenue - Gradient Bar Chart
         var revenueCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
         var gradient = revenueCtx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');
-        gradient.addColorStop(1, 'rgba(59, 130, 246, 0.2)');
+        gradient.addColorStop(0, 'rgba(59,130,246,0.8)'); gradient.addColorStop(1, 'rgba(59,130,246,0.2)');
 
         new Chart(revenueCtx, {
             type: 'bar',
-            data: {
-                labels: @Html.Raw(Json.Serialize(Model.MonthlyRevenueLabels)),
-                datasets: [{
-                    label: 'Revenue',
-                    data: @Html.Raw(Json.Serialize(Model.MonthlyRevenueData)),
-                    backgroundColor: gradient,
-                    borderColor: 'rgba(59, 130, 246, 1)',
-                    borderWidth: 1,
-                    borderRadius: 6,
-                    borderSkipped: false
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: function(ctx) { return ' $' + ctx.raw.toLocaleString(); }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: _gridColor },
-                        ticks: {
-                            callback: function(val) { return '$' + val.toLocaleString(); }
-                        }
-                    },
-                    x: { grid: { display: false } }
-                }
-            }
+            data: { labels: @Html.Raw(Json.Serialize(Model.MonthlyRevenueLabels)), datasets: [{ label: 'Revenue', data: @Html.Raw(Json.Serialize(Model.MonthlyRevenueData)), backgroundColor: gradient, borderColor: 'rgba(59,130,246,1)', borderWidth: 1, borderRadius: 6, borderSkipped: false }] },
+            options: { responsive: true, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(17,24,39,0.9)', cornerRadius: 8, callbacks: { label: function(ctx) { return ' $'+ctx.raw.toLocaleString(); } } } }, scales: { y: { beginAtZero: true, grid: { color: _gridColor }, ticks: { callback: function(v) { return '$'+v.toLocaleString(); } } }, x: { grid: { display: false } } } }
         });
     </script>
 }

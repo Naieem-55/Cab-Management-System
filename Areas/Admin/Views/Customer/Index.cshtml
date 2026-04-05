@@ -2,92 +2,111 @@
 
 @{
     ViewData["Title"] = "Customers";
+    var total = Model.Count();
+    var totalTrips = Model.Sum(c => c.Trips?.Count ?? 0);
 }
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Customers</h1>
+<!-- Header -->
+<div class="pro-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
-            <a asp-action="Export" class="btn btn-outline-success me-2">
-                <i class="bi bi-download"></i> Export CSV
+            <h2><i class="bi bi-person-heart me-2"></i>Customers</h2>
+            <p>Manage customer profiles and booking history</p>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="pro-stat"><i class="bi bi-people"></i> @total Customers</span>
+            <span class="pro-stat"><i class="bi bi-geo-alt"></i> @totalTrips Trips</span>
+            <a asp-action="Export" class="btn btn-outline-light btn-sm px-3">
+                <i class="bi bi-download me-1"></i> Export
             </a>
-            <a asp-action="Create" class="btn btn-primary">
-                <i class="bi bi-plus-lg"></i> Add Customer
+            <a asp-action="Create" class="btn btn-light btn-sm px-3">
+                <i class="bi bi-plus-lg me-1"></i> Add Customer
             </a>
         </div>
     </div>
-
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" asp-action="Index">
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-8">
-                        <label for="searchTerm" class="form-label">Search</label>
-                        <input type="text" class="form-control" id="searchTerm" name="searchTerm"
-                               value="@ViewBag.SearchTerm" placeholder="Search by name, email, or phone..." />
-                    </div>
-                    <div class="col-md-4">
-                        <button type="submit" class="btn btn-outline-primary w-100">
-                            <i class="bi bi-search"></i> Search
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    @if (Model.Any())
-    {
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Total Trips</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var customer in Model)
-                            {
-                                <tr>
-                                    <td>@customer.Name</td>
-                                    <td>@customer.Email</td>
-                                    <td>@customer.Phone</td>
-                                    <td><span class="badge bg-info">@(customer.Trips?.Count ?? 0)</span></td>
-                                    <td>
-                                        <a asp-action="Details" asp-route-id="@customer.Id" class="btn btn-sm btn-outline-info" title="Details">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a asp-action="Edit" asp-route-id="@customer.Id" class="btn btn-sm btn-outline-warning" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@customer.Id" class="btn btn-sm btn-outline-danger" title="Delete">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <partial name="_PaginationPartial" />
-    }
-    else
-    {
-        <div class="text-center py-5">
-            <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
-            <p class="text-muted mt-2 mb-3">No customers found.</p>
-            <a asp-action="Create" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Add Customer
-            </a>
-        </div>
-    }
 </div>
+
+<!-- Search -->
+<div class="pro-search">
+    <div class="p-3">
+        <form method="get" asp-action="Index" class="d-flex gap-2">
+            <div class="flex-grow-1 position-relative">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" class="form-control has-icon" name="searchTerm"
+                       value="@ViewBag.SearchTerm" placeholder="Search by name, email, or phone..." />
+            </div>
+            <button type="submit" class="btn btn-dark px-4" style="border-radius:8px;height:42px;">Search</button>
+            @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
+            {
+                <a asp-action="Index" class="btn btn-outline-secondary px-3" style="border-radius:8px;height:42px;line-height:30px;">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            }
+        </form>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <div class="pro-card">
+        <div class="table-responsive">
+            <table class="table pro-table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Trips</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var customer in Model)
+                    {
+                        var initials = string.Join("", (customer.Name ?? "C").Split(' ').Take(2).Select(n => n[0]));
+                        var tripCount = customer.Trips?.Count ?? 0;
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="pro-avatar fw-semibold" style="font-size:0.7rem;background:#e0e7ff;color:#4f46e5;">@initials</div>
+                                    <span class="fw-medium">@customer.Name</span>
+                                </div>
+                            </td>
+                            <td class="text-muted">@customer.Email</td>
+                            <td>@customer.Phone</td>
+                            <td>
+                                @if (tripCount > 0)
+                                {
+                                    <span class="pro-badge pro-badge-blue"><span class="bdot"></span> @tripCount trips</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted" style="font-size:0.82rem;">No trips</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@customer.Id" class="pro-action" title="Details"><i class="bi bi-eye"></i></a>
+                                <a asp-action="Edit" asp-route-id="@customer.Id" class="pro-action" title="Edit"><i class="bi bi-pencil"></i></a>
+                                <a asp-action="Delete" asp-route-id="@customer.Id" class="pro-action pro-action-danger" title="Delete"><i class="bi bi-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <partial name="_PaginationPartial" />
+}
+else
+{
+    <div class="pro-card">
+        <div class="pro-empty">
+            <i class="bi bi-person-heart d-block mb-2"></i>
+            <p>No customers found</p>
+            <a asp-action="Create" class="btn btn-dark btn-sm px-3">
+                <i class="bi bi-plus-lg me-1"></i> Add Customer
+            </a>
+        </div>
+    </div>
+}
