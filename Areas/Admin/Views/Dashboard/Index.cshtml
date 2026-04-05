@@ -186,13 +186,23 @@
 
     <!-- Charts Row -->
     <div class="row g-4 mb-4">
-        <div class="col-lg-6">
+        <div class="col-lg-5">
             <div class="card h-100">
-                <div class="card-header"><h5 class="mb-0">Trip Status Distribution</h5></div>
-                <div class="card-body"><canvas id="tripStatusChart"></canvas></div>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Trip Status Distribution</h5>
+                    <span class="badge bg-secondary">@Model.TripStatusCounts.Sum() Total</span>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="position-relative mx-auto" style="max-width: 260px; max-height: 260px;">
+                        <canvas id="tripStatusChart"></canvas>
+                    </div>
+                    <div class="mt-3">
+                        <div class="row g-2 text-center" id="tripStatusLegend"></div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-7">
             <div class="card h-100">
                 <div class="card-header"><h5 class="mb-0">Monthly Revenue</h5></div>
                 <div class="card-body"><canvas id="monthlyRevenueChart"></canvas></div>
@@ -334,30 +344,138 @@
         Chart.defaults.color = _theme === 'dark' ? '#e4e6ea' : '#666';
         Chart.defaults.borderColor = _theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
         var _gridColor = _theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+        var _bgColor = _theme === 'dark' ? '#212529' : '#ffffff';
+
+        // Trip Status - Professional Doughnut Chart
+        var tripLabels = @Html.Raw(Json.Serialize(Model.TripStatusLabels));
+        var tripCounts = @Html.Raw(Json.Serialize(Model.TripStatusCounts));
+        var totalTrips = tripCounts.reduce(function(a, b) { return a + b; }, 0);
+
+        var statusColorMap = {
+            'Pending': '#f59e0b',
+            'Confirmed': '#3b82f6',
+            'InProgress': '#8b5cf6',
+            'Completed': '#10b981',
+            'Cancelled': '#ef4444'
+        };
+        var tripColors = tripLabels.map(function(l) { return statusColorMap[l] || '#6b7280'; });
+
+        // Center text plugin
+        var centerTextPlugin = {
+            id: 'centerText',
+            afterDraw: function(chart) {
+                var ctx = chart.ctx;
+                var width = chart.width;
+                var height = chart.height;
+                ctx.save();
+                ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillStyle = _theme === 'dark' ? '#e4e6ea' : '#1f2937';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(totalTrips, width / 2, height / 2 - 8);
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillStyle = _theme === 'dark' ? '#9ca3af' : '#6b7280';
+                ctx.fillText('TRIPS', width / 2, height / 2 + 14);
+                ctx.restore();
+            }
+        };
 
         new Chart(document.getElementById('tripStatusChart'), {
-            type: 'pie',
+            type: 'doughnut',
+            plugins: [centerTextPlugin],
             data: {
-                labels: @Html.Raw(Json.Serialize(Model.TripStatusLabels)),
+                labels: tripLabels,
                 datasets: [{
-                    data: @Html.Raw(Json.Serialize(Model.TripStatusCounts)),
-                    backgroundColor: ['#ffc107', '#17a2b8', '#007bff', '#28a745', '#dc3545']
+                    data: tripCounts,
+                    backgroundColor: tripColors,
+                    borderColor: _bgColor,
+                    borderWidth: 3,
+                    hoverBorderColor: _bgColor,
+                    hoverOffset: 6
                 }]
             },
-            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '68%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                        titleFont: { size: 13, weight: 'bold' },
+                        bodyFont: { size: 12 },
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(ctx) {
+                                var pct = totalTrips > 0 ? ((ctx.raw / totalTrips) * 100).toFixed(1) : 0;
+                                return ' ' + ctx.label + ': ' + ctx.raw + ' (' + pct + '%)';
+                            }
+                        }
+                    }
+                }
+            }
         });
 
-        new Chart(document.getElementById('monthlyRevenueChart'), {
+        // Custom legend below chart
+        var legendContainer = document.getElementById('tripStatusLegend');
+        tripLabels.forEach(function(label, i) {
+            var pct = totalTrips > 0 ? ((tripCounts[i] / totalTrips) * 100).toFixed(0) : 0;
+            var col = document.createElement('div');
+            col.className = 'col-6';
+            col.innerHTML =
+                '<div class="d-flex align-items-center gap-2 px-2 py-1 rounded" style="background: ' + tripColors[i] + '12;">' +
+                    '<span style="width:10px;height:10px;border-radius:50%;background:' + tripColors[i] + ';flex-shrink:0;"></span>' +
+                    '<span class="small text-truncate">' + label + '</span>' +
+                    '<span class="small fw-semibold ms-auto">' + tripCounts[i] + '</span>' +
+                    '<span class="small text-muted">(' + pct + '%)</span>' +
+                '</div>';
+            legendContainer.appendChild(col);
+        });
+
+        // Monthly Revenue - Gradient Bar Chart
+        var revenueCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+        var gradient = revenueCtx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');
+        gradient.addColorStop(1, 'rgba(59, 130, 246, 0.2)');
+
+        new Chart(revenueCtx, {
             type: 'bar',
             data: {
                 labels: @Html.Raw(Json.Serialize(Model.MonthlyRevenueLabels)),
                 datasets: [{
                     label: 'Revenue',
                     data: @Html.Raw(Json.Serialize(Model.MonthlyRevenueData)),
-                    backgroundColor: '#0d6efd'
+                    backgroundColor: gradient,
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    borderSkipped: false
                 }]
             },
-            options: { responsive: true, scales: { y: { beginAtZero: true, grid: { color: _gridColor } }, x: { grid: { color: _gridColor } } } }
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(ctx) { return ' $' + ctx.raw.toLocaleString(); }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: _gridColor },
+                        ticks: {
+                            callback: function(val) { return '$' + val.toLocaleString(); }
+                        }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
         });
     </script>
 }
