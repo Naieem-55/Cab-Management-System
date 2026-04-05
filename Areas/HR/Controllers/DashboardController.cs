@@ -9,9 +9,9 @@ namespace CabManagementSystem.Areas.HR.Controllers
     [Authorize(Roles = nameof(UserRole.HRManager))]
     public class DashboardController : Controller
     {
-        private readonly IDashboardService _dashboardService;
+        private readonly IHRDashboardService _dashboardService;
 
-        public DashboardController(IDashboardService dashboardService)
+        public DashboardController(IHRDashboardService dashboardService)
         {
             _dashboardService = dashboardService;
         }

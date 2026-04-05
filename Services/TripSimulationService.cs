@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace CabManagementSystem.Services
 {
-    public class TripSimulationService
+    public class TripSimulationService : ITripSimulationService
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IHubContext<TripTrackingHub> _hubContext;

@@ -9,9 +9,9 @@ namespace CabManagementSystem.Areas.Travel.Controllers
     [Authorize(Roles = nameof(UserRole.TravelManager))]
     public class DashboardController : Controller
     {
-        private readonly IDashboardService _dashboardService;
+        private readonly ITravelDashboardService _dashboardService;
 
-        public DashboardController(IDashboardService dashboardService)
+        public DashboardController(ITravelDashboardService dashboardService)
         {
             _dashboardService = dashboardService;
         }

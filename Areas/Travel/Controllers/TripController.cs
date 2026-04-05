@@ -22,7 +22,7 @@ namespace CabManagementSystem.Areas.Travel.Controllers
         private readonly IEmailService _emailService;
         private readonly IDriverRatingService _driverRatingService;
         private readonly INotificationService _notificationService;
-        private readonly TripSimulationService _simulationService;
+        private readonly ITripSimulationService _simulationService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<TripController> _logger;
 
@@ -35,7 +35,7 @@ namespace CabManagementSystem.Areas.Travel.Controllers
             IEmailService emailService,
             IDriverRatingService driverRatingService,
             INotificationService notificationService,
-            TripSimulationService simulationService,
+            ITripSimulationService simulationService,
             UserManager<ApplicationUser> userManager,
             ILogger<TripController> logger)
         {

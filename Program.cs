@@ -58,7 +58,10 @@ builder.Services.AddScoped<IMaintenanceService, MaintenanceService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IDriverRatingService, DriverRatingService>();
-builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+builder.Services.AddScoped<IFinanceDashboardService, FinanceDashboardService>();
+builder.Services.AddScoped<IHRDashboardService, HRDashboardService>();
+builder.Services.AddScoped<ITravelDashboardService, TravelDashboardService>();
 builder.Services.Configure<CabManagementSystem.Models.EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -68,7 +71,7 @@ builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
-builder.Services.AddSingleton<TripSimulationService>();
+builder.Services.AddSingleton<ITripSimulationService, TripSimulationService>();
 
 builder.Services.AddControllersWithViews();
 

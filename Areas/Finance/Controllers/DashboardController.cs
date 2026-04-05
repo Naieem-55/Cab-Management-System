@@ -9,9 +9,9 @@ namespace CabManagementSystem.Areas.Finance.Controllers
     [Authorize(Roles = nameof(UserRole.FinanceManager))]
     public class DashboardController : Controller
     {
-        private readonly IDashboardService _dashboardService;
+        private readonly IFinanceDashboardService _dashboardService;
 
-        public DashboardController(IDashboardService dashboardService)
+        public DashboardController(IFinanceDashboardService dashboardService)
         {
             _dashboardService = dashboardService;
         }
