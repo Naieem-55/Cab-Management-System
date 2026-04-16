@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/logo.png" alt="Cab Management System" width="600"/>
+
 # 🚖 Cab Management System
 
 ### Enterprise-Grade Fleet & Operations Management Platform
