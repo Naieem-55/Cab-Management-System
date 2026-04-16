@@ -70,5 +70,7 @@ namespace CabManagementSystem.Models
         public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
 
         public DriverRating? DriverRating { get; set; }
+
+        public TripFeedback? TripFeedback { get; set; }
     }
 }

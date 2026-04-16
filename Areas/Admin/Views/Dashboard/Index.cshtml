@@ -130,6 +130,58 @@
     </div>
 </div>
 
+<!-- Feedback Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-4 col-md-6">
+        <div class="pro-stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Total Feedback</div>
+                    <h3>@Model.TotalFeedback</h3>
+                </div>
+                <div class="stat-icon" style="background:#f3e8ff;color:#7c3aed;">
+                    <i class="bi bi-chat-square-text"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-6">
+        <div class="pro-stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Open Complaints</div>
+                    <h3>@Model.OpenComplaints</h3>
+                </div>
+                <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                    <i class="bi bi-exclamation-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4 col-md-6">
+        <div class="pro-stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">Avg Satisfaction</div>
+                    <h3>
+                        @if (Model.AverageSatisfaction > 0)
+                        {
+                            @Model.AverageSatisfaction.ToString("F1") <small class="text-muted" style="font-size:0.7rem;">/5</small>
+                        }
+                        else
+                        {
+                            <span class="text-muted" style="font-size:1rem;">N/A</span>
+                        }
+                    </h3>
+                </div>
+                <div class="stat-icon" style="background:#dcfce7;color:#16a34a;">
+                    <i class="bi bi-star"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- License Expiry Alerts -->
 @if (Model.ExpiringLicenses.Any())
 {

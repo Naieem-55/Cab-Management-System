@@ -1,0 +1,116 @@
+@model CabManagementSystem.Models.ViewModels.FeedbackResponseViewModel
+@using CabManagementSystem.Models.Enums
+
+@{
+    ViewData["Title"] = "Respond to Feedback";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">Respond to Feedback</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Customer's Feedback -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-person me-1"></i>Customer Feedback</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Customer</dt>
+                        <dd class="col-sm-8">@Model.CustomerName</dd>
+
+                        <dt class="col-sm-4">Route</dt>
+                        <dd class="col-sm-8">@Model.RouteInfo</dd>
+
+                        <dt class="col-sm-4">Trip Date</dt>
+                        <dd class="col-sm-8">@Model.TripDate.ToString("MMM dd, yyyy")</dd>
+
+                        <dt class="col-sm-4">Category</dt>
+                        <dd class="col-sm-8"><span class="badge bg-secondary">@Model.Category</span></dd>
+
+                        <dt class="col-sm-4">Rating</dt>
+                        <dd class="col-sm-8">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="bi bi-star-fill" style="color: @(i <= Model.Rating ? "#ffc107" : "#ddd");"></i>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Current Status</dt>
+                        <dd class="col-sm-8">
+                            @switch (Model.CurrentStatus)
+                            {
+                                case FeedbackStatus.Open:
+                                    <span class="badge bg-warning text-dark">Open</span>
+                                    break;
+                                case FeedbackStatus.InReview:
+                                    <span class="badge bg-info">In Review</span>
+                                    break;
+                                case FeedbackStatus.Resolved:
+                                    <span class="badge bg-success">Resolved</span>
+                                    break;
+                                case FeedbackStatus.Closed:
+                                    <span class="badge bg-secondary">Closed</span>
+                                    break;
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Comment</dt>
+                        <dd class="col-sm-8">@Model.Comment</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Response Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-reply me-1"></i>Your Response</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Respond" method="post">
+                        <input type="hidden" asp-for="FeedbackId" />
+                        <input type="hidden" asp-for="CustomerName" />
+                        <input type="hidden" asp-for="Comment" />
+                        <input type="hidden" asp-for="Rating" />
+                        <input type="hidden" asp-for="Category" />
+                        <input type="hidden" asp-for="CurrentStatus" />
+                        <input type="hidden" asp-for="RouteInfo" />
+                        <input type="hidden" asp-for="TripDate" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="AdminResponse" class="form-label">Response <span class="text-danger">*</span></label>
+                            <textarea asp-for="AdminResponse" class="form-control" rows="5"
+                                      placeholder="Write your response to the customer..." maxlength="1000"></textarea>
+                            <span asp-validation-for="AdminResponse" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NewStatus" class="form-label">Update Status <span class="text-danger">*</span></label>
+                            <select asp-for="NewStatus" class="form-select">
+                                <option value="@FeedbackStatus.InReview">In Review</option>
+                                <option value="@FeedbackStatus.Resolved" selected>Resolved</option>
+                                <option value="@FeedbackStatus.Closed">Closed</option>
+                            </select>
+                            <span asp-validation-for="NewStatus" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-1"></i> Send Response
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

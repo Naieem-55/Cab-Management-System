@@ -1,0 +1,85 @@
+@model CabManagementSystem.Models.TripFeedback
+@using CabManagementSystem.Models.Enums
+
+@{
+    ViewData["Title"] = "Feedback Details";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">Feedback Details</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-chat-square-text me-1"></i>Your Feedback</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Trip</dt>
+                        <dd class="col-sm-8">#@Model.TripId — @Model.Trip.Route.Origin → @Model.Trip.Route.Destination</dd>
+
+                        <dt class="col-sm-4">Trip Date</dt>
+                        <dd class="col-sm-8">@Model.Trip.TripDate.ToString("MMM dd, yyyy")</dd>
+
+                        <dt class="col-sm-4">Category</dt>
+                        <dd class="col-sm-8"><span class="badge bg-secondary">@Model.Category</span></dd>
+
+                        <dt class="col-sm-4">Rating</dt>
+                        <dd class="col-sm-8">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="bi bi-star-fill" style="color: @(i <= Model.Rating ? "#ffc107" : "#ddd");"></i>
+                            }
+                            <span class="ms-1 text-muted">(@Model.Rating/5)</span>
+                        </dd>
+
+                        <dt class="col-sm-4">Status</dt>
+                        <dd class="col-sm-8">
+                            @switch (Model.Status)
+                            {
+                                case FeedbackStatus.Open:
+                                    <span class="badge bg-warning text-dark">Open</span>
+                                    break;
+                                case FeedbackStatus.InReview:
+                                    <span class="badge bg-info">In Review</span>
+                                    break;
+                                case FeedbackStatus.Resolved:
+                                    <span class="badge bg-success">Resolved</span>
+                                    break;
+                                case FeedbackStatus.Closed:
+                                    <span class="badge bg-secondary">Closed</span>
+                                    break;
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Submitted</dt>
+                        <dd class="col-sm-8">@Model.CreatedDate.ToString("MMM dd, yyyy HH:mm")</dd>
+
+                        <dt class="col-sm-4">Comment</dt>
+                        <dd class="col-sm-8">@Model.Comment</dd>
+                    </dl>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.AdminResponse))
+            {
+                <div class="card mb-4 border-success">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0"><i class="bi bi-reply me-1"></i>Response from Team</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>@Model.AdminResponse</p>
+                        <small class="text-muted">
+                            Responded by @Model.RespondedBy on @Model.RespondedDate?.ToString("MMM dd, yyyy HH:mm")
+                        </small>
+                    </div>
+                </div>
+            }
+
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Feedback
+            </a>
+        </div>
+    </div>
+</div>

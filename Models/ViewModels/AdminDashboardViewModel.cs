@@ -25,5 +25,10 @@ namespace CabManagementSystem.Models.ViewModels
         public List<int> TripStatusCounts { get; set; } = new();
         public List<string> MonthlyRevenueLabels { get; set; } = new();
         public List<decimal> MonthlyRevenueData { get; set; } = new();
+
+        // Feedback stats
+        public int TotalFeedback { get; set; }
+        public int OpenComplaints { get; set; }
+        public double AverageSatisfaction { get; set; }
     }
 }

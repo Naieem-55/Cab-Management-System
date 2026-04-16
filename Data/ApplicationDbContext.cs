@@ -29,6 +29,7 @@ namespace CabManagementSystem.Data
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<DriverRating> DriverRatings { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<TripFeedback> TripFeedbacks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -145,6 +146,23 @@ namespace CabManagementSystem.Data
 
             builder.Entity<DriverRating>()
                 .HasIndex(dr => dr.TripId)
+                .IsUnique();
+
+            // TripFeedback configuration
+            builder.Entity<TripFeedback>()
+                .HasOne(tf => tf.Trip)
+                .WithOne(t => t.TripFeedback)
+                .HasForeignKey<TripFeedback>(tf => tf.TripId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<TripFeedback>()
+                .HasOne(tf => tf.Customer)
+                .WithMany(c => c.Feedbacks)
+                .HasForeignKey(tf => tf.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<TripFeedback>()
+                .HasIndex(tf => tf.TripId)
                 .IsUnique();
 
             // Notification configuration

@@ -24,5 +24,7 @@ namespace CabManagementSystem.Models
         public string? Address { get; set; }
 
         public ICollection<Trip> Trips { get; set; } = new List<Trip>();
+
+        public ICollection<TripFeedback> Feedbacks { get; set; } = new List<TripFeedback>();
     }
 }

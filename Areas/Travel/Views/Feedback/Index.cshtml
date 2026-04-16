@@ -1,0 +1,137 @@
+@model PaginatedList<CabManagementSystem.Models.TripFeedback>
+@using CabManagementSystem.Models.Enums
+
+@{
+    ViewData["Title"] = "Customer Feedback";
+}
+
+<div class="container-fluid">
+    <div class="pro-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2><i class="bi bi-chat-square-text me-2"></i>Customer Feedback</h2>
+                <p>Manage and respond to customer feedback</p>
+            </div>
+            <span class="pro-stat"><i class="bi bi-chat-dots"></i> @ViewBag.TotalCount Total</span>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="pro-search p-3 mb-3">
+        <form method="get" asp-action="Index">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        @foreach (FeedbackCategory cat in ViewBag.Categories)
+                        {
+                            <option value="@cat" selected="@(ViewBag.SelectedCategory != null && (FeedbackCategory)ViewBag.SelectedCategory == cat)">@cat</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        @foreach (FeedbackStatus stat in ViewBag.Statuses)
+                        {
+                            <option value="@stat" selected="@(ViewBag.SelectedStatus != null && (FeedbackStatus)ViewBag.SelectedStatus == stat)">@stat</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small">Search</label>
+                    <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" class="form-control" placeholder="Search by customer, comment, route..." />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-1"></i> Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="pro-card">
+            <div class="table-responsive">
+                <table class="table pro-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Trip</th>
+                            <th>Category</th>
+                            <th>Rating</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var feedback in Model)
+                        {
+                            <tr>
+                                <td>#@feedback.Id</td>
+                                <td>@feedback.Customer.Name</td>
+                                <td>@feedback.Trip.Route.Origin → @feedback.Trip.Route.Destination</td>
+                                <td><span class="badge bg-secondary">@feedback.Category</span></td>
+                                <td>
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="bi bi-star-fill" style="color: @(i <= feedback.Rating ? "#ffc107" : "#ddd"); font-size: 0.8rem;"></i>
+                                    }
+                                </td>
+                                <td>
+                                    @switch (feedback.Status)
+                                    {
+                                        case FeedbackStatus.Open:
+                                            <span class="badge bg-warning text-dark">Open</span>
+                                            break;
+                                        case FeedbackStatus.InReview:
+                                            <span class="badge bg-info">In Review</span>
+                                            break;
+                                        case FeedbackStatus.Resolved:
+                                            <span class="badge bg-success">Resolved</span>
+                                            break;
+                                        case FeedbackStatus.Closed:
+                                            <span class="badge bg-secondary">Closed</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>@feedback.CreatedDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@feedback.Id" class="pro-action">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    @if (string.IsNullOrEmpty(feedback.AdminResponse))
+                                    {
+                                        <a asp-action="Respond" asp-route-id="@feedback.Id" class="pro-action">
+                                            <i class="bi bi-reply"></i>
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (ViewBag.TotalPages > 1)
+            {
+                <partial name="_PaginationPartial" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="pro-card">
+            <div class="pro-empty">
+                <i class="bi bi-chat-square-text"></i>
+                <p>No feedback found matching your filters.</p>
+            </div>
+        </div>
+    }
+</div>

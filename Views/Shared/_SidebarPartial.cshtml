@@ -38,6 +38,11 @@
                         <i class="bi bi-journal-text"></i> Audit Logs
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="Admin" asp-controller="Feedback" asp-action="Index">
+                        <i class="bi bi-chat-square-text"></i> Feedback
+                    </a>
+                </li>
             }
 
             @if (User.IsInRole(nameof(UserRole.FinanceManager)))
@@ -100,6 +105,11 @@
                         <i class="bi bi-tools"></i> Maintenance
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="Travel" asp-controller="Feedback" asp-action="Index">
+                        <i class="bi bi-chat-square-text"></i> Feedback
+                    </a>
+                </li>
             }
 
             @if (User.IsInRole(nameof(UserRole.Customer)))
@@ -122,6 +132,11 @@
                 <li class="nav-item">
                     <a class="nav-link text-white" asp-area="CustomerPortal" asp-controller="Invoice" asp-action="Index">
                         <i class="bi bi-receipt"></i> Invoices
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" asp-area="CustomerPortal" asp-controller="Feedback" asp-action="Index">
+                        <i class="bi bi-chat-square-text"></i> My Feedback
                     </a>
                 </li>
                 <li class="nav-item">

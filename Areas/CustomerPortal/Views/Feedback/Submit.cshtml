@@ -1,0 +1,111 @@
+@model CabManagementSystem.Models.ViewModels.SubmitFeedbackViewModel
+@using CabManagementSystem.Models.Enums
+
+@{
+    ViewData["Title"] = "Submit Feedback";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">Submit Feedback</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-1"></i>
+                <strong>Trip Details:</strong> @Model.RouteInfo | Driver: @Model.DriverName | Date: @Model.TripDate.ToString("MMM dd, yyyy")
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Submit" method="post">
+                        <input type="hidden" asp-for="TripId" />
+                        <input type="hidden" asp-for="DriverName" />
+                        <input type="hidden" asp-for="RouteInfo" />
+                        <input type="hidden" asp-for="TripDate" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <!-- Star Rating -->
+                        <div class="mb-3">
+                            <label class="form-label">Overall Rating <span class="text-danger">*</span></label>
+                            <div id="starRating" class="mb-2">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="bi bi-star-fill star-icon" data-value="@i"
+                                       style="font-size: 2rem; cursor: pointer; color: #ddd; transition: color 0.2s, transform 0.2s;"></i>
+                                }
+                            </div>
+                            <input type="hidden" asp-for="Rating" id="ratingValue" />
+                            <span asp-validation-for="Rating" class="text-danger"></span>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="mb-3">
+                            <label asp-for="Category" class="form-label">Category <span class="text-danger">*</span></label>
+                            <select asp-for="Category" class="form-select"
+                                    asp-items="@(new SelectList(Enum.GetValues(typeof(FeedbackCategory))))">
+                                <option value="">-- Select Category --</option>
+                            </select>
+                            <span asp-validation-for="Category" class="text-danger"></span>
+                        </div>
+
+                        <!-- Comment -->
+                        <div class="mb-3">
+                            <label asp-for="Comment" class="form-label">Your Feedback <span class="text-danger">*</span></label>
+                            <textarea asp-for="Comment" class="form-control" rows="5"
+                                      placeholder="Please describe your experience..." maxlength="1000"></textarea>
+                            <span asp-validation-for="Comment" class="text-danger"></span>
+                            <small class="text-muted">Maximum 1000 characters</small>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-1"></i> Submit Feedback
+                            </button>
+                            <a asp-area="CustomerPortal" asp-controller="Trip" asp-action="Details" asp-route-id="@Model.TripId" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var stars = document.querySelectorAll('#starRating .star-icon');
+            var ratingInput = document.getElementById('ratingValue');
+            var selectedRating = parseInt(ratingInput.value) || 0;
+
+            function updateStars(rating) {
+                stars.forEach(function (s, index) {
+                    s.style.color = index < rating ? '#ffc107' : '#ddd';
+                });
+            }
+
+            stars.forEach(function (star) {
+                star.addEventListener('click', function () {
+                    selectedRating = parseInt(this.getAttribute('data-value'));
+                    ratingInput.value = selectedRating;
+                    updateStars(selectedRating);
+                });
+
+                star.addEventListener('mouseenter', function () {
+                    var hoverVal = parseInt(this.getAttribute('data-value'));
+                    updateStars(hoverVal);
+                    this.style.transform = 'scale(1.1)';
+                });
+
+                star.addEventListener('mouseleave', function () {
+                    updateStars(selectedRating);
+                    this.style.transform = 'scale(1)';
+                });
+            });
+
+            updateStars(selectedRating);
+        });
+    </script>
+}
