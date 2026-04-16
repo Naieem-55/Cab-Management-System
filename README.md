@@ -26,7 +26,7 @@
 
 <br/>
 
-*A unified, role-based platform for managing fleet operations, trip booking, customer self-service, real-time trip tracking, driver performance ratings, billing, expense tracking, HR, and vehicle maintenance — with SignalR real-time updates, toast notifications, and dark mode.*
+*A unified, role-based platform for managing fleet operations, trip booking, customer self-service, real-time trip tracking, driver performance ratings, customer feedback & reviews, billing, expense tracking, HR, and vehicle maintenance — with SignalR real-time updates, toast notifications, and dark mode.*
 
 </div>
 
@@ -61,13 +61,13 @@ The **Cab Management System** is a comprehensive web application designed to dig
 
 | Role | Area | Purpose |
 |:-----|:-----|:--------|
-| **Admin** | System-wide | Fleet, routes, customers, users, audit logs |
+| **Admin** | System-wide | Fleet, routes, customers, users, feedback management, audit logs |
 | **Finance Manager** | Financial | Billing, expenses, revenue reports, invoices |
 | **HR Manager** | Workforce | Employees, drivers, license compliance, performance |
-| **Travel Manager** | Operations | Trips, maintenance, ratings |
-| **Customer** | Self-Service | Trip booking, invoices, profile management |
+| **Travel Manager** | Operations | Trips, maintenance, ratings, feedback response |
+| **Customer** | Self-Service | Trip booking, feedback & reviews, invoices, profile management |
 
-The platform covers the **complete operational lifecycle**: customer self-service registration and trip booking, **real-time trip tracking via SignalR**, driver performance tracking with star ratings, employee and driver management, vehicle and route maintenance, payment processing, expense tracking, PDF invoice generation, license compliance monitoring, email and in-app notifications, toast alerts, and a system-wide **dark mode** for user comfort.
+The platform covers the **complete operational lifecycle**: customer self-service registration and trip booking, **real-time trip tracking via SignalR**, driver performance tracking with star ratings, **customer feedback & complaint management** with admin response workflow, employee and driver management, vehicle and route maintenance, payment processing, expense tracking, PDF invoice generation, license compliance monitoring, email and in-app notifications, toast alerts, and a system-wide **dark mode** for user comfort.
 
 ---
 
@@ -77,7 +77,7 @@ The platform covers the **complete operational lifecycle**: customer self-servic
 | Feature | Description |
 |:--------|:------------|
 | Multi-Role Dashboards | 5 dedicated dashboards with role-specific KPIs, Chart.js visualizations, and contextual alerts |
-| Full CRUD Operations | Create, view, edit, and delete across all 10 entity types with server-side validation |
+| Full CRUD Operations | Create, view, edit, and delete across all 12 entity types with server-side validation |
 | Advanced Search & Filtering | Text search, enum dropdowns, date ranges, and multi-criteria filtering on all list views |
 | Server-Side Pagination | Consistent pagination across all list views with query string preservation |
 
@@ -90,6 +90,7 @@ The platform covers the **complete operational lifecycle**: customer self-servic
 | Trip History & Details | Full trip list with search, status filter, pagination, and visual progress tracker |
 | Trip Cancellation | Cancel pending or confirmed trips with confirmation dialog; auto-releases driver/vehicle |
 | Trip Rating | Rate completed trips with interactive 5-star rating from the customer portal |
+| Trip Feedback | Submit categorized feedback on completed trips; view feedback history and admin responses |
 | Invoice Access | Download PDF invoices directly from the customer portal |
 | Profile Management | View and edit personal information (name, phone, address) |
 
@@ -100,6 +101,16 @@ The platform covers the **complete operational lifecycle**: customer self-servic
 | Performance Dashboard | Per-driver analytics: average rating, total trips, completion rate, revenue, charts |
 | Top Rated Drivers | Ranked leaderboard on HR Dashboard with trophy badges and performance links |
 | Visual Star Display | Star ratings rendered inline on tables and detail views throughout the app |
+
+### 💬 Customer Feedback & Reviews
+| Feature | Description |
+|:--------|:------------|
+| Trip Feedback System | Customers submit categorized feedback (General, Vehicle Condition, Timing, Driver Behavior, Pricing, Safety) with 1-5 star overall rating on completed trips |
+| Complaint Management | Feedback status tracking (Open → In Review → Resolved → Closed) with admin/manager response workflow |
+| Admin Response | Admins and Travel Managers can respond to feedback; customer receives in-app notification + email when a response is posted |
+| Feedback Dashboard | Admin dashboard displays Total Feedback, Open Complaints, and Average Satisfaction KPIs |
+| Multi-Area Access | Feedback visible and manageable from Admin, Travel, and CustomerPortal areas with role-appropriate views |
+| Category Filtering | Filter feedback by category, status, and search term across all management views |
 
 ### 📡 Real-Time Trip Tracking (SignalR)
 | Feature | Description |
@@ -143,6 +154,8 @@ The platform covers the **complete operational lifecycle**: customer self-servic
 | Cancellation Emails | Email + in-app notification sent when customer cancels a trip from the portal |
 | Password Reset Emails | Secure token-based password reset flow with email delivery |
 | Booking Confirmations | Automated email confirmations sent to customers upon trip creation |
+| Feedback Response Emails | Email sent to customer when admin/manager responds to their feedback |
+| Feedback Notifications | In-app notifications sent to admins/managers on new feedback and to customers on responses |
 | In-App Notifications | Bell icon with unread count badge, dropdown feed, mark-as-read, and 60s auto-polling |
 | Toast Notifications | Bootstrap 5 toast overlays (fixed top-right, auto-dismiss) replacing inline page alerts |
 
@@ -232,11 +245,11 @@ Cab Management System/
 │
 ├── Areas/
 │   ├── Admin/                        # System administration
-│   │   ├── Controllers/              # Dashboard, UserManagement, Vehicle, Route, Customer
-│   │   └── Views/                    # 21 views
+│   │   ├── Controllers/              # Dashboard, UserManagement, Vehicle, Route, Customer, Feedback
+│   │   └── Views/                    # 24 views
 │   ├── CustomerPortal/               # Customer self-service
-│   │   ├── Controllers/              # Dashboard, Trip, Invoice, Profile
-│   │   └── Views/                    # 9 views
+│   │   ├── Controllers/              # Dashboard, Trip, Invoice, Profile, Feedback
+│   │   └── Views/                    # 12 views
 │   ├── Finance/                      # Financial management
 │   │   ├── Controllers/              # Dashboard, Billing, Expense, Reports
 │   │   └── Views/                    # 17 views
@@ -244,8 +257,8 @@ Cab Management System/
 │   │   ├── Controllers/              # Dashboard, Employee, Driver
 │   │   └── Views/                    # 13 views
 │   └── Travel/                       # Trip operations
-│       ├── Controllers/              # Dashboard, Trip, Maintenance
-│       └── Views/                    # 13 views
+│       ├── Controllers/              # Dashboard, Trip, Maintenance, Feedback
+│       └── Views/                    # 16 views
 │
 ├── Controllers/
 │   ├── AccountController.cs          # Auth, registration, profile, password reset
@@ -263,24 +276,24 @@ Cab Management System/
 │   └── CsvExportHelper.cs            # Generic CSV export utility
 │
 ├── Models/
-│   ├── Enums/                         # 10 enums (DriverStatus, TripStatus, etc.)
-│   ├── ViewModels/                    # 17 ViewModels
+│   ├── Enums/                         # 12 enums (DriverStatus, TripStatus, FeedbackCategory, etc.)
+│   ├── ViewModels/                    # 19 ViewModels
 │   ├── BaseEntity.cs                  # Abstract base with audit timestamps
-│   └── [11 domain models]            # Employee, Driver, Vehicle, Route, Trip,
+│   └── [12 domain models]            # Employee, Driver, Vehicle, Route, Trip,
 │                                      # Billing, MaintenanceRecord, Customer,
-│                                      # Expense, DriverRating, Notification
+│                                      # Expense, DriverRating, TripFeedback, Notification
 │
 ├── Repositories/
 │   ├── IRepository.cs                 # Generic repository interface
 │   ├── Repository.cs                  # Generic repository implementation
-│   └── [10 entity repositories]       # Interface + implementation pairs
+│   └── [11 entity repositories]       # Interface + implementation pairs
 │
 ├── Services/
 │   ├── EmailService.cs                # MailKit SMTP implementation
 │   ├── InvoicePdfService.cs           # QuestPDF invoice implementation
 │   ├── DashboardService.cs            # Multi-role dashboard statistics
 │   ├── TripSimulationService.cs       # SignalR-powered trip status simulation
-│   └── [10 entity services]           # Business logic implementations
+│   └── [11 entity services]           # Business logic implementations
 │
 ├── Views/
 │   ├── Account/                       # Login, Register, Profile, Password flows
@@ -350,6 +363,21 @@ Cab Management System/
 │ Status           │                      │ ApprovedBy       │
 └──────────────────┘                      └──────────────────┘
 
+┌──────────────────┐
+│  TripFeedback    │
+├──────────────────┤
+│ Id            PK │
+│ TripId    FK(UQ) │
+│ CustomerId    FK │
+│ Rating     (1-5) │
+│ Category         │
+│ Comment          │
+│ Status           │
+│ AdminResponse    │
+│ RespondedBy      │
+│ RespondedDate    │
+└──────────────────┘
+
 ┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
 │      Route       │     │    AuditLog      │     │   Notification   │
 ├──────────────────┤     ├──────────────────┤     ├──────────────────┤
@@ -377,6 +405,8 @@ Cab Management System/
 | Trip → Billing | **Cascade** | Billing follows trip lifecycle |
 | Trip → Expense | **Set Null** | Expenses persist for financial records |
 | Trip → DriverRating | **Cascade** | Rating follows trip lifecycle; unique TripId constraint |
+| Trip → TripFeedback | **Cascade** | Feedback follows trip lifecycle; unique TripId constraint |
+| Customer → TripFeedback | **Restrict** | Preserve feedback history |
 | Driver → DriverRating | **Restrict** | Preserve rating history |
 | Vehicle → Maintenance | **Cascade** | Maintenance follows vehicle lifecycle |
 | Vehicle → Expense | **Set Null** | Expenses persist for financial records |
@@ -390,11 +420,12 @@ Cab Management System/
 
 | Feature | Description |
 |:--------|:------------|
-| **Dashboard** | System-wide KPIs with trip status charts, monthly revenue, and license expiry alerts |
+| **Dashboard** | System-wide KPIs with trip status charts, monthly revenue, feedback stats, and license expiry alerts |
 | **User Management** | Create and manage users; assign roles (Admin, Finance, HR, Travel) |
 | **Vehicle Management** | Fleet CRUD with search; registration, capacity, fuel type, mileage tracking |
 | **Route Management** | Origin-destination routes with distance, estimated time, and base cost |
 | **Customer Management** | Customer directory with CRUD, search, pagination, CSV export, and trip history |
+| **Feedback Management** | View all customer feedback; filter by category/status; respond to complaints; track resolution |
 | **Audit Logs** | Searchable trail of all create, update, and delete operations |
 
 ### 💳 Finance Module
@@ -426,6 +457,7 @@ Cab Management System/
 | **Trip Management** | Book trips with automated driver/vehicle assignment and email confirmations |
 | **Trip Simulation** | One-click simulation auto-progresses trip through all statuses with real-time SignalR push |
 | **Trip Rating** | Interactive 5-star rating on completed trips with comments; one per trip |
+| **Feedback Response** | View and respond to customer feedback; update complaint status; customer notified via email + in-app |
 | **Maintenance** | Schedule and track vehicle maintenance; flag overdue records |
 
 ### 🧑‍💻 Customer Portal
@@ -440,6 +472,8 @@ Cab Management System/
 | **Live Trip Tracking** | Real-time status updates via SignalR — progress tracker, badge, and buttons update without page reload |
 | **Trip Cancellation** | Cancel pending/confirmed trips with confirm dialog; releases driver/vehicle; sends email + notification |
 | **Trip Rating** | Interactive 5-star rating on completed trips with comments; "Rated" badge display |
+| **Trip Feedback** | Submit categorized feedback (General, Vehicle Condition, Timing, Safety, etc.) with 1-5 star rating on completed trips |
+| **My Feedback** | View submitted feedback history, check admin responses, and track complaint resolution status |
 | **Invoices** | Billing list with PDF download buttons for each invoice |
 | **Profile** | View and edit personal information |
 
