@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/logo.png" alt="Cab Management System" width="600"/>
+<img src="assets/logo.png?v=2" alt="Cab Management System" width="600"/>
 
 # 🚖 Cab Management System
 
