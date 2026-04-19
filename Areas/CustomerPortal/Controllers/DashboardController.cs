@@ -14,17 +14,20 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
     {
         private readonly ICustomerService _customerService;
         private readonly ITripService _tripService;
+        private readonly ILoyaltyPointsService _loyaltyService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<DashboardController> _logger;
 
         public DashboardController(
             ICustomerService customerService,
             ITripService tripService,
+            ILoyaltyPointsService loyaltyService,
             UserManager<ApplicationUser> userManager,
             ILogger<DashboardController> logger)
         {
             _customerService = customerService;
             _tripService = tripService;
+            _loyaltyService = loyaltyService;
             _userManager = userManager;
             _logger = logger;
         }
@@ -47,6 +50,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                     TotalTrips = await _tripService.GetTripCountByCustomerIdAsync(customer.Id),
                     ActiveTrips = await _tripService.GetActiveTripCountByCustomerIdAsync(customer.Id),
                     TotalSpent = await _tripService.GetTotalSpentByCustomerIdAsync(customer.Id),
+                    LoyaltyPoints = await _loyaltyService.GetBalanceAsync(customer.Id),
                     RecentTrips = trips.Take(5).ToList()
                 };
 

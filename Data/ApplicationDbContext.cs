@@ -30,6 +30,7 @@ namespace CabManagementSystem.Data
         public DbSet<DriverRating> DriverRatings { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<TripFeedback> TripFeedbacks { get; set; }
+        public DbSet<LoyaltyTransaction> LoyaltyTransactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -164,6 +165,19 @@ namespace CabManagementSystem.Data
             builder.Entity<TripFeedback>()
                 .HasIndex(tf => tf.TripId)
                 .IsUnique();
+
+            // LoyaltyTransaction configuration
+            builder.Entity<LoyaltyTransaction>()
+                .HasOne(lt => lt.Customer)
+                .WithMany(c => c.LoyaltyTransactions)
+                .HasForeignKey(lt => lt.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<LoyaltyTransaction>()
+                .HasOne(lt => lt.Trip)
+                .WithMany(t => t.LoyaltyTransactions)
+                .HasForeignKey(lt => lt.TripId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Notification configuration
             builder.Entity<Notification>()

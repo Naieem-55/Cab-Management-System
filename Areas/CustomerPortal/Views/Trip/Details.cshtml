@@ -77,6 +77,28 @@
 
                         <dt class="col-sm-4">Cost</dt>
                         <dd class="col-sm-8"><strong>@Model.Cost.ToString("C")</strong></dd>
+
+                        @if (Model.PointsRedeemed > 0)
+                        {
+                            <dt class="col-sm-4">Points Redeemed</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge" style="background:#d97706;">
+                                    <i class="bi bi-award-fill"></i> @Model.PointsRedeemed pts
+                                </span>
+                                <small class="text-muted">(saved @((Model.PointsRedeemed / 100m).ToString("C")))</small>
+                            </dd>
+                        }
+
+                        @if (Model.Status == TripStatus.Completed)
+                        {
+                            <dt class="col-sm-4">Points Earned</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-success">
+                                    <i class="bi bi-plus-circle"></i> +@((int)Model.Cost) pts
+                                </span>
+                                <small class="text-muted">(1 pt per $ spent)</small>
+                            </dd>
+                        }
                     </dl>
 
                     <hr />

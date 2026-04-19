@@ -8,15 +8,18 @@ namespace CabManagementSystem.Services
     {
         private readonly ITripFeedbackRepository _feedbackRepository;
         private readonly ITripRepository _tripRepository;
+        private readonly ILoyaltyPointsService _loyaltyService;
         private readonly ILogger<TripFeedbackService> _logger;
 
         public TripFeedbackService(
             ITripFeedbackRepository feedbackRepository,
             ITripRepository tripRepository,
+            ILoyaltyPointsService loyaltyService,
             ILogger<TripFeedbackService> logger)
         {
             _feedbackRepository = feedbackRepository;
             _tripRepository = tripRepository;
+            _loyaltyService = loyaltyService;
             _logger = logger;
         }
 
@@ -66,6 +69,16 @@ namespace CabManagementSystem.Services
             await _feedbackRepository.SaveChangesAsync();
             _logger.LogInformation("Feedback created for Trip {TripId} by Customer {CustomerId}, Rating: {Rating}, Category: {Category}",
                 feedback.TripId, feedback.CustomerId, feedback.Rating, feedback.Category);
+
+            // Award loyalty bonus if 5 stars
+            try
+            {
+                await _loyaltyService.AwardFeedbackBonusAsync(feedback.TripId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to award feedback loyalty bonus for Trip {TripId}", feedback.TripId);
+            }
         }
 
         public async Task<bool> CanSubmitFeedbackAsync(int tripId, int customerId)

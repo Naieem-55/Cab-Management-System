@@ -72,5 +72,10 @@ namespace CabManagementSystem.Models
         public DriverRating? DriverRating { get; set; }
 
         public TripFeedback? TripFeedback { get; set; }
+
+        [Display(Name = "Points Redeemed")]
+        public int PointsRedeemed { get; set; }
+
+        public ICollection<LoyaltyTransaction> LoyaltyTransactions { get; set; } = new List<LoyaltyTransaction>();
     }
 }

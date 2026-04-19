@@ -199,6 +199,9 @@ namespace CabManagementSystem.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int>("LoyaltyPoints")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
@@ -398,6 +401,46 @@ namespace CabManagementSystem.Migrations
                     b.ToTable("Expenses");
                 });
 
+            modelBuilder.Entity("CabManagementSystem.Models.LoyaltyTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TripId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TripId");
+
+                    b.ToTable("LoyaltyTransactions");
+                });
+
             modelBuilder.Entity("CabManagementSystem.Models.MaintenanceRecord", b =>
                 {
                     b.Property<int>("Id")
@@ -562,6 +605,9 @@ namespace CabManagementSystem.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("PointsRedeemed")
+                        .HasColumnType("int");
 
                     b.Property<int>("RouteId")
                         .HasColumnType("int");
@@ -891,6 +937,24 @@ namespace CabManagementSystem.Migrations
                     b.Navigation("Vehicle");
                 });
 
+            modelBuilder.Entity("CabManagementSystem.Models.LoyaltyTransaction", b =>
+                {
+                    b.HasOne("CabManagementSystem.Models.Customer", "Customer")
+                        .WithMany("LoyaltyTransactions")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CabManagementSystem.Models.Trip", "Trip")
+                        .WithMany("LoyaltyTransactions")
+                        .HasForeignKey("TripId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Trip");
+                });
+
             modelBuilder.Entity("CabManagementSystem.Models.MaintenanceRecord", b =>
                 {
                     b.HasOne("CabManagementSystem.Models.Vehicle", "Vehicle")
@@ -1021,6 +1085,8 @@ namespace CabManagementSystem.Migrations
                 {
                     b.Navigation("Feedbacks");
 
+                    b.Navigation("LoyaltyTransactions");
+
                     b.Navigation("Trips");
                 });
 
@@ -1048,6 +1114,8 @@ namespace CabManagementSystem.Migrations
                     b.Navigation("DriverRating");
 
                     b.Navigation("Expenses");
+
+                    b.Navigation("LoyaltyTransactions");
 
                     b.Navigation("TripFeedback");
                 });

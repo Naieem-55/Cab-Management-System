@@ -10,17 +10,20 @@ namespace CabManagementSystem.Services
         private readonly IDriverRatingRepository _ratingRepository;
         private readonly IDriverRepository _driverRepository;
         private readonly ITripRepository _tripRepository;
+        private readonly ILoyaltyPointsService _loyaltyService;
         private readonly ILogger<DriverRatingService> _logger;
 
         public DriverRatingService(
             IDriverRatingRepository ratingRepository,
             IDriverRepository driverRepository,
             ITripRepository tripRepository,
+            ILoyaltyPointsService loyaltyService,
             ILogger<DriverRatingService> logger)
         {
             _ratingRepository = ratingRepository;
             _driverRepository = driverRepository;
             _tripRepository = tripRepository;
+            _loyaltyService = loyaltyService;
             _logger = logger;
         }
 
@@ -39,6 +42,16 @@ namespace CabManagementSystem.Services
             await _ratingRepository.SaveChangesAsync();
             _logger.LogInformation("Rating created for Trip {TripId}, Driver {DriverId}, Rating: {Rating}",
                 rating.TripId, rating.DriverId, rating.Rating);
+
+            // Award loyalty bonus if 5 stars
+            try
+            {
+                await _loyaltyService.AwardRatingBonusAsync(rating.TripId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to award rating loyalty bonus for Trip {TripId}", rating.TripId);
+            }
         }
 
         public async Task<bool> CanRateTripAsync(int tripId)

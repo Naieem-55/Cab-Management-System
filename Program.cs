@@ -46,6 +46,7 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
 builder.Services.AddScoped<IDriverRatingRepository, DriverRatingRepository>();
 builder.Services.AddScoped<ITripFeedbackRepository, TripFeedbackRepository>();
+builder.Services.AddScoped<ILoyaltyTransactionRepository, LoyaltyTransactionRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 // Register services
@@ -60,6 +61,7 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IDriverRatingService, DriverRatingService>();
 builder.Services.AddScoped<ITripFeedbackService, TripFeedbackService>();
+builder.Services.AddScoped<ILoyaltyPointsService, LoyaltyPointsService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<IFinanceDashboardService, FinanceDashboardService>();
 builder.Services.AddScoped<IHRDashboardService, HRDashboardService>();

@@ -23,8 +23,13 @@ namespace CabManagementSystem.Models
         [StringLength(200)]
         public string? Address { get; set; }
 
+        [Display(Name = "Loyalty Points")]
+        public int LoyaltyPoints { get; set; }
+
         public ICollection<Trip> Trips { get; set; } = new List<Trip>();
 
         public ICollection<TripFeedback> Feedbacks { get; set; } = new List<TripFeedback>();
+
+        public ICollection<LoyaltyTransaction> LoyaltyTransactions { get; set; } = new List<LoyaltyTransaction>();
     }
 }

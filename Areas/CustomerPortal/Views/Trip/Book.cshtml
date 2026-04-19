@@ -45,6 +45,25 @@
                             <span asp-validation-for="Notes" class="text-danger"></span>
                         </div>
 
+                        @if (Model.AvailablePoints > 0)
+                        {
+                            <div class="mb-4 p-3" style="background:#fef3c7; border:1px solid #f59e0b; border-radius:0.375rem;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label asp-for="PointsToRedeem" class="form-label fw-bold mb-0">
+                                        <i class="bi bi-award-fill" style="color:#d97706;"></i> Redeem Loyalty Points
+                                    </label>
+                                    <span class="badge" style="background:#d97706;">@Model.AvailablePoints available</span>
+                                </div>
+                                <div class="input-group">
+                                    <input asp-for="PointsToRedeem" type="number" class="form-control"
+                                           id="PointsToRedeem" min="0" max="@Model.AvailablePoints" step="100" />
+                                    <span class="input-group-text">= <span id="discountPreview">$0.00</span> discount</span>
+                                </div>
+                                <span asp-validation-for="PointsToRedeem" class="text-danger"></span>
+                                <div class="form-text">100 points = $1 discount. Redemption cannot exceed trip cost.</div>
+                            </div>
+                        }
+
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle"></i>
                             <strong>Note:</strong> A driver and vehicle will be automatically assigned to your trip.
@@ -68,4 +87,19 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var pointsInput = document.getElementById('PointsToRedeem');
+            var preview = document.getElementById('discountPreview');
+            if (!pointsInput || !preview) return;
+
+            function updatePreview() {
+                var pts = parseInt(pointsInput.value) || 0;
+                var discount = pts / 100;
+                preview.textContent = '$' + discount.toFixed(2);
+            }
+            pointsInput.addEventListener('input', updatePreview);
+            updatePreview();
+        })();
+    </script>
 }

@@ -18,6 +18,12 @@ namespace CabManagementSystem.Models.ViewModels
         [Display(Name = "Notes")]
         public string? Notes { get; set; }
 
+        [Display(Name = "Points to Redeem")]
+        [Range(0, int.MaxValue)]
+        public int PointsToRedeem { get; set; } = 0;
+
+        public int AvailablePoints { get; set; } = 0;
+
         public SelectList? AvailableRoutes { get; set; }
     }
 }

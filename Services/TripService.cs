@@ -10,17 +10,20 @@ namespace CabManagementSystem.Services
         private readonly ITripRepository _tripRepository;
         private readonly IDriverRepository _driverRepository;
         private readonly IVehicleRepository _vehicleRepository;
+        private readonly ILoyaltyPointsService _loyaltyService;
         private readonly ILogger<TripService> _logger;
 
         public TripService(
             ITripRepository tripRepository,
             IDriverRepository driverRepository,
             IVehicleRepository vehicleRepository,
+            ILoyaltyPointsService loyaltyService,
             ILogger<TripService> logger)
         {
             _tripRepository = tripRepository;
             _driverRepository = driverRepository;
             _vehicleRepository = vehicleRepository;
+            _loyaltyService = loyaltyService;
             _logger = logger;
         }
 
@@ -94,6 +97,19 @@ namespace CabManagementSystem.Services
 
             await _tripRepository.SaveChangesAsync();
             _logger.LogInformation("Updated Trip with ID {Id} status from {OldStatus} to {NewStatus}", tripId, oldStatus, newStatus);
+
+            // Award loyalty points on completion
+            if (newStatus == TripStatus.Completed && oldStatus != TripStatus.Completed && trip.CustomerId.HasValue)
+            {
+                try
+                {
+                    await _loyaltyService.AwardTripPointsAsync(tripId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to award loyalty points for Trip {TripId}", tripId);
+                }
+            }
         }
 
         public async Task DeleteTripAsync(int id)

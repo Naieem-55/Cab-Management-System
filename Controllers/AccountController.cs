@@ -14,17 +14,20 @@ namespace CabManagementSystem.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailService _emailService;
         private readonly ICustomerService _customerService;
+        private readonly ILoyaltyPointsService _loyaltyService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailService emailService,
-            ICustomerService customerService)
+            ICustomerService customerService,
+            ILoyaltyPointsService loyaltyService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailService = emailService;
             _customerService = customerService;
+            _loyaltyService = loyaltyService;
         }
 
         [HttpGet]
@@ -295,6 +298,16 @@ namespace CabManagementSystem.Controllers
                     Address = model.Address
                 };
                 await _customerService.CreateCustomerAsync(customer);
+
+                // Award signup loyalty bonus
+                try
+                {
+                    await _loyaltyService.AwardSignupBonusAsync(customer.Id);
+                }
+                catch
+                {
+                    // Non-critical: registration succeeded, bonus failure shouldn't block
+                }
 
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 return RedirectToAction("Index", "Dashboard", new { area = "CustomerPortal" });
