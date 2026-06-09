@@ -317,40 +317,40 @@ namespace CabManagementSystem.Data
             {
                 new Models.Route
                 {
-                    Origin = "Mumbai",
-                    Destination = "Pune",
+                    Origin = "Dhaka",
+                    Destination = "Gazipur",
                     Distance = 150.0,
                     EstimatedTimeHours = 3.0,
                     BaseCost = 2500m
                 },
                 new Models.Route
                 {
-                    Origin = "Delhi",
-                    Destination = "Agra",
+                    Origin = "Chittagong",
+                    Destination = "Comilla",
                     Distance = 230.0,
                     EstimatedTimeHours = 4.0,
                     BaseCost = 3500m
                 },
                 new Models.Route
                 {
-                    Origin = "Bangalore",
-                    Destination = "Mysore",
+                    Origin = "Sylhet",
+                    Destination = "Habiganj",
                     Distance = 150.0,
                     EstimatedTimeHours = 3.0,
                     BaseCost = 2200m
                 },
                 new Models.Route
                 {
-                    Origin = "Chennai",
-                    Destination = "Pondicherry",
+                    Origin = "Khulna",
+                    Destination = "Jessore",
                     Distance = 170.0,
                     EstimatedTimeHours = 3.5,
                     BaseCost = 2800m
                 },
                 new Models.Route
                 {
-                    Origin = "Hyderabad",
-                    Destination = "Warangal",
+                    Origin = "Rajshahi",
+                    Destination = "Bogura",
                     Distance = 150.0,
                     EstimatedTimeHours = 3.0,
                     BaseCost = 2300m
@@ -370,7 +370,7 @@ namespace CabManagementSystem.Data
             // ---------------------------------------------------------------
             var trips = new List<Trip>
             {
-                // Trip 1 - Completed (Mumbai-Pune)
+                // Trip 1 - Completed (Dhaka-Gazipur)
                 new Trip
                 {
                     DriverId = savedDrivers[0].Id,
@@ -384,7 +384,7 @@ namespace CabManagementSystem.Data
                     Status = TripStatus.Completed,
                     Cost = 2500m
                 },
-                // Trip 2 - Completed (Delhi-Agra)
+                // Trip 2 - Completed (Chittagong-Comilla)
                 new Trip
                 {
                     DriverId = savedDrivers[1].Id,
@@ -398,7 +398,7 @@ namespace CabManagementSystem.Data
                     Status = TripStatus.Completed,
                     Cost = 3600m
                 },
-                // Trip 3 - InProgress (Bangalore-Mysore)
+                // Trip 3 - InProgress (Sylhet-Habiganj)
                 new Trip
                 {
                     DriverId = savedDrivers[2].Id,
@@ -412,7 +412,7 @@ namespace CabManagementSystem.Data
                     Status = TripStatus.InProgress,
                     Cost = 2200m
                 },
-                // Trip 4 - InProgress (Chennai-Pondicherry)
+                // Trip 4 - InProgress (Khulna-Jessore)
                 new Trip
                 {
                     DriverId = savedDrivers[3].Id,
@@ -426,7 +426,7 @@ namespace CabManagementSystem.Data
                     Status = TripStatus.InProgress,
                     Cost = 2900m
                 },
-                // Trip 5 - Pending (Hyderabad-Warangal)
+                // Trip 5 - Pending (Rajshahi-Bogura)
                 new Trip
                 {
                     DriverId = savedDrivers[0].Id,
@@ -440,7 +440,7 @@ namespace CabManagementSystem.Data
                     Status = TripStatus.Pending,
                     Cost = 2300m
                 },
-                // Trip 6 - Confirmed (Mumbai-Pune)
+                // Trip 6 - Confirmed (Dhaka-Gazipur)
                 new Trip
                 {
                     DriverId = savedDrivers[1].Id,

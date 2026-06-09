@@ -547,7 +547,7 @@ The seeder provisions realistic sample data for immediate testing:
 | Employees | 8 | 4 drivers, 2 receptionists, 1 mechanic, 1 cleaner |
 | Drivers | 4 | Linked to driver-position employees |
 | Vehicles | 6 | Mixed fuel types and statuses |
-| Routes | 5 | Indian city-to-city routes |
+| Routes | 5 | Bangladeshi city-to-city routes |
 | Trips | 6 | Various statuses (Pending through Completed) |
 | Billings | 4 | Pending and completed payments |
 | Maintenance | 3 | Scheduled, in-progress, and completed |
