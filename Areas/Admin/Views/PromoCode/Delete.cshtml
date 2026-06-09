@@ -1,0 +1,54 @@
+@model PromoCode
+
+@{
+    ViewData["Title"] = "Delete Promo Code";
+    var discountText = Model.DiscountType == DiscountType.Percentage
+        ? $"{Model.DiscountValue:0.##}%"
+        : Model.DiscountValue.ToString("C");
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Delete Promo Code</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-body">
+                    <p class="lead">Are you sure you want to delete this promo code?</p>
+
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Code</dt>
+                        <dd class="col-sm-8 fw-semibold">@Model.Code</dd>
+
+                        <dt class="col-sm-4">Discount</dt>
+                        <dd class="col-sm-8">@discountText (@Model.DiscountType)</dd>
+
+                        <dt class="col-sm-4">Times Used</dt>
+                        <dd class="col-sm-8">@Model.TimesUsed</dd>
+
+                        <dt class="col-sm-4">Valid Until</dt>
+                        <dd class="col-sm-8">@Model.ValidUntil.ToString("dd MMM yyyy")</dd>
+                    </dl>
+
+                    @if (Model.Trips != null && Model.Trips.Any())
+                    {
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="bi bi-info-circle me-1"></i>
+                            This code was used on existing trips. Those trips keep their discount; the promo link will be cleared.
+                        </div>
+                    }
+
+                    <form asp-action="Delete" method="post" class="mt-4">
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i> Delete
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary ms-2">
+                            <i class="bi bi-arrow-left me-1"></i> Cancel
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

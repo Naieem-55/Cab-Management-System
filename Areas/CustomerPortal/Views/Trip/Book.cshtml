@@ -45,6 +45,16 @@
                             <span asp-validation-for="Notes" class="text-danger"></span>
                         </div>
 
+                        <div class="mb-4">
+                            <label asp-for="PromoCode" class="form-label fw-bold">
+                                <i class="bi bi-tag-fill text-success"></i> Promo Code
+                            </label>
+                            <input asp-for="PromoCode" class="form-control text-uppercase"
+                                   placeholder="Enter promo code (optional)" autocomplete="off" />
+                            <span asp-validation-for="PromoCode" class="text-danger"></span>
+                            <div class="form-text">Have a promo code? Enter it to get a discount on this trip.</div>
+                        </div>
+
                         @if (Model.AvailablePoints > 0)
                         {
                             <div class="mb-4 p-3" style="background:#fef3c7; border:1px solid #f59e0b; border-radius:0.375rem;">

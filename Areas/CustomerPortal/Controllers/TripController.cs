@@ -22,6 +22,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
         private readonly IEmailService _emailService;
         private readonly INotificationService _notificationService;
         private readonly ILoyaltyPointsService _loyaltyService;
+        private readonly IPromoCodeService _promoCodeService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<TripController> _logger;
 
@@ -35,6 +36,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
             IEmailService emailService,
             INotificationService notificationService,
             ILoyaltyPointsService loyaltyService,
+            IPromoCodeService promoCodeService,
             UserManager<ApplicationUser> userManager,
             ILogger<TripController> logger)
         {
@@ -47,6 +49,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
             _emailService = emailService;
             _notificationService = notificationService;
             _loyaltyService = loyaltyService;
+            _promoCodeService = promoCodeService;
             _userManager = userManager;
             _logger = logger;
         }
@@ -202,13 +205,35 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                     return View(model);
                 }
 
-                // Validate and compute loyalty redemption
+                // Validate and apply promo code (if any)
+                decimal promoDiscount = 0m;
+                int? promoCodeId = null;
+                if (!string.IsNullOrWhiteSpace(model.PromoCode))
+                {
+                    var promoResult = await _promoCodeService.ValidateAsync(model.PromoCode, route.BaseCost);
+                    if (!promoResult.IsValid)
+                    {
+                        ModelState.AddModelError(nameof(model.PromoCode), promoResult.Message);
+                        model.AvailablePoints = await _loyaltyService.GetBalanceAsync(customer.Id);
+                        var allRoutes = await _routeService.GetAllRoutesAsync();
+                        model.AvailableRoutes = new SelectList(
+                            allRoutes.Select(r => new { r.Id, Display = $"{r.Origin} → {r.Destination} ({r.Distance} km) - {r.BaseCost:C}" }),
+                            "Id", "Display");
+                        return View(model);
+                    }
+                    promoDiscount = promoResult.DiscountAmount;
+                    promoCodeId = promoResult.PromoCodeId;
+                }
+
+                decimal costAfterPromo = route.BaseCost - promoDiscount;
+
+                // Validate and compute loyalty redemption (applied after promo discount)
                 int pointsToRedeem = Math.Max(0, model.PointsToRedeem);
                 decimal discount = 0m;
                 if (pointsToRedeem > 0)
                 {
                     var balance = await _loyaltyService.GetBalanceAsync(customer.Id);
-                    int maxRedeemable = (int)(route.BaseCost * Services.LoyaltyPointsService.POINTS_TO_DOLLAR_RATIO);
+                    int maxRedeemable = (int)(costAfterPromo * Services.LoyaltyPointsService.POINTS_TO_DOLLAR_RATIO);
                     if (pointsToRedeem > balance)
                     {
                         ModelState.AddModelError("PointsToRedeem", "You don't have enough points.");
@@ -236,8 +261,10 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                     BookingDate = DateTime.Now,
                     TripDate = model.TripDate,
                     Status = TripStatus.Pending,
-                    Cost = route.BaseCost - discount,
-                    PointsRedeemed = pointsToRedeem
+                    Cost = costAfterPromo - discount,
+                    PointsRedeemed = pointsToRedeem,
+                    PromoCodeId = promoCodeId,
+                    PromoDiscount = promoDiscount
                 };
 
                 await _tripService.CreateTripAsync(trip);
@@ -247,9 +274,16 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                     await _loyaltyService.RedeemPointsAsync(customer.Id, pointsToRedeem, trip.Id, discount);
                 }
 
-                TempData["SuccessMessage"] = pointsToRedeem > 0
-                    ? $"Trip booked successfully! Redeemed {pointsToRedeem} points for {discount:C} discount."
-                    : "Trip booked successfully! Your trip is pending confirmation.";
+                if (promoCodeId.HasValue)
+                {
+                    await _promoCodeService.ApplyUsageAsync(promoCodeId.Value);
+                }
+
+                var msgParts = new List<string> { "Trip booked successfully!" };
+                if (promoDiscount > 0) msgParts.Add($"Promo saved {promoDiscount:C}.");
+                if (pointsToRedeem > 0) msgParts.Add($"Redeemed {pointsToRedeem} points for {discount:C}.");
+                if (promoDiscount == 0 && pointsToRedeem == 0) msgParts.Add("Your trip is pending confirmation.");
+                TempData["SuccessMessage"] = string.Join(" ", msgParts);
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)

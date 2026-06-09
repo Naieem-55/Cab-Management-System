@@ -1,0 +1,98 @@
+@model PromoCodeViewModel
+
+@{
+    ViewData["Title"] = "Add Promo Code";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">Add Promo Code</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Code" class="form-label"></label>
+                                <input asp-for="Code" class="form-control text-uppercase" placeholder="e.g. SUMMER25" />
+                                <span asp-validation-for="Code" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Description" class="form-label"></label>
+                                <input asp-for="Description" class="form-control" />
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label asp-for="DiscountType" class="form-label"></label>
+                                <select asp-for="DiscountType" asp-items="Html.GetEnumSelectList<DiscountType>()" class="form-select"></select>
+                                <span asp-validation-for="DiscountType" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="DiscountValue" class="form-label"></label>
+                                <input asp-for="DiscountValue" class="form-control" type="number" step="0.01" />
+                                <span asp-validation-for="DiscountValue" class="text-danger"></span>
+                                <div class="form-text">Percent (e.g. 25) or fixed amount, per discount type.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="MaxDiscountAmount" class="form-label"></label>
+                                <input asp-for="MaxDiscountAmount" class="form-control" type="number" step="0.01" />
+                                <span asp-validation-for="MaxDiscountAmount" class="text-danger"></span>
+                                <div class="form-text">Cap for percentage discounts (optional).</div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="MinTripCost" class="form-label"></label>
+                                <input asp-for="MinTripCost" class="form-control" type="number" step="0.01" />
+                                <span asp-validation-for="MinTripCost" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="UsageLimit" class="form-label"></label>
+                                <input asp-for="UsageLimit" class="form-control" type="number" min="1" />
+                                <span asp-validation-for="UsageLimit" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="ValidFrom" class="form-label"></label>
+                                <input asp-for="ValidFrom" class="form-control" type="datetime-local" />
+                                <span asp-validation-for="ValidFrom" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ValidUntil" class="form-label"></label>
+                                <input asp-for="ValidUntil" class="form-control" type="datetime-local" />
+                                <span asp-validation-for="ValidUntil" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input asp-for="IsActive" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label"></label>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i> Add Promo Code
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

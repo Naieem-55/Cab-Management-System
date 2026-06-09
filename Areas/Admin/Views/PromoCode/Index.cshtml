@@ -1,0 +1,119 @@
+@model IEnumerable<PromoCode>
+
+@{
+    ViewData["Title"] = "Promo Codes";
+    var total = Model.Count();
+    var activeCount = Model.Count(p => p.IsActive && p.ValidUntil >= DateTime.Now);
+}
+
+<!-- Header -->
+<div class="pro-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2><i class="bi bi-tag me-2"></i>Promo Codes</h2>
+            <p>Create and manage discount codes for customer bookings</p>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="pro-stat"><i class="bi bi-tags"></i> @total Total</span>
+            <span class="pro-stat"><i class="bi bi-check-circle"></i> @activeCount Active</span>
+            <a asp-action="Create" class="btn btn-light btn-sm px-3">
+                <i class="bi bi-plus-lg me-1"></i> Add Promo Code
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Search -->
+<div class="pro-search">
+    <div class="p-3">
+        <form method="get" asp-action="Index" class="d-flex gap-2">
+            <div class="flex-grow-1 position-relative">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" class="form-control has-icon" name="searchTerm"
+                       value="@ViewBag.SearchTerm" placeholder="Search by code or description..." />
+            </div>
+            <button type="submit" class="btn btn-dark px-4" style="border-radius:8px;height:42px;">Search</button>
+            @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
+            {
+                <a asp-action="Index" class="btn btn-outline-secondary px-3" style="border-radius:8px;height:42px;line-height:30px;">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            }
+        </form>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <div class="pro-card">
+        <div class="table-responsive">
+            <table class="table pro-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Discount</th>
+                        <th>Min Cost</th>
+                        <th>Usage</th>
+                        <th>Validity</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var promo in Model)
+                    {
+                        var expired = promo.ValidUntil < DateTime.Now;
+                        var limitReached = promo.UsageLimit.HasValue && promo.TimesUsed >= promo.UsageLimit.Value;
+                        var discountText = promo.DiscountType == DiscountType.Percentage
+                            ? $"{promo.DiscountValue:0.##}%" + (promo.MaxDiscountAmount.HasValue ? $" (max {promo.MaxDiscountAmount:C})" : "")
+                            : promo.DiscountValue.ToString("C");
+                        <tr>
+                            <td><span class="fw-semibold">@promo.Code</span></td>
+                            <td>@discountText</td>
+                            <td class="text-muted">@(promo.MinTripCost > 0 ? promo.MinTripCost.ToString("C") : "—")</td>
+                            <td>@promo.TimesUsed@(promo.UsageLimit.HasValue ? $" / {promo.UsageLimit}" : "")</td>
+                            <td class="text-muted" style="font-size:0.82rem;">@promo.ValidFrom.ToString("dd MMM yy") – @promo.ValidUntil.ToString("dd MMM yy")</td>
+                            <td>
+                                @if (!promo.IsActive)
+                                {
+                                    <span class="pro-badge"><span class="bdot"></span> Inactive</span>
+                                }
+                                else if (expired)
+                                {
+                                    <span class="pro-badge pro-badge-red"><span class="bdot"></span> Expired</span>
+                                }
+                                else if (limitReached)
+                                {
+                                    <span class="pro-badge pro-badge-red"><span class="bdot"></span> Used Up</span>
+                                }
+                                else
+                                {
+                                    <span class="pro-badge pro-badge-green"><span class="bdot"></span> Active</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@promo.Id" class="pro-action" title="Details"><i class="bi bi-eye"></i></a>
+                                <a asp-action="Edit" asp-route-id="@promo.Id" class="pro-action" title="Edit"><i class="bi bi-pencil"></i></a>
+                                <a asp-action="Delete" asp-route-id="@promo.Id" class="pro-action pro-action-danger" title="Delete"><i class="bi bi-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <partial name="_PaginationPartial" />
+}
+else
+{
+    <div class="pro-card">
+        <div class="pro-empty">
+            <i class="bi bi-tag d-block mb-2"></i>
+            <p>No promo codes found</p>
+            <a asp-action="Create" class="btn btn-dark btn-sm px-3">
+                <i class="bi bi-plus-lg me-1"></i> Add Promo Code
+            </a>
+        </div>
+    </div>
+}

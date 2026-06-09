@@ -77,5 +77,14 @@ namespace CabManagementSystem.Models
         public int PointsRedeemed { get; set; }
 
         public ICollection<LoyaltyTransaction> LoyaltyTransactions { get; set; } = new List<LoyaltyTransaction>();
+
+        public int? PromoCodeId { get; set; }
+
+        [ForeignKey("PromoCodeId")]
+        public PromoCode? PromoCode { get; set; }
+
+        [DataType(DataType.Currency)]
+        [Display(Name = "Promo Discount")]
+        public decimal PromoDiscount { get; set; }
     }
 }

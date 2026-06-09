@@ -1,0 +1,79 @@
+@model PromoCode
+
+@{
+    ViewData["Title"] = "Promo Code Details";
+    var discountText = Model.DiscountType == DiscountType.Percentage
+        ? $"{Model.DiscountValue:0.##}%" + (Model.MaxDiscountAmount.HasValue ? $" (max {Model.MaxDiscountAmount:C})" : "")
+        : Model.DiscountValue.ToString("C");
+    var expired = Model.ValidUntil < DateTime.Now;
+    var limitReached = Model.UsageLimit.HasValue && Model.TimesUsed >= Model.UsageLimit.Value;
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-tag me-2"></i>@Model.Code</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Code</dt>
+                        <dd class="col-sm-8 fw-semibold">@Model.Code</dd>
+
+                        <dt class="col-sm-4">Description</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.Description) ? "—" : Model.Description)</dd>
+
+                        <dt class="col-sm-4">Discount</dt>
+                        <dd class="col-sm-8">@discountText (@Model.DiscountType)</dd>
+
+                        <dt class="col-sm-4">Minimum Trip Cost</dt>
+                        <dd class="col-sm-8">@(Model.MinTripCost > 0 ? Model.MinTripCost.ToString("C") : "None")</dd>
+
+                        <dt class="col-sm-4">Usage</dt>
+                        <dd class="col-sm-8">@Model.TimesUsed used@(Model.UsageLimit.HasValue ? $" of {Model.UsageLimit} limit" : " (unlimited)")</dd>
+
+                        <dt class="col-sm-4">Valid From</dt>
+                        <dd class="col-sm-8">@Model.ValidFrom.ToString("dd MMM yyyy HH:mm")</dd>
+
+                        <dt class="col-sm-4">Valid Until</dt>
+                        <dd class="col-sm-8">@Model.ValidUntil.ToString("dd MMM yyyy HH:mm")</dd>
+
+                        <dt class="col-sm-4">Status</dt>
+                        <dd class="col-sm-8">
+                            @if (!Model.IsActive)
+                            {
+                                <span class="badge bg-secondary">Inactive</span>
+                            }
+                            else if (expired)
+                            {
+                                <span class="badge bg-danger">Expired</span>
+                            }
+                            else if (limitReached)
+                            {
+                                <span class="badge bg-danger">Used Up</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                        </dd>
+                    </dl>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                            <i class="bi bi-pencil me-1"></i> Edit
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+                            <i class="bi bi-trash me-1"></i> Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

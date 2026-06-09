@@ -24,6 +24,10 @@ namespace CabManagementSystem.Models.ViewModels
 
         public int AvailablePoints { get; set; } = 0;
 
+        [StringLength(30)]
+        [Display(Name = "Promo Code")]
+        public string? PromoCode { get; set; }
+
         public SelectList? AvailableRoutes { get; set; }
     }
 }
