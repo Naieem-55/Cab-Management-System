@@ -1,0 +1,132 @@
+@model PaginatedList<CabManagementSystem.Models.LoyaltyTransaction>
+@using CabManagementSystem.Models.Enums
+
+@{
+    ViewData["Title"] = "Loyalty Points";
+    int balance = ViewBag.Balance;
+    int ratio = ViewBag.PointsToDollarRatio;
+    decimal dollarValue = balance / (decimal)ratio;
+}
+
+<div class="container-fluid">
+    <div class="pro-header" style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2><i class="bi bi-award-fill me-2"></i>Loyalty Points</h2>
+                <p>Earn points on trips, redeem for discounts</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <span class="pro-stat"><i class="bi bi-coin"></i> @balance Points</span>
+                <span class="pro-stat"><i class="bi bi-currency-dollar"></i> @dollarValue.ToString("C") Value</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Balance Card -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="pro-stat-card" style="border-left: 4px solid #f59e0b;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Current Balance</div>
+                        <h2 class="mb-0" style="color:#d97706;">@balance <small class="text-muted" style="font-size:1rem;">pts</small></h2>
+                        <small class="text-muted">≈ @dollarValue.ToString("C") when redeemed</small>
+                    </div>
+                    <div class="stat-icon" style="background:#fef3c7;color:#d97706;font-size:3rem;">
+                        <i class="bi bi-award-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="pro-stat-card">
+                <h6 class="mb-2"><i class="bi bi-info-circle me-1"></i>How it works</h6>
+                <ul class="mb-0 small text-muted" style="padding-left:1.2rem;">
+                    <li>Earn <strong>1 point</strong> per $1 spent on trips</li>
+                    <li><strong>+20 bonus</strong> for 5-star ratings</li>
+                    <li><strong>+20 bonus</strong> for 5-star feedback</li>
+                    <li>Redeem <strong>@ratio points = $1</strong> discount on bookings</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="pro-card">
+        <div class="p-3 border-bottom">
+            <h5 class="mb-0"><i class="bi bi-clock-history me-1"></i>Transaction History</h5>
+        </div>
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table pro-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th class="text-end">Points</th>
+                            <th>Description</th>
+                            <th>Trip</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var tx in Model)
+                        {
+                            <tr>
+                                <td>@tx.CreatedDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                <td>
+                                    @switch (tx.Type)
+                                    {
+                                        case LoyaltyTransactionType.Earned:
+                                            <span class="badge bg-success">Earned</span>
+                                            break;
+                                        case LoyaltyTransactionType.Bonus:
+                                            <span class="badge bg-info">Bonus</span>
+                                            break;
+                                        case LoyaltyTransactionType.Redeemed:
+                                            <span class="badge bg-warning text-dark">Redeemed</span>
+                                            break;
+                                        case LoyaltyTransactionType.SignupBonus:
+                                            <span class="badge bg-primary">Welcome</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-end fw-bold" style="color:@(tx.Points >= 0 ? "#16a34a" : "#dc2626");">
+                                    @(tx.Points >= 0 ? "+" : "")@tx.Points
+                                </td>
+                                <td>@tx.Description</td>
+                                <td>
+                                    @if (tx.TripId.HasValue)
+                                    {
+                                        <a asp-area="CustomerPortal" asp-controller="Trip" asp-action="Details" asp-route-id="@tx.TripId">
+                                            #@tx.TripId
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (ViewBag.TotalPages > 1)
+            {
+                <partial name="_PaginationPartial" />
+            }
+        }
+        else
+        {
+            <div class="pro-empty">
+                <i class="bi bi-coin"></i>
+                <p>No transactions yet. Book a trip to start earning points!</p>
+                <a asp-area="CustomerPortal" asp-controller="Trip" asp-action="Book" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-circle me-1"></i> Book a Trip
+                </a>
+            </div>
+        }
+    </div>
+</div>
