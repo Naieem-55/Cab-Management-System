@@ -1,0 +1,44 @@
+@model ResendConfirmationViewModel
+@{
+    ViewData["Title"] = "Resend Confirmation Email";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <h4 class="mb-0"><i class="bi bi-arrow-repeat"></i> Resend Confirmation</h4>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted">Enter your email and we'll send a new confirmation link.</p>
+                <form asp-action="ResendConfirmation" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-send"></i> Send Confirmation Link
+                    </button>
+
+                    <div class="text-center mt-3">
+                        <a asp-action="Login" class="text-decoration-none">
+                            <i class="bi bi-arrow-left"></i> Back to Login
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

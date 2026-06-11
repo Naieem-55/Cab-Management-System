@@ -1,3 +1,4 @@
+using System.Text;
 using CabManagementSystem.Models;
 using CabManagementSystem.Models.Enums;
 using CabManagementSystem.Models.ViewModels;
@@ -5,6 +6,7 @@ using CabManagementSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace CabManagementSystem.Controllers
 {
@@ -53,6 +55,18 @@ namespace CabManagementSystem.Controllers
                 if (result.Succeeded)
                 {
                     return RedirectToRoleDashboard();
+                }
+                if (result.RequiresTwoFactor)
+                {
+                    await SendTwoFactorCodeAsync();
+                    return RedirectToAction(nameof(LoginWith2fa), new { rememberMe = model.RememberMe, returnUrl });
+                }
+                if (result.IsNotAllowed)
+                {
+                    ModelState.AddModelError(string.Empty,
+                        "You must confirm your email before logging in. Check your inbox or request a new confirmation link.");
+                    ViewData["ShowResendConfirmation"] = true;
+                    return View(model);
                 }
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
@@ -116,7 +130,8 @@ namespace CabManagementSystem.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email ?? string.Empty,
-                Role = roles.FirstOrDefault() ?? "No Role"
+                Role = roles.FirstOrDefault() ?? "No Role",
+                TwoFactorEnabled = user.TwoFactorEnabled
             };
 
             return View(model);
@@ -282,7 +297,7 @@ namespace CabManagementSystem.Controllers
                 FirstName = nameParts[0],
                 LastName = nameParts.Length > 1 ? nameParts[1] : string.Empty,
                 Role = nameof(UserRole.Customer),
-                EmailConfirmed = true
+                EmailConfirmed = false
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -309,8 +324,8 @@ namespace CabManagementSystem.Controllers
                     // Non-critical: registration succeeded, bonus failure shouldn't block
                 }
 
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToAction("Index", "Dashboard", new { area = "CustomerPortal" });
+                await SendEmailConfirmationLinkAsync(user);
+                return RedirectToAction(nameof(RegisterConfirmation), new { email = model.Email });
             }
 
             foreach (var error in result.Errors)
@@ -320,9 +335,181 @@ namespace CabManagementSystem.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public IActionResult RegisterConfirmation(string? email)
+        {
+            ViewData["Email"] = email;
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string? userId, string? token)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+            {
+                TempData["ErrorMessage"] = "Invalid email confirmation link.";
+                return RedirectToAction("Login");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "Invalid email confirmation link.";
+                return RedirectToAction("Login");
+            }
+
+            string decodedToken;
+            try
+            {
+                decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+            }
+            catch (FormatException)
+            {
+                TempData["ErrorMessage"] = "Invalid email confirmation link.";
+                return RedirectToAction("Login");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Email confirmed. You can now log in.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Email confirmation failed. The link may have expired.";
+            }
+            return RedirectToAction("Login");
+        }
+
+        [HttpGet]
+        public IActionResult ResendConfirmation(string? email)
+        {
+            return View(new ResendConfirmationViewModel { Email = email ?? string.Empty });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResendConfirmation(ResendConfirmationViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user != null && !await _userManager.IsEmailConfirmedAsync(user))
+            {
+                await SendEmailConfirmationLinkAsync(user);
+            }
+
+            // Always show the same message to prevent email enumeration
+            TempData["SuccessMessage"] = "If an unconfirmed account with that email exists, a new confirmation link has been sent.";
+            return RedirectToAction("Login");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LoginWith2fa(bool rememberMe, string? returnUrl = null)
+        {
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+            if (user == null)
+                return RedirectToAction("Login");
+
+            ViewData["ReturnUrl"] = returnUrl;
+            return View(new LoginWith2faViewModel { RememberMe = rememberMe });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LoginWith2fa(LoginWith2faViewModel model, string? returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+            if (user == null)
+                return RedirectToAction("Login");
+
+            var code = model.TwoFactorCode.Trim();
+            var result = await _signInManager.TwoFactorSignInAsync(
+                TokenOptions.DefaultEmailProvider, code, model.RememberMe, model.RememberMachine);
+
+            if (result.Succeeded)
+            {
+                return RedirectToRoleDashboard();
+            }
+
+            ModelState.AddModelError(string.Empty, "Invalid verification code.");
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResendTwoFactorCode(bool rememberMe, string? returnUrl = null)
+        {
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+            if (user == null)
+                return RedirectToAction("Login");
+
+            await SendTwoFactorCodeAsync();
+            TempData["SuccessMessage"] = "A new verification code has been sent to your email.";
+            return RedirectToAction(nameof(LoginWith2fa), new { rememberMe, returnUrl });
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EnableTwoFactor()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("Login");
+
+            await _userManager.SetTwoFactorEnabledAsync(user, true);
+            await _signInManager.RefreshSignInAsync(user);
+            TempData["SuccessMessage"] = "Two-factor authentication enabled. You will receive a code by email at each login.";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DisableTwoFactor()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("Login");
+
+            await _userManager.SetTwoFactorEnabledAsync(user, false);
+            await _signInManager.RefreshSignInAsync(user);
+            TempData["SuccessMessage"] = "Two-factor authentication disabled.";
+            return RedirectToAction(nameof(Profile));
+        }
+
         public IActionResult AccessDenied()
         {
             return View();
+        }
+
+        private async Task SendEmailConfirmationLinkAsync(ApplicationUser user)
+        {
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            var confirmLink = Url.Action("ConfirmEmail", "Account",
+                new { userId = user.Id, token = encodedToken }, Request.Scheme);
+
+            if (confirmLink != null && user.Email != null)
+            {
+                await _emailService.SendEmailConfirmationAsync(user.Email, confirmLink);
+            }
+        }
+
+        private async Task SendTwoFactorCodeAsync()
+        {
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+            if (user?.Email == null)
+                return;
+
+            var code = await _userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
+            await _emailService.SendTwoFactorCodeAsync(user.Email, code);
         }
 
         private IActionResult RedirectToRoleDashboard()

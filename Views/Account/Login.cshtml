@@ -14,6 +14,15 @@
                 <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
+                    @if (ViewData["ShowResendConfirmation"] as bool? == true)
+                    {
+                        <div class="text-center mb-3">
+                            <a asp-action="ResendConfirmation" asp-route-email="@Model.Email" class="text-decoration-none">
+                                <i class="bi bi-arrow-repeat"></i> Resend confirmation email
+                            </a>
+                        </div>
+                    }
+
                     <div class="mb-3">
                         <label asp-for="Email" class="form-label"></label>
                         <div class="input-group">

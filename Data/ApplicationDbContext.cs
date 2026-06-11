@@ -31,6 +31,7 @@ namespace CabManagementSystem.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<TripFeedback> TripFeedbacks { get; set; }
         public DbSet<LoyaltyTransaction> LoyaltyTransactions { get; set; }
+        public DbSet<PromoCode> PromoCodes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -182,6 +183,33 @@ namespace CabManagementSystem.Data
             // Notification configuration
             builder.Entity<Notification>()
                 .HasIndex(n => new { n.UserId, n.IsRead });
+
+            // PromoCode configuration
+            builder.Entity<PromoCode>()
+                .HasIndex(p => p.Code)
+                .IsUnique();
+
+            builder.Entity<PromoCode>()
+                .Property(p => p.DiscountValue)
+                .HasPrecision(18, 2);
+
+            builder.Entity<PromoCode>()
+                .Property(p => p.MaxDiscountAmount)
+                .HasPrecision(18, 2);
+
+            builder.Entity<PromoCode>()
+                .Property(p => p.MinTripCost)
+                .HasPrecision(18, 2);
+
+            builder.Entity<Trip>()
+                .Property(t => t.PromoDiscount)
+                .HasPrecision(18, 2);
+
+            builder.Entity<Trip>()
+                .HasOne(t => t.PromoCode)
+                .WithMany(p => p.Trips)
+                .HasForeignKey(t => t.PromoCodeId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
