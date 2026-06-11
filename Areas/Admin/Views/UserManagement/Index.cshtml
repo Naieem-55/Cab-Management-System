@@ -67,7 +67,10 @@
                     {
                         var (badgeCls, roleIcon) = roleColorMap.ContainsKey(user.Role)
                             ? roleColorMap[user.Role] : ("pro-badge-gray", "bi-person");
-                        var initials = string.Join("", (user.FullName ?? "U").Split(' ').Take(2).Select(n => n[0]));
+                        var nameParts = (user.FullName ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        var initials = nameParts.Length > 0
+                            ? string.Join("", nameParts.Take(2).Select(n => n[0]))
+                            : "U";
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
