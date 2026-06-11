@@ -1,0 +1,38 @@
+@{
+    ViewData["Title"] = "Confirm Your Email";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var email = ViewData["Email"] as string;
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <h4 class="mb-0"><i class="bi bi-envelope-check"></i> Confirm Your Email</h4>
+            </div>
+            <div class="card-body p-4 text-center">
+                <i class="bi bi-envelope-paper text-primary" style="font-size: 3rem;"></i>
+                <p class="mt-3">
+                    We've sent a confirmation link to
+                    @if (!string.IsNullOrEmpty(email))
+                    {
+                        <strong>@email</strong>
+                    }
+                    else
+                    {
+                        <text>your email address</text>
+                    }.
+                </p>
+                <p class="text-muted">Click the link in that email to activate your account, then sign in.</p>
+                <div class="d-flex gap-2 justify-content-center mt-3">
+                    <a asp-action="Login" class="btn btn-primary">
+                        <i class="bi bi-box-arrow-in-right"></i> Go to Login
+                    </a>
+                    <a asp-action="ResendConfirmation" asp-route-email="@email" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-repeat"></i> Resend Link
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

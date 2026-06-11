@@ -19,5 +19,8 @@ namespace CabManagementSystem.Models.ViewModels
 
         [Display(Name = "Role")]
         public string Role { get; set; } = string.Empty;
+
+        [Display(Name = "Two-Factor Authentication")]
+        public bool TwoFactorEnabled { get; set; }
     }
 }

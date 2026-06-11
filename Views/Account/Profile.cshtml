@@ -39,6 +39,40 @@
                         <i class="bi bi-key"></i> Change Password
                     </a>
                 </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1"><i class="bi bi-shield-lock"></i> Two-Factor Authentication</h6>
+                        @if (Model.TwoFactorEnabled)
+                        {
+                            <span class="badge bg-success">Enabled</span>
+                            <small class="text-muted d-block mt-1">A code is emailed to you at each login.</small>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Disabled</span>
+                            <small class="text-muted d-block mt-1">Add an extra layer of security with email codes.</small>
+                        }
+                    </div>
+                    @if (Model.TwoFactorEnabled)
+                    {
+                        <form asp-action="DisableTwoFactor" method="post">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-shield-slash"></i> Disable
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="EnableTwoFactor" method="post">
+                            <button type="submit" class="btn btn-outline-success btn-sm">
+                                <i class="bi bi-shield-check"></i> Enable
+                            </button>
+                        </form>
+                    }
+                </div>
             </div>
         </div>
     </div>

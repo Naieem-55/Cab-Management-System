@@ -85,6 +85,32 @@ namespace CabManagementSystem.Services
             await SendEmailAsync(to, subject, htmlBody);
         }
 
+        public async Task SendEmailConfirmationAsync(string to, string confirmLink)
+        {
+            var subject = "Confirm Your Email - Cab Management System";
+            var htmlBody = $@"
+                <h2>Confirm Your Email</h2>
+                <p>Thank you for registering. Please confirm your email address to activate your account:</p>
+                <p><a href='{confirmLink}' style='background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Confirm Email</a></p>
+                <p>If you did not create this account, please ignore this email.</p>
+                <p><em>Cab Management System</em></p>";
+
+            await SendEmailAsync(to, subject, htmlBody);
+        }
+
+        public async Task SendTwoFactorCodeAsync(string to, string code)
+        {
+            var subject = "Your Verification Code - Cab Management System";
+            var htmlBody = $@"
+                <h2>Two-Factor Verification</h2>
+                <p>Use the following code to complete your sign in:</p>
+                <p style='font-size: 28px; font-weight: bold; letter-spacing: 4px;'>{code}</p>
+                <p>This code will expire shortly. If you did not attempt to sign in, please change your password.</p>
+                <p><em>Cab Management System</em></p>";
+
+            await SendEmailAsync(to, subject, htmlBody);
+        }
+
         public async Task SendPasswordResetAsync(string to, string resetLink)
         {
             var subject = "Password Reset - Cab Management System";

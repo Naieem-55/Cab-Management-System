@@ -6,5 +6,7 @@ namespace CabManagementSystem.Services
         Task SendBookingConfirmationAsync(string to, string customerName, string route, DateTime tripDate, decimal cost);
         Task SendPasswordResetAsync(string to, string resetLink);
         Task SendTripStatusUpdateAsync(string to, string customerName, int tripId, string newStatus);
+        Task SendEmailConfirmationAsync(string to, string confirmLink);
+        Task SendTwoFactorCodeAsync(string to, string code);
     }
 }
