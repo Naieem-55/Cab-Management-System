@@ -1,5 +1,6 @@
 using CabManagementSystem.Models;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
@@ -35,7 +36,13 @@ namespace CabManagementSystem.Services
                 message.Body = bodyBuilder.ToMessageBody();
 
                 using var client = new SmtpClient();
-                await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, _settings.EnableSsl);
+
+                // Port 465 = implicit TLS (SslOnConnect); 587 = STARTTLS. Picking the wrong one hangs/fails the handshake.
+                var secureOption = _settings.EnableSsl
+                    ? (_settings.SmtpPort == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls)
+                    : SecureSocketOptions.None;
+
+                await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, secureOption);
 
                 if (!string.IsNullOrWhiteSpace(_settings.SmtpUsername))
                 {
