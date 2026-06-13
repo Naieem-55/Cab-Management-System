@@ -132,14 +132,11 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                 var customer = await GetCurrentCustomerAsync();
                 var availablePoints = customer != null ? await _loyaltyService.GetBalanceAsync(customer.Id) : 0;
 
-                var routes = await _routeService.GetAllRoutesAsync();
                 var model = new CustomerBookTripViewModel
                 {
-                    AvailablePoints = availablePoints,
-                    AvailableRoutes = new SelectList(
-                        routes.Select(r => new { r.Id, Display = $"{r.Origin} → {r.Destination} ({r.Distance} km) - {r.BaseCost:C}" }),
-                        "Id", "Display")
+                    AvailablePoints = availablePoints
                 };
+                await PopulateRouteOptionsAsync(model);
                 return View(model);
             }
             catch (Exception ex)
@@ -160,10 +157,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
 
                 if (!ModelState.IsValid)
                 {
-                    var routes = await _routeService.GetAllRoutesAsync();
-                    model.AvailableRoutes = new SelectList(
-                        routes.Select(r => new { r.Id, Display = $"{r.Origin} → {r.Destination} ({r.Distance} km) - {r.BaseCost:C}" }),
-                        "Id", "Display");
+                    await PopulateRouteOptionsAsync(model);
                     return View(model);
                 }
 
@@ -172,10 +166,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                 if (route == null)
                 {
                     ModelState.AddModelError("RouteId", "Selected route not found.");
-                    var routes = await _routeService.GetAllRoutesAsync();
-                    model.AvailableRoutes = new SelectList(
-                        routes.Select(r => new { r.Id, Display = $"{r.Origin} → {r.Destination} ({r.Distance} km) - {r.BaseCost:C}" }),
-                        "Id", "Display");
+                    await PopulateRouteOptionsAsync(model);
                     return View(model);
                 }
 
@@ -185,10 +176,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                 if (availableDriver == null)
                 {
                     ModelState.AddModelError(string.Empty, "No drivers are currently available. Please try again later.");
-                    var routes = await _routeService.GetAllRoutesAsync();
-                    model.AvailableRoutes = new SelectList(
-                        routes.Select(r => new { r.Id, Display = $"{r.Origin} → {r.Destination} ({r.Distance} km) - {r.BaseCost:C}" }),
-                        "Id", "Display");
+                    await PopulateRouteOptionsAsync(model);
                     return View(model);
                 }
 
@@ -198,10 +186,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                 if (availableVehicle == null)
                 {
                     ModelState.AddModelError(string.Empty, "No vehicles are currently available. Please try again later.");
-                    var routes = await _routeService.GetAllRoutesAsync();
-                    model.AvailableRoutes = new SelectList(
-                        routes.Select(r => new { r.Id, Display = $"{r.Origin} → {r.Destination} ({r.Distance} km) - {r.BaseCost:C}" }),
-                        "Id", "Display");
+                    await PopulateRouteOptionsAsync(model);
                     return View(model);
                 }
 
@@ -215,10 +200,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                     {
                         ModelState.AddModelError(nameof(model.PromoCode), promoResult.Message);
                         model.AvailablePoints = await _loyaltyService.GetBalanceAsync(customer.Id);
-                        var allRoutes = await _routeService.GetAllRoutesAsync();
-                        model.AvailableRoutes = new SelectList(
-                            allRoutes.Select(r => new { r.Id, Display = $"{r.Origin} → {r.Destination} ({r.Distance} km) - {r.BaseCost:C}" }),
-                            "Id", "Display");
+                        await PopulateRouteOptionsAsync(model);
                         return View(model);
                     }
                     promoDiscount = promoResult.DiscountAmount;
@@ -238,10 +220,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                     {
                         ModelState.AddModelError("PointsToRedeem", "You don't have enough points.");
                         model.AvailablePoints = balance;
-                        var allRoutes = await _routeService.GetAllRoutesAsync();
-                        model.AvailableRoutes = new SelectList(
-                            allRoutes.Select(r => new { r.Id, Display = $"{r.Origin} → {r.Destination} ({r.Distance} km) - {r.BaseCost:C}" }),
-                            "Id", "Display");
+                        await PopulateRouteOptionsAsync(model);
                         return View(model);
                     }
                     if (pointsToRedeem > maxRedeemable)
@@ -264,7 +243,8 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                     Cost = costAfterPromo - discount,
                     PointsRedeemed = pointsToRedeem,
                     PromoCodeId = promoCodeId,
-                    PromoDiscount = promoDiscount
+                    PromoDiscount = promoDiscount,
+                    Notes = model.Notes
                 };
 
                 await _tripService.CreateTripAsync(trip);
@@ -290,10 +270,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
             {
                 _logger.LogError(ex, "Error booking trip");
                 ModelState.AddModelError(string.Empty, "An error occurred while booking your trip. Please try again.");
-                var routes = await _routeService.GetAllRoutesAsync();
-                model.AvailableRoutes = new SelectList(
-                    routes.Select(r => new { r.Id, Display = $"{r.Origin} → {r.Destination} ({r.Distance} km) - {r.BaseCost:C}" }),
-                    "Id", "Display");
+                await PopulateRouteOptionsAsync(model);
                 return View(model);
             }
         }
@@ -447,6 +424,36 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                 TempData["ErrorMessage"] = "An error occurred while cancelling the trip.";
                 return RedirectToAction(nameof(Details), new { id });
             }
+        }
+
+        private async Task PopulateRouteOptionsAsync(CustomerBookTripViewModel model)
+        {
+            var routes = (await _routeService.GetAllRoutesAsync()).ToList();
+            model.AvailableRoutes = new SelectList(
+                routes.Select(r => new { r.Id, Display = $"{r.Origin} → {r.Destination} ({r.Distance} km) - {r.BaseCost:C}" }),
+                "Id", "Display");
+            model.RouteFaresJson = System.Text.Json.JsonSerializer.Serialize(
+                routes.ToDictionary(r => r.Id, r => r.BaseCost));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ValidatePromo(string? code, int routeId)
+        {
+            if (string.IsNullOrWhiteSpace(code))
+                return Json(new { valid = false, message = "Enter a promo code.", discount = 0m });
+
+            var route = await _routeService.GetRouteByIdAsync(routeId);
+            if (route == null)
+                return Json(new { valid = false, message = "Select a route first.", discount = 0m });
+
+            var result = await _promoCodeService.ValidateAsync(code, route.BaseCost);
+            return Json(new
+            {
+                valid = result.IsValid,
+                message = result.Message,
+                discount = result.DiscountAmount
+            });
         }
 
         private async Task<Customer?> GetCurrentCustomerAsync()

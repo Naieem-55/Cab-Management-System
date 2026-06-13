@@ -123,7 +123,7 @@
                     <h3 style="font-size:1.3rem;">@Model.TotalRevenue.ToString("C")</h3>
                 </div>
                 <div class="stat-icon" style="background:#dbeafe;color:#2563eb;">
-                    <i class="bi bi-currency-dollar"></i>
+                    <i class="bi bi-cash-coin"></i>
                 </div>
             </div>
         </div>
@@ -413,7 +413,7 @@
         new Chart(revenueCtx, {
             type: 'bar',
             data: { labels: @Html.Raw(Json.Serialize(Model.MonthlyRevenueLabels)), datasets: [{ label: 'Revenue', data: @Html.Raw(Json.Serialize(Model.MonthlyRevenueData)), backgroundColor: gradient, borderColor: 'rgba(59,130,246,1)', borderWidth: 1, borderRadius: 6, borderSkipped: false }] },
-            options: { responsive: true, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(17,24,39,0.9)', cornerRadius: 8, callbacks: { label: function(ctx) { return ' $'+ctx.raw.toLocaleString(); } } } }, scales: { y: { beginAtZero: true, grid: { color: _gridColor }, ticks: { callback: function(v) { return '$'+v.toLocaleString(); } } }, x: { grid: { display: false } } } }
+            options: { responsive: true, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(17,24,39,0.9)', cornerRadius: 8, callbacks: { label: function(ctx) { return ' ৳'+ctx.raw.toLocaleString(); } } } }, scales: { y: { beginAtZero: true, grid: { color: _gridColor }, ticks: { callback: function(v) { return '৳'+v.toLocaleString(); } } }, x: { grid: { display: false } } } }
         });
     </script>
 }

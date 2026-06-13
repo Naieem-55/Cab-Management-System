@@ -86,5 +86,8 @@ namespace CabManagementSystem.Models
         [DataType(DataType.Currency)]
         [Display(Name = "Promo Discount")]
         public decimal PromoDiscount { get; set; }
+
+        [StringLength(500)]
+        public string? Notes { get; set; }
     }
 }
