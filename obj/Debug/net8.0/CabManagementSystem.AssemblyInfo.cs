@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("2cd237fd-89c8-4f12-918f-e64d8fa051fe")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("CabManagementSystem")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0dbf23a9098d1a5f04abff6a8370c84924de5085")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cf9113eeea20e8c40c66485436f1d1fa3e1d72f9")]
 [assembly: System.Reflection.AssemblyProductAttribute("CabManagementSystem")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CabManagementSystem")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
