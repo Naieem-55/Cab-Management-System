@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>CabManagementSystem</RootNamespace>
+    <UserSecretsId>2cd237fd-89c8-4f12-918f-e64d8fa051fe</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

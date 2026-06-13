@@ -111,6 +111,13 @@
                         <dt class="col-sm-4">Vehicle</dt>
                         <dd class="col-sm-8">@Model.Vehicle?.RegistrationNumber (@Model.Vehicle?.Make @Model.Vehicle?.Model)</dd>
                     </dl>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                    {
+                        <hr />
+                        <h6 class="text-muted mb-3">Notes</h6>
+                        <p class="mb-0">@Model.Notes</p>
+                    }
                 </div>
             </div>
 

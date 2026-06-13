@@ -1,3 +1,4 @@
+using System.Globalization;
 using CabManagementSystem.Data;
 using CabManagementSystem.Hubs;
 using CabManagementSystem.Models;
@@ -7,6 +8,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+var bdtCulture = (CultureInfo)CultureInfo.GetCultureInfo("en-US").Clone();
+bdtCulture.NumberFormat.CurrencySymbol = "৳";
+CultureInfo.DefaultThreadCurrentCulture = bdtCulture;
+CultureInfo.DefaultThreadCurrentUICulture = bdtCulture;
 
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

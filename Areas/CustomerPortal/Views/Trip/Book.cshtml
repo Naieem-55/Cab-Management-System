@@ -49,10 +49,15 @@
                             <label asp-for="PromoCode" class="form-label fw-bold">
                                 <i class="bi bi-tag-fill text-success"></i> Promo Code
                             </label>
-                            <input asp-for="PromoCode" class="form-control text-uppercase"
-                                   placeholder="Enter promo code (optional)" autocomplete="off" />
+                            <div class="input-group">
+                                <input asp-for="PromoCode" class="form-control text-uppercase"
+                                       placeholder="Enter promo code (optional)" autocomplete="off" id="PromoCode" />
+                                <button type="button" class="btn btn-outline-success" id="applyPromoBtn">
+                                    <i class="bi bi-check2"></i> Apply
+                                </button>
+                            </div>
                             <span asp-validation-for="PromoCode" class="text-danger"></span>
-                            <div class="form-text">Have a promo code? Enter it to get a discount on this trip.</div>
+                            <div id="promoStatus" class="form-text">Have a promo code? Enter it to get a discount on this trip.</div>
                         </div>
 
                         @if (Model.AvailablePoints > 0)
@@ -67,17 +72,43 @@
                                 <div class="input-group">
                                     <input asp-for="PointsToRedeem" type="number" class="form-control"
                                            id="PointsToRedeem" min="0" max="@Model.AvailablePoints" step="100" />
-                                    <span class="input-group-text">= <span id="discountPreview">$0.00</span> discount</span>
+                                    <span class="input-group-text">= <span id="discountPreview">৳0.00</span> discount</span>
                                 </div>
                                 <span asp-validation-for="PointsToRedeem" class="text-danger"></span>
-                                <div class="form-text">100 points = $1 discount. Redemption cannot exceed trip cost.</div>
+                                <div class="form-text">100 points = ৳1 discount. Redemption cannot exceed trip cost.</div>
                             </div>
                         }
+
+                        <div class="card mb-4 border-primary" id="fareCard">
+                            <div class="card-header bg-light fw-bold">
+                                <i class="bi bi-receipt"></i> Fare Estimate
+                            </div>
+                            <div class="card-body py-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Base fare</span>
+                                    <span id="fareBase">—</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1 text-success" id="farePromoRow" style="display:none !important;">
+                                    <span><i class="bi bi-tag"></i> Promo discount</span>
+                                    <span id="farePromo">-৳0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1 text-warning" id="fareLoyaltyRow" style="display:none !important;">
+                                    <span><i class="bi bi-award"></i> Points discount</span>
+                                    <span id="fareLoyalty">-৳0.00</span>
+                                </div>
+                                <hr class="my-2" />
+                                <div class="d-flex justify-content-between fw-bold fs-5">
+                                    <span>Estimated total</span>
+                                    <span id="fareTotal" class="text-primary">—</span>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle"></i>
                             <strong>Note:</strong> A driver and vehicle will be automatically assigned to your trip.
                             Your trip will be in "Pending" status until confirmed by the travel manager.
+                            Final total is confirmed at booking.
                         </div>
 
                         <div class="d-flex gap-2">
@@ -99,17 +130,123 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         (function () {
-            var pointsInput = document.getElementById('PointsToRedeem');
-            var preview = document.getElementById('discountPreview');
-            if (!pointsInput || !preview) return;
+            var fares = @Html.Raw(Model.RouteFaresJson);
+            var validateUrl = '@Url.Action("ValidatePromo")';
 
-            function updatePreview() {
-                var pts = parseInt(pointsInput.value) || 0;
-                var discount = pts / 100;
-                preview.textContent = '$' + discount.toFixed(2);
+            var routeSel = document.getElementById('RouteId');
+            var promoInput = document.getElementById('PromoCode');
+            var applyBtn = document.getElementById('applyPromoBtn');
+            var promoStatus = document.getElementById('promoStatus');
+            var pointsInput = document.getElementById('PointsToRedeem');
+            var pointsPreview = document.getElementById('discountPreview');
+
+            var baseEl = document.getElementById('fareBase');
+            var promoEl = document.getElementById('farePromo');
+            var promoRow = document.getElementById('farePromoRow');
+            var loyaltyEl = document.getElementById('fareLoyalty');
+            var loyaltyRow = document.getElementById('fareLoyaltyRow');
+            var totalEl = document.getElementById('fareTotal');
+
+            var baseFare = 0, promoDiscount = 0, loyaltyDiscount = 0;
+
+            function money(n) { return '৳' + (n || 0).toFixed(2); }
+
+            function recompute() {
+                if (!routeSel || !routeSel.value || !(routeSel.value in fares)) {
+                    baseFare = 0;
+                    baseEl.textContent = '—';
+                    totalEl.textContent = '—';
+                } else {
+                    baseFare = Number(fares[routeSel.value]);
+                    baseEl.textContent = money(baseFare);
+                }
+
+                // Loyalty discount capped at base minus promo
+                var pts = pointsInput ? (parseInt(pointsInput.value) || 0) : 0;
+                loyaltyDiscount = pts / 100;
+                var maxLoyalty = Math.max(0, baseFare - promoDiscount);
+                if (loyaltyDiscount > maxLoyalty) loyaltyDiscount = maxLoyalty;
+
+                // Promo row
+                if (promoDiscount > 0) {
+                    promoRow.style.setProperty('display', 'flex', 'important');
+                    promoEl.textContent = '-' + money(promoDiscount);
+                } else {
+                    promoRow.style.setProperty('display', 'none', 'important');
+                }
+
+                // Loyalty row
+                if (loyaltyDiscount > 0) {
+                    loyaltyRow.style.setProperty('display', 'flex', 'important');
+                    loyaltyEl.textContent = '-' + money(loyaltyDiscount);
+                } else {
+                    loyaltyRow.style.setProperty('display', 'none', 'important');
+                }
+
+                if (pointsPreview) pointsPreview.textContent = money(loyaltyDiscount);
+
+                if (baseFare > 0) {
+                    var total = Math.max(0, baseFare - promoDiscount - loyaltyDiscount);
+                    totalEl.textContent = money(total);
+                }
             }
-            pointsInput.addEventListener('input', updatePreview);
-            updatePreview();
+
+            function resetPromo(msg, cls) {
+                promoDiscount = 0;
+                promoStatus.textContent = msg;
+                promoStatus.className = 'form-text' + (cls ? ' ' + cls : '');
+                recompute();
+            }
+
+            function applyPromo() {
+                var code = (promoInput.value || '').trim();
+                if (!code) { resetPromo('Enter a promo code to apply.', 'text-danger'); return; }
+                if (!routeSel.value) { resetPromo('Select a route first.', 'text-danger'); return; }
+
+                var token = document.querySelector('input[name="__RequestVerificationToken"]');
+                var body = new URLSearchParams();
+                body.append('code', code);
+                body.append('routeId', routeSel.value);
+                if (token) body.append('__RequestVerificationToken', token.value);
+
+                applyBtn.disabled = true;
+                promoStatus.textContent = 'Checking…';
+                promoStatus.className = 'form-text text-muted';
+
+                fetch(validateUrl, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }, body: body })
+                    .then(function (r) {
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.json();
+                    })
+                    .then(function (d) {
+                        applyBtn.disabled = false;
+                        if (d.valid) {
+                            promoDiscount = Number(d.discount) || 0;
+                            promoStatus.textContent = (d.message || 'Promo applied!') + ' (-' + money(promoDiscount) + ')';
+                            promoStatus.className = 'form-text text-success fw-bold';
+                        } else {
+                            resetPromo(d.message || 'Invalid promo code.', 'text-danger');
+                        }
+                        recompute();
+                    })
+                    .catch(function (err) {
+                        applyBtn.disabled = false;
+                        console.error('Promo validation failed:', err);
+                        resetPromo('Could not validate promo (' + err.message + '). Try again.', 'text-danger');
+                    });
+            }
+
+            if (routeSel) routeSel.addEventListener('change', function () {
+                if (promoDiscount > 0) resetPromo('Route changed — re-apply promo code.', 'text-warning');
+                recompute();
+            });
+            if (applyBtn) applyBtn.addEventListener('click', applyPromo);
+            if (promoInput) promoInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') { e.preventDefault(); applyPromo(); }
+            });
+            if (pointsInput) pointsInput.addEventListener('input', recompute);
+
+            recompute();
         })();
     </script>
 }

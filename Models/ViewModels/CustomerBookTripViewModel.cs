@@ -29,5 +29,8 @@ namespace CabManagementSystem.Models.ViewModels
         public string? PromoCode { get; set; }
 
         public SelectList? AvailableRoutes { get; set; }
+
+        // JSON map: routeId -> baseCost, for live client-side fare estimate
+        public string RouteFaresJson { get; set; } = "{}";
     }
 }
