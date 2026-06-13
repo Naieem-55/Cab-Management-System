@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Drivers";
+    var avgRatings = ViewBag.AvgRatings as Dictionary<int, double> ?? new Dictionary<int, double>();
+    var ratingCounts = ViewBag.RatingCounts as Dictionary<int, int> ?? new Dictionary<int, int>();
 }
 
 <div class="container-fluid">
@@ -42,6 +44,7 @@
                                 <th>Employee Name</th>
                                 <th>License Number</th>
                                 <th>License Expiry</th>
+                                <th>Rating</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -61,6 +64,22 @@
                                         else if (driver.LicenseExpiry <= DateTime.Today.AddDays(30))
                                         {
                                             <span class="badge bg-warning text-dark ms-1">Expiring Soon</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @{
+                                            var dAvg = avgRatings.TryGetValue(driver.Id, out var a) ? a : 0d;
+                                            var dCount = ratingCounts.TryGetValue(driver.Id, out var c) ? c : 0;
+                                        }
+                                        @if (dCount > 0)
+                                        {
+                                            <span class="text-warning"><i class="bi bi-star-fill"></i></span>
+                                            <span class="fw-semibold">@dAvg.ToString("0.0")</span>
+                                            <small class="text-muted">(@dCount)</small>
+                                        }
+                                        else
+                                        {
+                                            <small class="text-muted">No ratings</small>
                                         }
                                     </td>
                                     <td>

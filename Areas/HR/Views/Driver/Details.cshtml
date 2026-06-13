@@ -68,14 +68,63 @@
         </div>
     </div>
 
+    @{
+        var avgRating = (double)(ViewBag.AverageRating ?? 0d);
+        var ratingCount = (int)(ViewBag.RatingCount ?? 0);
+        var recentRatings = ViewBag.RecentRatings as List<CabManagementSystem.Models.DriverRating>
+            ?? new List<CabManagementSystem.Models.DriverRating>();
+    }
     <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="mb-0"><i class="bi bi-star-fill text-warning"></i> Performance</h5>
-        </div>
-        <div class="card-body text-center">
-            <a asp-action="Performance" asp-route-id="@Model.Id" class="btn btn-primary">
-                <i class="bi bi-graph-up"></i> View Full Performance Report
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-star-fill text-warning"></i> Customer Rating</h5>
+            <a asp-action="Performance" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-graph-up"></i> Full Performance Report
             </a>
+        </div>
+        <div class="card-body">
+            @if (ratingCount == 0)
+            {
+                <p class="text-muted text-center mb-0">
+                    <i class="bi bi-star"></i> No ratings yet. Ratings appear after customers rate completed trips.
+                </p>
+            }
+            else
+            {
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="display-5 fw-bold text-warning">@avgRating.ToString("0.0")</div>
+                    <div>
+                        <div class="fs-4">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="bi @(i <= Math.Round(avgRating) ? "bi-star-fill" : "bi-star") text-warning"></i>
+                            }
+                        </div>
+                        <small class="text-muted">Based on @ratingCount rating@(ratingCount == 1 ? "" : "s")</small>
+                    </div>
+                </div>
+
+                <h6 class="text-muted">Recent Reviews</h6>
+                <ul class="list-group list-group-flush">
+                    @foreach (var r in recentRatings)
+                    {
+                        <li class="list-group-item px-0">
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-semibold">@r.CustomerName</span>
+                                <span class="text-warning">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="bi @(i <= r.Rating ? "bi-star-fill" : "bi-star")"></i>
+                                    }
+                                </span>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(r.Comment))
+                            {
+                                <small class="text-muted"><em>"@r.Comment"</em></small>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
         </div>
     </div>
 

@@ -43,6 +43,18 @@ namespace CabManagementSystem.Areas.HR.Controllers
             var pageSize = 10;
             var paginatedList = PaginatedList<Driver>.Create(drivers, page, pageSize);
 
+            // Average rating + count per driver on this page
+            var avgRatings = new Dictionary<int, double>();
+            var ratingCounts = new Dictionary<int, int>();
+            foreach (var d in paginatedList)
+            {
+                var ratings = (await _driverRatingService.GetRatingsByDriverIdAsync(d.Id)).ToList();
+                avgRatings[d.Id] = ratings.Count > 0 ? ratings.Average(r => r.Rating) : 0d;
+                ratingCounts[d.Id] = ratings.Count;
+            }
+            ViewBag.AvgRatings = avgRatings;
+            ViewBag.RatingCounts = ratingCounts;
+
             ViewBag.PageIndex = paginatedList.PageIndex;
             ViewBag.TotalPages = paginatedList.TotalPages;
             ViewBag.TotalCount = paginatedList.TotalCount;
@@ -201,6 +213,11 @@ namespace CabManagementSystem.Areas.HR.Controllers
             var driver = await _driverService.GetDriverWithEmployeeAsync(id);
             if (driver == null)
                 return NotFound();
+
+            var ratings = (await _driverRatingService.GetRatingsByDriverIdAsync(id)).ToList();
+            ViewBag.AverageRating = ratings.Count > 0 ? ratings.Average(r => r.Rating) : 0d;
+            ViewBag.RatingCount = ratings.Count;
+            ViewBag.RecentRatings = ratings.OrderByDescending(r => r.CreatedDate).Take(5).ToList();
 
             return View(driver);
         }
