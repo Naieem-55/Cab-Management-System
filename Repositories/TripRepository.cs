@@ -25,6 +25,7 @@ namespace CabManagementSystem.Repositories
                            .Include(t => t.Vehicle)
                            .Include(t => t.Route)
                            .Include(t => t.Billing)
+                           .Include(t => t.StatusHistory)
                            .FirstOrDefaultAsync(t => t.Id == id);
 
         public async Task<IEnumerable<Trip>> GetTripsByStatusAsync(TripStatus status)

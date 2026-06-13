@@ -767,6 +767,30 @@ namespace CabManagementSystem.Migrations
                     b.ToTable("TripFeedbacks");
                 });
 
+            modelBuilder.Entity("CabManagementSystem.Models.TripStatusHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TripId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TripId");
+
+                    b.ToTable("TripStatusHistories");
+                });
+
             modelBuilder.Entity("CabManagementSystem.Models.Vehicle", b =>
                 {
                     b.Property<int>("Id")
@@ -1115,6 +1139,17 @@ namespace CabManagementSystem.Migrations
                     b.Navigation("Trip");
                 });
 
+            modelBuilder.Entity("CabManagementSystem.Models.TripStatusHistory", b =>
+                {
+                    b.HasOne("CabManagementSystem.Models.Trip", "Trip")
+                        .WithMany("StatusHistory")
+                        .HasForeignKey("TripId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Trip");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -1206,6 +1241,8 @@ namespace CabManagementSystem.Migrations
                     b.Navigation("Expenses");
 
                     b.Navigation("LoyaltyTransactions");
+
+                    b.Navigation("StatusHistory");
 
                     b.Navigation("TripFeedback");
                 });

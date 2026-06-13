@@ -32,6 +32,7 @@ namespace CabManagementSystem.Data
         public DbSet<TripFeedback> TripFeedbacks { get; set; }
         public DbSet<LoyaltyTransaction> LoyaltyTransactions { get; set; }
         public DbSet<PromoCode> PromoCodes { get; set; }
+        public DbSet<TripStatusHistory> TripStatusHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -65,6 +66,12 @@ namespace CabManagementSystem.Data
                 .HasOne(b => b.Trip)
                 .WithOne(t => t.Billing)
                 .HasForeignKey<Billing>(b => b.TripId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<TripStatusHistory>()
+                .HasOne(h => h.Trip)
+                .WithMany(t => t.StatusHistory)
+                .HasForeignKey(h => h.TripId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<MaintenanceRecord>()

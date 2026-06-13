@@ -52,6 +52,12 @@ namespace CabManagementSystem.Services
 
         public async Task CreateTripAsync(Trip trip)
         {
+            trip.StatusHistory.Add(new TripStatusHistory
+            {
+                Status = trip.Status,
+                ChangedAt = trip.BookingDate
+            });
+
             await _tripRepository.AddAsync(trip);
 
             // If trip is created as InProgress, mark driver and vehicle as OnTrip
@@ -83,6 +89,17 @@ namespace CabManagementSystem.Services
             var oldStatus = trip.Status;
             trip.Status = newStatus;
             _tripRepository.Update(trip);
+
+            // Append to the status timeline only when the status actually changes
+            if (newStatus != oldStatus)
+            {
+                trip.StatusHistory.Add(new TripStatusHistory
+                {
+                    TripId = trip.Id,
+                    Status = newStatus,
+                    ChangedAt = DateTime.Now
+                });
+            }
 
             // Handle driver/vehicle status transitions
             if (newStatus == TripStatus.InProgress && oldStatus != TripStatus.InProgress)

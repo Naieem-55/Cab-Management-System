@@ -4,6 +4,23 @@
     ViewData["Title"] = "Trip Details";
 }
 
+<style>
+    .trip-timeline { position: relative; margin: 0; padding: 0; }
+    .trip-timeline-item { position: relative; display: flex; gap: .75rem; padding-bottom: 1.25rem; }
+    .trip-timeline-item:last-child { padding-bottom: 0; }
+    /* connecting line */
+    .trip-timeline-item:not(:last-child)::before {
+        content: ""; position: absolute; left: 15px; top: 32px; bottom: 0;
+        width: 2px; background: #e5e7eb;
+    }
+    .trip-timeline-dot {
+        flex: 0 0 32px; width: 32px; height: 32px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: .9rem; z-index: 1;
+    }
+    .trip-timeline-pending .fw-semibold { font-weight: 400 !important; }
+</style>
+
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="bi bi-geo-alt"></i> Trip Details</h1>
@@ -165,27 +182,57 @@
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Trip Status</h5>
+                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Status Timeline</h5>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex flex-column gap-3" id="progressTracker">
-                        <div class="d-flex align-items-center" id="step-pending">
-                            <i class="bi bi-circle-fill @(Model.Status >= TripStatus.Pending ? "text-success" : "text-muted") me-2"></i>
-                            <span>Booking Received</span>
-                        </div>
-                        <div class="d-flex align-items-center" id="step-confirmed">
-                            <i class="bi bi-circle-fill @(Model.Status >= TripStatus.Confirmed ? "text-success" : "text-muted") me-2"></i>
-                            <span>Confirmed</span>
-                        </div>
-                        <div class="d-flex align-items-center" id="step-inprogress">
-                            <i class="bi bi-circle-fill @(Model.Status >= TripStatus.InProgress ? "text-success" : "text-muted") me-2"></i>
-                            <span>In Progress</span>
-                        </div>
-                        <div class="d-flex align-items-center" id="step-completed">
-                            <i class="bi bi-circle-fill @(Model.Status >= TripStatus.Completed ? "text-success" : "text-muted") me-2"></i>
-                            <span>Completed</span>
-                        </div>
-                    </div>
+                    @{
+                        var history = (Model.StatusHistory ?? new List<TripStatusHistory>())
+                            .OrderBy(h => h.ChangedAt).ToList();
+
+                        (string label, string icon, string color) StatusMeta(TripStatus s) => s switch
+                        {
+                            TripStatus.Pending => ("Booking Received", "bi-bookmark-check-fill", "primary"),
+                            TripStatus.Confirmed => ("Confirmed & Assigned", "bi-person-check-fill", "info"),
+                            TripStatus.InProgress => ("In Progress", "bi-truck", "warning"),
+                            TripStatus.Completed => ("Completed", "bi-check-circle-fill", "success"),
+                            TripStatus.Cancelled => ("Cancelled", "bi-x-circle-fill", "danger"),
+                            _ => (s.ToString(), "bi-circle-fill", "secondary")
+                        };
+
+                        var doneStatuses = history.Select(h => h.Status).ToHashSet();
+                        var upcoming = new[] { TripStatus.Confirmed, TripStatus.InProgress, TripStatus.Completed };
+                    }
+                    <ul class="trip-timeline list-unstyled mb-0" id="progressTracker">
+                        @foreach (var h in history)
+                        {
+                            var meta = StatusMeta(h.Status);
+                            <li class="trip-timeline-item">
+                                <span class="trip-timeline-dot bg-@meta.color text-white">
+                                    <i class="bi @meta.icon"></i>
+                                </span>
+                                <div>
+                                    <div class="fw-semibold">@meta.label</div>
+                                    <small class="text-muted">@h.ChangedAt.ToString("MMM dd, yyyy • h:mm tt")</small>
+                                </div>
+                            </li>
+                        }
+                        @if (Model.Status != TripStatus.Cancelled && Model.Status != TripStatus.Completed)
+                        {
+                            foreach (var s in upcoming.Where(s => s > Model.Status && !doneStatuses.Contains(s)))
+                            {
+                                var meta = StatusMeta(s);
+                                <li class="trip-timeline-item trip-timeline-pending">
+                                    <span class="trip-timeline-dot bg-light text-muted border">
+                                        <i class="bi @meta.icon"></i>
+                                    </span>
+                                    <div>
+                                        <div class="text-muted">@meta.label</div>
+                                        <small class="text-muted">Pending</small>
+                                    </div>
+                                </li>
+                            }
+                        }
+                    </ul>
                 </div>
             </div>
 
@@ -300,10 +347,8 @@
                     if (cancelForm) cancelForm.remove();
                 }
 
-                // Reload page when completed to show rating card
-                if (statusCode >= 3) {
-                    setTimeout(function () { location.reload(); }, 2000);
-                }
+                // Reload so the status timeline re-renders with the new step + timestamp
+                setTimeout(function () { location.reload(); }, 2000);
 
                 // Show toast
                 var container = document.getElementById('toastContainer');
