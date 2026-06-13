@@ -15,5 +15,8 @@ obj/
 *.suo
 *.DotSettings.user
 
+# User uploads
+wwwroot/uploads/
+
 # Tooling
 .claude/

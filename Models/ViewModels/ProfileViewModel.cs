@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace CabManagementSystem.Models.ViewModels
 {
@@ -22,5 +23,11 @@ namespace CabManagementSystem.Models.ViewModels
 
         [Display(Name = "Two-Factor Authentication")]
         public bool TwoFactorEnabled { get; set; }
+
+        [Display(Name = "Profile Photo")]
+        public string? ProfilePhotoPath { get; set; }
+
+        [Display(Name = "Profile Photo")]
+        public IFormFile? ProfilePhoto { get; set; }
     }
 }

@@ -18,6 +18,10 @@ namespace CabManagementSystem.Models
         [StringLength(50)]
         public string? Role { get; set; }
 
+        [StringLength(260)]
+        [Display(Name = "Profile Photo")]
+        public string? ProfilePhotoPath { get; set; }
+
         [Display(Name = "Full Name")]
         public string FullName => $"{FirstName} {LastName}";
     }

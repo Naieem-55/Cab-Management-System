@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CabManagementSystem")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+edc086d91d1303663e623a956c4d6f4180333247")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0dbf23a9098d1a5f04abff6a8370c84924de5085")]
 [assembly: System.Reflection.AssemblyProductAttribute("CabManagementSystem")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CabManagementSystem")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

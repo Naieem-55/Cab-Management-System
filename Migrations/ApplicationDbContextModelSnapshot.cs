@@ -74,6 +74,10 @@ namespace CabManagementSystem.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("ProfilePhotoPath")
+                        .HasMaxLength(260)
+                        .HasColumnType("nvarchar(260)");
+
                     b.Property<string>("Role")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
