@@ -89,5 +89,7 @@ namespace CabManagementSystem.Models
 
         [StringLength(500)]
         public string? Notes { get; set; }
+
+        public ICollection<TripStatusHistory> StatusHistory { get; set; } = new List<TripStatusHistory>();
     }
 }
