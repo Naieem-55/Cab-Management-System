@@ -10,8 +10,29 @@
                 <h4 class="mb-0"><i class="bi bi-pencil-square"></i> Edit Profile</h4>
             </div>
             <div class="card-body p-4">
-                <form asp-action="EditProfile" method="post">
+                <form asp-action="EditProfile" method="post" enctype="multipart/form-data">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="text-center mb-4">
+                        @if (!string.IsNullOrEmpty(Model.ProfilePhotoPath))
+                        {
+                            <img src="@Model.ProfilePhotoPath" alt="Profile photo" id="photoPreview"
+                                 class="rounded-circle border" style="width:120px;height:120px;object-fit:cover;" />
+                        }
+                        else
+                        {
+                            <i class="bi bi-person-circle text-muted" id="photoPreviewIcon" style="font-size:7rem;"></i>
+                            <img src="#" alt="Profile photo" id="photoPreview"
+                                 class="rounded-circle border d-none" style="width:120px;height:120px;object-fit:cover;" />
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ProfilePhoto" class="form-label"></label>
+                        <input asp-for="ProfilePhoto" type="file" class="form-control" accept="image/*" id="photoInput" />
+                        <small class="text-muted">JPG, PNG, GIF, or WEBP. Max 5 MB.</small>
+                        <span asp-validation-for="ProfilePhoto" class="text-danger d-block"></span>
+                    </div>
 
                     <div class="mb-3">
                         <label asp-for="FirstName" class="form-label"></label>
@@ -51,4 +72,19 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('photoInput')?.addEventListener('change', function (e) {
+            var file = e.target.files && e.target.files[0];
+            if (!file) return;
+            var preview = document.getElementById('photoPreview');
+            var icon = document.getElementById('photoPreviewIcon');
+            var reader = new FileReader();
+            reader.onload = function (ev) {
+                preview.src = ev.target.result;
+                preview.classList.remove('d-none');
+                if (icon) icon.classList.add('d-none');
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
 }

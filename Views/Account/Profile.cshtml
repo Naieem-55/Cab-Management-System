@@ -11,7 +11,15 @@
             </div>
             <div class="card-body p-4">
                 <div class="text-center mb-4">
-                    <i class="bi bi-person-circle text-muted" style="font-size: 4rem;"></i>
+                    @if (!string.IsNullOrEmpty(Model.ProfilePhotoPath))
+                    {
+                        <img src="@Model.ProfilePhotoPath" alt="Profile photo"
+                             class="rounded-circle border shadow-sm" style="width:120px;height:120px;object-fit:cover;" />
+                    }
+                    else
+                    {
+                        <i class="bi bi-person-circle text-muted" style="font-size: 7rem;"></i>
+                    }
                 </div>
                 <table class="table">
                     <tr>

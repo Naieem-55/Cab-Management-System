@@ -17,19 +17,25 @@ namespace CabManagementSystem.Controllers
         private readonly IEmailService _emailService;
         private readonly ICustomerService _customerService;
         private readonly ILoyaltyPointsService _loyaltyService;
+        private readonly IWebHostEnvironment _env;
+
+        private static readonly string[] AllowedPhotoExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+        private const long MaxPhotoBytes = 5 * 1024 * 1024; // 5 MB
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailService emailService,
             ICustomerService customerService,
-            ILoyaltyPointsService loyaltyService)
+            ILoyaltyPointsService loyaltyService,
+            IWebHostEnvironment env)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailService = emailService;
             _customerService = customerService;
             _loyaltyService = loyaltyService;
+            _env = env;
         }
 
         [HttpGet]
@@ -131,7 +137,8 @@ namespace CabManagementSystem.Controllers
                 LastName = user.LastName,
                 Email = user.Email ?? string.Empty,
                 Role = roles.FirstOrDefault() ?? "No Role",
-                TwoFactorEnabled = user.TwoFactorEnabled
+                TwoFactorEnabled = user.TwoFactorEnabled,
+                ProfilePhotoPath = user.ProfilePhotoPath
             };
 
             return View(model);
@@ -151,7 +158,8 @@ namespace CabManagementSystem.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email ?? string.Empty,
-                Role = roles.FirstOrDefault() ?? "No Role"
+                Role = roles.FirstOrDefault() ?? "No Role",
+                ProfilePhotoPath = user.ProfilePhotoPath
             };
 
             return View(model);
@@ -174,6 +182,43 @@ namespace CabManagementSystem.Controllers
 
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
+
+            if (model.ProfilePhoto != null && model.ProfilePhoto.Length > 0)
+            {
+                var ext = Path.GetExtension(model.ProfilePhoto.FileName).ToLowerInvariant();
+                if (!AllowedPhotoExtensions.Contains(ext))
+                {
+                    ModelState.AddModelError(nameof(model.ProfilePhoto), "Only JPG, PNG, GIF, or WEBP images are allowed.");
+                    model.ProfilePhotoPath = user.ProfilePhotoPath;
+                    return View(model);
+                }
+                if (model.ProfilePhoto.Length > MaxPhotoBytes)
+                {
+                    ModelState.AddModelError(nameof(model.ProfilePhoto), "Image must be 5 MB or smaller.");
+                    model.ProfilePhotoPath = user.ProfilePhotoPath;
+                    return View(model);
+                }
+
+                var uploadsDir = Path.Combine(_env.WebRootPath, "uploads", "profiles");
+                Directory.CreateDirectory(uploadsDir);
+
+                // Delete previous photo if any
+                if (!string.IsNullOrEmpty(user.ProfilePhotoPath))
+                {
+                    var oldPath = Path.Combine(_env.WebRootPath, user.ProfilePhotoPath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                    if (System.IO.File.Exists(oldPath))
+                        System.IO.File.Delete(oldPath);
+                }
+
+                var fileName = $"{user.Id}{ext}";
+                var savePath = Path.Combine(uploadsDir, fileName);
+                using (var stream = new FileStream(savePath, FileMode.Create))
+                {
+                    await model.ProfilePhoto.CopyToAsync(stream);
+                }
+
+                user.ProfilePhotoPath = $"/uploads/profiles/{fileName}";
+            }
 
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)

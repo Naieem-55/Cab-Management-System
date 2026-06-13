@@ -1,0 +1,22 @@
+# Secrets — never commit
+appsettings.json
+appsettings.Development.json
+appsettings.*.json
+!appsettings.Example.json
+
+# Build output
+bin/
+obj/
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+*.DotSettings.user
+
+# User uploads
+wwwroot/uploads/
+
+# Tooling
+.claude/
