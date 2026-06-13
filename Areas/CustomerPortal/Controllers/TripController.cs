@@ -259,6 +259,25 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                     await _promoCodeService.ApplyUsageAsync(promoCodeId.Value);
                 }
 
+                // In-app notification for the booking
+                try
+                {
+                    var user = await _userManager.GetUserAsync(User);
+                    if (user != null)
+                    {
+                        var routeLabel = $"{route.Origin} → {route.Destination}";
+                        await _notificationService.CreateNotificationAsync(
+                            user.Id,
+                            "Trip Booked",
+                            $"Your trip ({routeLabel}) is booked and pending confirmation.",
+                            $"/CustomerPortal/Trip/Details/{trip.Id}");
+                    }
+                }
+                catch (Exception notifEx)
+                {
+                    _logger.LogWarning(notifEx, "Failed to create booking notification for trip {TripId}", trip.Id);
+                }
+
                 var msgParts = new List<string> { "Trip booked successfully!" };
                 if (promoDiscount > 0) msgParts.Add($"Promo saved {promoDiscount:C}.");
                 if (pointsToRedeem > 0) msgParts.Add($"Redeemed {pointsToRedeem} points for {discount:C}.");
