@@ -8,5 +8,10 @@ namespace CabManagementSystem.Models.ViewModels
         public decimal TotalSpent { get; set; }
         public int LoyaltyPoints { get; set; }
         public List<Trip> RecentTrips { get; set; } = new();
+
+        // Monthly activity (last 6 months)
+        public List<string> MonthlyLabels { get; set; } = new();
+        public List<int> MonthlyTripCounts { get; set; } = new();
+        public List<decimal> MonthlySpendData { get; set; } = new();
     }
 }

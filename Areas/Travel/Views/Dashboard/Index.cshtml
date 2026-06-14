@@ -121,6 +121,16 @@
         </div>
     </div>
 
+    <!-- Trips Trend -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Trips Over Time</h5></div>
+                <div class="card-body"><canvas id="monthlyTripsChart" style="max-height:280px;"></canvas></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Recent Trips -->
     <div class="row g-4">
         <div class="col-12">
@@ -218,6 +228,25 @@
                 }]
             },
             options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        var travelTripsCtx = document.getElementById('monthlyTripsChart').getContext('2d');
+        var travelTripsGradient = travelTripsCtx.createLinearGradient(0, 0, 0, 300);
+        travelTripsGradient.addColorStop(0, 'rgba(13,110,253,0.35)'); travelTripsGradient.addColorStop(1, 'rgba(13,110,253,0.0)');
+
+        new Chart(travelTripsCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.MonthlyTripLabels)),
+                datasets: [{
+                    label: 'Trips',
+                    data: @Html.Raw(Json.Serialize(Model.MonthlyTripCounts)),
+                    borderColor: '#0d6efd', backgroundColor: travelTripsGradient,
+                    borderWidth: 2, fill: true, tension: 0.35,
+                    pointBackgroundColor: '#0d6efd', pointRadius: 4, pointHoverRadius: 6
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
         });
     </script>
 }

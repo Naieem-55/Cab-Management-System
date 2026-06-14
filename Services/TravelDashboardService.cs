@@ -41,6 +41,17 @@ namespace CabManagementSystem.Services
                 .Select(g => new { Status = g.Key.ToString(), Count = g.Count() })
                 .OrderBy(g => g.Status).ToList();
 
+            // Chart data - Monthly trips (last 6 months, by booking date)
+            var monthlyTrips = Enumerable.Range(0, 6)
+                .Select(i => DateTime.Now.AddMonths(-i))
+                .Reverse()
+                .Select(date => new
+                {
+                    Label = date.ToString("MMM yyyy"),
+                    Count = recentTrips.Count(t => t.BookingDate.Year == date.Year &&
+                                                   t.BookingDate.Month == date.Month)
+                }).ToList();
+
             return new TravelDashboardViewModel
             {
                 TotalTrips = recentTrips.Count,
@@ -53,7 +64,9 @@ namespace CabManagementSystem.Services
                 TripStatusLabels = tripStatusGroups.Select(g => g.Status).ToList(),
                 TripStatusCounts = tripStatusGroups.Select(g => g.Count).ToList(),
                 VehicleStatusLabels = vehicleStatusGroups.Select(g => g.Status).ToList(),
-                VehicleStatusCounts = vehicleStatusGroups.Select(g => g.Count).ToList()
+                VehicleStatusCounts = vehicleStatusGroups.Select(g => g.Count).ToList(),
+                MonthlyTripLabels = monthlyTrips.Select(m => m.Label).ToList(),
+                MonthlyTripCounts = monthlyTrips.Select(m => m.Count).ToList()
             };
         }
     }

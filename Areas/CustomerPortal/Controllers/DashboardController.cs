@@ -44,6 +44,22 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
 
                 var trips = (await _tripService.GetTripsByCustomerIdAsync(customer.Id)).ToList();
 
+                // Monthly activity (last 6 months, by trip date)
+                var monthly = Enumerable.Range(0, 6)
+                    .Select(i => DateTime.Now.AddMonths(-i))
+                    .Reverse()
+                    .Select(date => new
+                    {
+                        Label = date.ToString("MMM yyyy"),
+                        Count = trips.Count(t => t.TripDate.Year == date.Year &&
+                                                 t.TripDate.Month == date.Month),
+                        Spend = trips
+                            .Where(t => t.Status == TripStatus.Completed &&
+                                        t.TripDate.Year == date.Year &&
+                                        t.TripDate.Month == date.Month)
+                            .Sum(t => t.Cost)
+                    }).ToList();
+
                 var model = new CustomerDashboardViewModel
                 {
                     CustomerName = customer.Name,
@@ -51,7 +67,10 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                     ActiveTrips = await _tripService.GetActiveTripCountByCustomerIdAsync(customer.Id),
                     TotalSpent = await _tripService.GetTotalSpentByCustomerIdAsync(customer.Id),
                     LoyaltyPoints = await _loyaltyService.GetBalanceAsync(customer.Id),
-                    RecentTrips = trips.Take(5).ToList()
+                    RecentTrips = trips.Take(5).ToList(),
+                    MonthlyLabels = monthly.Select(m => m.Label).ToList(),
+                    MonthlyTripCounts = monthly.Select(m => m.Count).ToList(),
+                    MonthlySpendData = monthly.Select(m => m.Spend).ToList()
                 };
 
                 return View(model);

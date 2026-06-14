@@ -69,7 +69,9 @@ namespace CabManagementSystem.Services
                         .Where(b => b.Status == PaymentStatus.Completed &&
                                     b.PaymentDate.Year == date.Year &&
                                     b.PaymentDate.Month == date.Month)
-                        .Sum(b => b.Amount)
+                        .Sum(b => b.Amount),
+                    Trips = allTrips.Count(t => t.BookingDate.Year == date.Year &&
+                                                t.BookingDate.Month == date.Month)
                 }).ToList();
 
             // License expiry alerts
@@ -92,6 +94,7 @@ namespace CabManagementSystem.Services
                 TripStatusCounts = tripStatusGroups.Select(g => g.Count).ToList(),
                 MonthlyRevenueLabels = monthlyRevenue.Select(m => m.Label).ToList(),
                 MonthlyRevenueData = monthlyRevenue.Select(m => m.Revenue).ToList(),
+                MonthlyTripCounts = monthlyRevenue.Select(m => m.Trips).ToList(),
                 ExpiringLicenses = expiringDrivers,
                 ExpiringLicenseCount = expiringDrivers.Count(),
                 TotalFeedback = await _feedbackRepository.CountAsync(),

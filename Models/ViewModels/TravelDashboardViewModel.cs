@@ -17,5 +17,9 @@ namespace CabManagementSystem.Models.ViewModels
         public List<int> TripStatusCounts { get; set; } = new();
         public List<string> VehicleStatusLabels { get; set; } = new();
         public List<int> VehicleStatusCounts { get; set; } = new();
+
+        // Monthly trips trend (last 6 months)
+        public List<string> MonthlyTripLabels { get; set; } = new();
+        public List<int> MonthlyTripCounts { get; set; } = new();
     }
 }
