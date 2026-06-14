@@ -262,6 +262,19 @@
     </div>
 </div>
 
+<!-- Trips Trend Row -->
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="pro-card h-100">
+            <div class="d-flex justify-content-between align-items-center p-3 pb-0">
+                <h6 class="fw-bold mb-0">Trips Over Time</h6>
+                <span class="pro-badge pro-badge-gray">@Model.MonthlyTripCounts.Sum() Last 6 Months</span>
+            </div>
+            <div class="p-3"><canvas id="monthlyTripsChart" style="max-height:280px;"></canvas></div>
+        </div>
+    </div>
+</div>
+
 <!-- Tables Row -->
 <div class="row g-4">
     <div class="col-lg-6">
@@ -414,6 +427,16 @@
             type: 'bar',
             data: { labels: @Html.Raw(Json.Serialize(Model.MonthlyRevenueLabels)), datasets: [{ label: 'Revenue', data: @Html.Raw(Json.Serialize(Model.MonthlyRevenueData)), backgroundColor: gradient, borderColor: 'rgba(59,130,246,1)', borderWidth: 1, borderRadius: 6, borderSkipped: false }] },
             options: { responsive: true, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(17,24,39,0.9)', cornerRadius: 8, callbacks: { label: function(ctx) { return ' ৳'+ctx.raw.toLocaleString(); } } } }, scales: { y: { beginAtZero: true, grid: { color: _gridColor }, ticks: { callback: function(v) { return '৳'+v.toLocaleString(); } } }, x: { grid: { display: false } } } }
+        });
+
+        var tripsCtx = document.getElementById('monthlyTripsChart').getContext('2d');
+        var tripsGradient = tripsCtx.createLinearGradient(0, 0, 0, 300);
+        tripsGradient.addColorStop(0, 'rgba(139,92,246,0.35)'); tripsGradient.addColorStop(1, 'rgba(139,92,246,0.0)');
+
+        new Chart(tripsCtx, {
+            type: 'line',
+            data: { labels: @Html.Raw(Json.Serialize(Model.MonthlyRevenueLabels)), datasets: [{ label: 'Trips', data: @Html.Raw(Json.Serialize(Model.MonthlyTripCounts)), borderColor: '#8b5cf6', backgroundColor: tripsGradient, borderWidth: 2, fill: true, tension: 0.35, pointBackgroundColor: '#8b5cf6', pointRadius: 4, pointHoverRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(17,24,39,0.9)', cornerRadius: 8, callbacks: { label: function(ctx) { return ' '+ctx.raw+' trips'; } } } }, scales: { y: { beginAtZero: true, grid: { color: _gridColor }, ticks: { precision: 0 } }, x: { grid: { display: false } } } }
         });
     </script>
 }
