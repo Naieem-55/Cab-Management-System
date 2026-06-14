@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CabManagementSystem")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7635852c45216233b41f9f9441e18a3fe520d375")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6030e7f03437f799081a6911e0174cd371a4fae1")]
 [assembly: System.Reflection.AssemblyProductAttribute("CabManagementSystem")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CabManagementSystem")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,3 +1,4 @@
+using CabManagementSystem.Helpers;
 using CabManagementSystem.Models;
 using CabManagementSystem.Models.Enums;
 using CabManagementSystem.Services;
@@ -20,7 +21,7 @@ namespace CabManagementSystem.Areas.Admin.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index(string? searchTerm, int page = 1)
+        public async Task<IActionResult> Index(string? searchTerm, string? sortOrder, int page = 1)
         {
             IEnumerable<Models.Route> routes;
 
@@ -34,14 +35,21 @@ namespace CabManagementSystem.Areas.Admin.Controllers
                 routes = await _routeService.GetAllRoutesAsync();
             }
 
+            routes = SortHelper.ApplySort(routes, sortOrder);
+
             var pageSize = 10;
             var paginatedList = PaginatedList<Models.Route>.Create(routes, page, pageSize);
 
+            ViewBag.CurrentSort = sortOrder;
             ViewBag.PageIndex = paginatedList.PageIndex;
             ViewBag.TotalPages = paginatedList.TotalPages;
             ViewBag.TotalCount = paginatedList.TotalCount;
             ViewBag.BaseUrl = Url.Action("Index");
-            ViewBag.QueryString = !string.IsNullOrEmpty(searchTerm) ? $"&searchTerm={searchTerm}" : "";
+
+            var queryParams = new List<string>();
+            if (!string.IsNullOrEmpty(searchTerm)) queryParams.Add($"&searchTerm={searchTerm}");
+            if (!string.IsNullOrEmpty(sortOrder)) queryParams.Add($"&sortOrder={sortOrder}");
+            ViewBag.QueryString = string.Join("", queryParams);
 
             return View(paginatedList);
         }

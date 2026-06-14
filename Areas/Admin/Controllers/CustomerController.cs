@@ -21,7 +21,7 @@ namespace CabManagementSystem.Areas.Admin.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index(string? searchTerm, int page = 1)
+        public async Task<IActionResult> Index(string? searchTerm, string? sortOrder, int page = 1)
         {
             IEnumerable<Customer> customers;
 
@@ -35,9 +35,12 @@ namespace CabManagementSystem.Areas.Admin.Controllers
                 customers = await _customerService.GetAllCustomersAsync();
             }
 
+            customers = Helpers.SortHelper.ApplySort(customers, sortOrder);
+
             var pageSize = 10;
             var paginatedList = PaginatedList<Customer>.Create(customers, page, pageSize);
 
+            ViewBag.CurrentSort = sortOrder;
             ViewBag.PageIndex = paginatedList.PageIndex;
             ViewBag.TotalPages = paginatedList.TotalPages;
             ViewBag.TotalCount = paginatedList.TotalCount;
@@ -45,6 +48,7 @@ namespace CabManagementSystem.Areas.Admin.Controllers
 
             var queryParams = new List<string>();
             if (!string.IsNullOrEmpty(searchTerm)) queryParams.Add($"&searchTerm={searchTerm}");
+            if (!string.IsNullOrEmpty(sortOrder)) queryParams.Add($"&sortOrder={sortOrder}");
             ViewBag.QueryString = string.Join("", queryParams);
 
             return View(paginatedList);

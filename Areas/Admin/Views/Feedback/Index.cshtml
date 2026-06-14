@@ -60,13 +60,13 @@
                 <table class="table pro-table mb-0">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>@Html.SortableHeader("ID", "Id")</th>
                             <th>Customer</th>
                             <th>Trip</th>
-                            <th>Category</th>
-                            <th>Rating</th>
-                            <th>Status</th>
-                            <th>Date</th>
+                            <th>@Html.SortableHeader("Category", "Category")</th>
+                            <th>@Html.SortableHeader("Rating", "Rating")</th>
+                            <th>@Html.SortableHeader("Status", "Status")</th>
+                            <th>@Html.SortableHeader("Date", "CreatedDate")</th>
                             <th>Actions</th>
                         </tr>
                     </thead>

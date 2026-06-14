@@ -50,12 +50,12 @@
             <table class="table pro-table">
                 <thead>
                     <tr>
-                        <th>Code</th>
-                        <th>Discount</th>
-                        <th>Min Cost</th>
-                        <th>Usage</th>
-                        <th>Validity</th>
-                        <th>Status</th>
+                        <th>@Html.SortableHeader("Code", "Code")</th>
+                        <th>@Html.SortableHeader("Discount", "DiscountValue")</th>
+                        <th>@Html.SortableHeader("Min Cost", "MinTripCost")</th>
+                        <th>@Html.SortableHeader("Usage", "TimesUsed")</th>
+                        <th>@Html.SortableHeader("Validity", "ValidUntil")</th>
+                        <th>@Html.SortableHeader("Status", "IsActive")</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>

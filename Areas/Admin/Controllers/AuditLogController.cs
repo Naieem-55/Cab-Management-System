@@ -17,7 +17,7 @@ namespace CabManagementSystem.Areas.Admin.Controllers
             _auditLogService = auditLogService;
         }
 
-        public async Task<IActionResult> Index(string? searchTerm, int page = 1)
+        public async Task<IActionResult> Index(string? searchTerm, string? sortOrder, int page = 1)
         {
             IEnumerable<AuditLog> logs;
 
@@ -31,14 +31,21 @@ namespace CabManagementSystem.Areas.Admin.Controllers
                 logs = await _auditLogService.GetAllLogsAsync();
             }
 
+            logs = Helpers.SortHelper.ApplySort(logs, sortOrder);
+
             var pageSize = 20;
             var paginatedList = PaginatedList<AuditLog>.Create(logs, page, pageSize);
 
+            ViewBag.CurrentSort = sortOrder;
             ViewBag.PageIndex = paginatedList.PageIndex;
             ViewBag.TotalPages = paginatedList.TotalPages;
             ViewBag.TotalCount = paginatedList.TotalCount;
             ViewBag.BaseUrl = Url.Action("Index");
-            ViewBag.QueryString = !string.IsNullOrEmpty(searchTerm) ? $"&searchTerm={searchTerm}" : "";
+
+            var queryParams = new List<string>();
+            if (!string.IsNullOrEmpty(searchTerm)) queryParams.Add($"&searchTerm={searchTerm}");
+            if (!string.IsNullOrEmpty(sortOrder)) queryParams.Add($"&sortOrder={sortOrder}");
+            ViewBag.QueryString = string.Join("", queryParams);
 
             return View(paginatedList);
         }
