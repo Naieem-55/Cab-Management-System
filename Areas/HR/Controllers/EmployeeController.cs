@@ -12,13 +12,62 @@ namespace CabManagementSystem.Areas.HR.Controllers
     [Authorize(Roles = nameof(UserRole.HRManager))]
     public class EmployeeController : Controller
     {
+        private static readonly string[] AllowedPhotoExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+        private const long MaxPhotoBytes = 5 * 1024 * 1024;
+
         private readonly IEmployeeService _employeeService;
+        private readonly IWebHostEnvironment _env;
         private readonly ILogger<EmployeeController> _logger;
 
-        public EmployeeController(IEmployeeService employeeService, ILogger<EmployeeController> logger)
+        public EmployeeController(IEmployeeService employeeService, IWebHostEnvironment env, ILogger<EmployeeController> logger)
         {
             _employeeService = employeeService;
+            _env = env;
             _logger = logger;
+        }
+        
+        private bool ValidatePhoto(IFormFile? photo)
+        {
+            if (photo == null || photo.Length == 0)
+                return true;
+
+            var ext = Path.GetExtension(photo.FileName).ToLowerInvariant();
+            if (!AllowedPhotoExtensions.Contains(ext))
+            {
+                ModelState.AddModelError("ProfilePhoto", "Only JPG, PNG, GIF, or WEBP images are allowed.");
+                return false;
+            }
+            if (photo.Length > MaxPhotoBytes)
+            {
+                ModelState.AddModelError("ProfilePhoto", "Image must be 5 MB or smaller.");
+                return false;
+            }
+            return true;
+        }
+
+        // Writes a pre-validated photo to wwwroot/uploads/employees, deletes the old one, returns the web path.
+        private async Task<string> WritePhotoAsync(Employee employee, IFormFile photo)
+        {
+            var uploadsDir = Path.Combine(_env.WebRootPath, "uploads", "employees");
+            Directory.CreateDirectory(uploadsDir);
+
+            // Delete previous photo if any
+            if (!string.IsNullOrEmpty(employee.ProfilePhotoPath))
+            {
+                var oldPath = Path.Combine(_env.WebRootPath, employee.ProfilePhotoPath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                if (System.IO.File.Exists(oldPath))
+                    System.IO.File.Delete(oldPath);
+            }
+
+            var ext = Path.GetExtension(photo.FileName).ToLowerInvariant();
+            var fileName = $"emp_{employee.Id}{ext}";
+            var savePath = Path.Combine(uploadsDir, fileName);
+            using (var stream = new FileStream(savePath, FileMode.Create))
+            {
+                await photo.CopyToAsync(stream);
+            }
+
+            return $"/uploads/employees/{fileName}";
         }
 
         public async Task<IActionResult> Index(string? searchTerm, EmployeePosition? position, EmployeeStatus? status, int page = 1)
@@ -74,13 +123,24 @@ namespace CabManagementSystem.Areas.HR.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Employee employee)
+        public async Task<IActionResult> Create(Employee employee, IFormFile? photo)
         {
+            if (!ValidatePhoto(photo))
+                return View(employee);
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     await _employeeService.CreateEmployeeAsync(employee);
+
+                    // Photo filename needs the generated Id, so write after insert and update.
+                    if (photo != null && photo.Length > 0)
+                    {
+                        employee.ProfilePhotoPath = await WritePhotoAsync(employee, photo);
+                        await _employeeService.UpdateEmployeeAsync(employee);
+                    }
+
                     TempData["SuccessMessage"] = "Employee created successfully.";
                     return RedirectToAction(nameof(Index));
                 }
@@ -118,15 +178,22 @@ namespace CabManagementSystem.Areas.HR.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Employee employee)
+        public async Task<IActionResult> Edit(int id, Employee employee, IFormFile? photo)
         {
             if (id != employee.Id)
                 return NotFound();
+
+            if (!ValidatePhoto(photo))
+                return View(employee);
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // ProfilePhotoPath round-trips via hidden field; overwrite only on new upload.
+                    if (photo != null && photo.Length > 0)
+                        employee.ProfilePhotoPath = await WritePhotoAsync(employee, photo);
+
                     await _employeeService.UpdateEmployeeAsync(employee);
                     TempData["SuccessMessage"] = "Employee updated successfully.";
                     return RedirectToAction(nameof(Index));
