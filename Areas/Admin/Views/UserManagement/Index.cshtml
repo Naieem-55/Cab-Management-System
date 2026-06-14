@@ -56,9 +56,9 @@
             <table class="table pro-table">
                 <thead>
                     <tr>
-                        <th>User</th>
-                        <th>Email</th>
-                        <th>Role</th>
+                        <th>@Html.SortableHeader("User", "FullName")</th>
+                        <th>@Html.SortableHeader("Email", "Email")</th>
+                        <th>@Html.SortableHeader("Role", "Role")</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>

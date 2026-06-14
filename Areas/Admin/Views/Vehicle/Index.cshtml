@@ -88,11 +88,11 @@
             <table class="table pro-table">
                 <thead>
                     <tr>
-                        <th>Vehicle</th>
-                        <th>Year</th>
-                        <th>Fuel Type</th>
-                        <th>Status</th>
-                        <th>Mileage</th>
+                        <th>@Html.SortableHeader("Vehicle", "RegistrationNumber")</th>
+                        <th>@Html.SortableHeader("Year", "Year")</th>
+                        <th>@Html.SortableHeader("Fuel Type", "FuelType")</th>
+                        <th>@Html.SortableHeader("Status", "Status")</th>
+                        <th>@Html.SortableHeader("Mileage", "Mileage")</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>

@@ -34,7 +34,7 @@ namespace CabManagementSystem.Areas.Admin.Controllers
             ViewBag.Roles = new SelectList(_availableRoles, selectedRole);
         }
 
-        public async Task<IActionResult> Index(string? searchTerm, int page = 1)
+        public async Task<IActionResult> Index(string? searchTerm, string? sortOrder, int page = 1)
         {
             var usersQuery = _userManager.Users.AsQueryable();
 
@@ -63,15 +63,22 @@ namespace CabManagementSystem.Areas.Admin.Controllers
                 });
             }
 
+            IEnumerable<UserViewModel> sortedUsers = Helpers.SortHelper.ApplySort(userViewModels, sortOrder);
+
             var pageSize = 10;
-            var paginatedList = PaginatedList<UserViewModel>.Create(userViewModels, page, pageSize);
+            var paginatedList = PaginatedList<UserViewModel>.Create(sortedUsers, page, pageSize);
 
             ViewBag.SearchTerm = searchTerm;
+            ViewBag.CurrentSort = sortOrder;
             ViewBag.PageIndex = paginatedList.PageIndex;
             ViewBag.TotalPages = paginatedList.TotalPages;
             ViewBag.TotalCount = paginatedList.TotalCount;
             ViewBag.BaseUrl = Url.Action("Index");
-            ViewBag.QueryString = !string.IsNullOrEmpty(searchTerm) ? $"&searchTerm={searchTerm}" : "";
+
+            var queryParams = new List<string>();
+            if (!string.IsNullOrEmpty(searchTerm)) queryParams.Add($"&searchTerm={searchTerm}");
+            if (!string.IsNullOrEmpty(sortOrder)) queryParams.Add($"&sortOrder={sortOrder}");
+            ViewBag.QueryString = string.Join("", queryParams);
 
             return View(paginatedList);
         }

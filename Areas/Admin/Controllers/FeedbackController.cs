@@ -35,12 +35,15 @@ namespace CabManagementSystem.Areas.Admin.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index(FeedbackCategory? category, FeedbackStatus? status, string? searchTerm, int page = 1)
+        public async Task<IActionResult> Index(FeedbackCategory? category, FeedbackStatus? status, string? searchTerm, string? sortOrder, int page = 1)
         {
             var feedbacks = await _feedbackService.GetFilteredFeedbackAsync(category, status, searchTerm);
+            feedbacks = Helpers.SortHelper.ApplySort(feedbacks, sortOrder);
+
             var pageSize = 10;
             var paginatedList = PaginatedList<TripFeedback>.Create(feedbacks, page, pageSize);
 
+            ViewBag.CurrentSort = sortOrder;
             ViewBag.PageIndex = paginatedList.PageIndex;
             ViewBag.TotalPages = paginatedList.TotalPages;
             ViewBag.TotalCount = paginatedList.TotalCount;
@@ -55,6 +58,7 @@ namespace CabManagementSystem.Areas.Admin.Controllers
             if (category.HasValue) queryParts.Add($"category={category}");
             if (status.HasValue) queryParts.Add($"status={status}");
             if (!string.IsNullOrEmpty(searchTerm)) queryParts.Add($"searchTerm={searchTerm}");
+            if (!string.IsNullOrEmpty(sortOrder)) queryParts.Add($"sortOrder={sortOrder}");
             ViewBag.QueryString = queryParts.Count > 0 ? "&" + string.Join("&", queryParts) : "";
 
             return View(paginatedList);

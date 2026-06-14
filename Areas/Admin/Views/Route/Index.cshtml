@@ -47,10 +47,10 @@
             <table class="table pro-table">
                 <thead>
                     <tr>
-                        <th>Route</th>
-                        <th>Distance</th>
-                        <th>Est. Time</th>
-                        <th>Base Cost</th>
+                        <th>@Html.SortableHeader("Route", "Origin")</th>
+                        <th>@Html.SortableHeader("Distance", "Distance")</th>
+                        <th>@Html.SortableHeader("Est. Time", "EstimatedTimeHours")</th>
+                        <th>@Html.SortableHeader("Base Cost", "BaseCost")</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>

@@ -21,7 +21,7 @@ namespace CabManagementSystem.Areas.Admin.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index(string? searchTerm, VehicleStatus? status, FuelType? fuelType, int page = 1)
+        public async Task<IActionResult> Index(string? searchTerm, VehicleStatus? status, FuelType? fuelType, string? sortOrder, int page = 1)
         {
             IEnumerable<Vehicle> vehicles;
 
@@ -45,6 +45,8 @@ namespace CabManagementSystem.Areas.Admin.Controllers
                 vehicles = vehicles.Where(v => v.FuelType == fuelType.Value);
             }
 
+            vehicles = Helpers.SortHelper.ApplySort(vehicles, sortOrder);
+
             var pageSize = 10;
             var paginatedList = PaginatedList<Vehicle>.Create(vehicles, page, pageSize);
 
@@ -52,6 +54,7 @@ namespace CabManagementSystem.Areas.Admin.Controllers
             ViewBag.FuelTypes = new SelectList(Enum.GetValues<FuelType>());
             ViewData["SelectedStatus"] = status;
             ViewData["SelectedFuelType"] = fuelType;
+            ViewBag.CurrentSort = sortOrder;
             ViewBag.PageIndex = paginatedList.PageIndex;
             ViewBag.TotalPages = paginatedList.TotalPages;
             ViewBag.TotalCount = paginatedList.TotalCount;
@@ -61,6 +64,7 @@ namespace CabManagementSystem.Areas.Admin.Controllers
             if (!string.IsNullOrEmpty(searchTerm)) queryParams.Add($"&searchTerm={searchTerm}");
             if (status.HasValue) queryParams.Add($"&status={status.Value}");
             if (fuelType.HasValue) queryParams.Add($"&fuelType={fuelType.Value}");
+            if (!string.IsNullOrEmpty(sortOrder)) queryParams.Add($"&sortOrder={sortOrder}");
             ViewBag.QueryString = string.Join("", queryParams);
 
             return View(paginatedList);
