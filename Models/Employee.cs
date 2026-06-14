@@ -37,6 +37,10 @@ namespace CabManagementSystem.Models
         [Range(0, double.MaxValue)]
         public decimal Salary { get; set; }
 
+        [StringLength(260)]
+        [Display(Name = "Profile Photo")]
+        public string? ProfilePhotoPath { get; set; }
+
         public Driver? Driver { get; set; }
     }
 }

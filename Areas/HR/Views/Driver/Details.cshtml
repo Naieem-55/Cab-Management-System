@@ -12,10 +12,22 @@
             <h5 class="mb-0">Employee Information</h5>
         </div>
         <div class="card-body">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                @if (!string.IsNullOrEmpty(Model.Employee.ProfilePhotoPath))
+                {
+                    <img src="@Model.Employee.ProfilePhotoPath" alt="@Model.Employee.Name"
+                         class="rounded-circle border" style="width: 64px; height: 64px; object-fit: cover;" />
+                }
+                else
+                {
+                    <i class="bi bi-person-circle text-secondary" style="font-size: 64px;"></i>
+                }
+                <div>
+                    <div class="fw-bold fs-5">@Model.Employee.Name</div>
+                    <div class="text-muted">@Model.Employee.Position</div>
+                </div>
+            </div>
             <dl class="row">
-                <dt class="col-sm-3">Name</dt>
-                <dd class="col-sm-9">@Model.Employee.Name</dd>
-
                 <dt class="col-sm-3">Email</dt>
                 <dd class="col-sm-9">@Model.Employee.Email</dd>
 

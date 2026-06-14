@@ -9,7 +9,20 @@
 
     <div class="card">
         <div class="card-body">
-            <form asp-action="Create" method="post">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+                <div class="row mb-3">
+                    <div class="col-md-12 d-flex align-items-center gap-3">
+                        <i id="photoPreviewIcon" class="bi bi-person-circle text-secondary" style="font-size: 80px;"></i>
+                        <img id="photoPreview" src="#" alt="Profile photo preview"
+                             class="rounded-circle border d-none" style="width: 80px; height: 80px; object-fit: cover;" />
+                        <div class="flex-grow-1">
+                            <label for="photoInput" class="form-label">Profile Photo</label>
+                            <input type="file" name="photo" id="photoInput" accept="image/*" class="form-control" />
+                            <small class="text-muted">JPG, PNG, GIF, or WEBP. Max 5 MB.</small>
+                            <span class="text-danger d-block">@Html.ValidationMessage("ProfilePhoto")</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label asp-for="Name" class="form-label"></label>
@@ -72,4 +85,19 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('photoInput').addEventListener('change', function (e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function (ev) {
+                var img = document.getElementById('photoPreview');
+                var icon = document.getElementById('photoPreviewIcon');
+                img.src = ev.target.result;
+                img.classList.remove('d-none');
+                if (icon) icon.classList.add('d-none');
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
 }
