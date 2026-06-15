@@ -30,6 +30,20 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated && !User.IsInRole("Customer"))
+                        {
+                            <li class="nav-item flex-grow-1" style="max-width: 460px;">
+                                <div class="global-search position-relative ms-2 me-3">
+                                    <i class="bi bi-search position-absolute"
+                                       style="left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
+                                    <input type="text" id="globalSearchInput" class="form-control" autocomplete="off"
+                                           placeholder="Search trips, customers, vehicles, routes..."
+                                           style="padding-left: 36px; border-radius: 8px;" />
+                                    <div id="globalSearchResults" class="dropdown-menu shadow w-100 mt-1"
+                                         style="max-height: 420px; overflow-y: auto;"></div>
+                                </div>
+                            </li>
+                        }
                     </ul>
                     <div class="d-flex align-items-center">
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
@@ -109,6 +123,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.0/dist/browser/signalr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/notifications.js" asp-append-version="true"></script>
+    <script src="~/js/globalsearch.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
