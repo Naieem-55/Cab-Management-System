@@ -16,9 +16,11 @@ namespace CabManagementSystem.Areas.Finance.Controllers
             _dashboardService = dashboardService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int months = 6)
         {
-            var model = await _dashboardService.GetFinanceDashboardAsync();
+            months = Helpers.DashboardRange.Normalize(months);
+            ViewBag.SelectedMonths = months;
+            var model = await _dashboardService.GetFinanceDashboardAsync(months);
             return View(model);
         }
     }

@@ -44,8 +44,9 @@ namespace CabManagementSystem.Services
             _logger = logger;
         }
 
-        public async Task<AdminDashboardViewModel> GetAdminDashboardAsync()
+        public async Task<AdminDashboardViewModel> GetAdminDashboardAsync(int months = 6)
         {
+            if (months < 1) months = 6;
             _logger.LogInformation("Fetching Admin dashboard data");
             var recentTrips = await _tripRepository.GetAllAsync();
             var upcomingMaintenance = await _maintenanceRepository.FindAsync(
@@ -57,9 +58,9 @@ namespace CabManagementSystem.Services
                 .Select(g => new { Status = g.Key.ToString(), Count = g.Count() })
                 .OrderBy(g => g.Status).ToList();
 
-            // Chart data - Monthly revenue (last 6 months)
+            // Chart data - Monthly revenue (selected range)
             var allBillings = (await _billingRepository.GetAllAsync()).ToList();
-            var monthlyRevenue = Enumerable.Range(0, 6)
+            var monthlyRevenue = Enumerable.Range(0, months)
                 .Select(i => DateTime.Now.AddMonths(-i))
                 .Reverse()
                 .Select(date => new

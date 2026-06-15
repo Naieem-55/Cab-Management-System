@@ -4,6 +4,6 @@ namespace CabManagementSystem.Services
 {
     public interface IAdminDashboardService
     {
-        Task<AdminDashboardViewModel> GetAdminDashboardAsync();
+        Task<AdminDashboardViewModel> GetAdminDashboardAsync(int months = 6);
     }
 }

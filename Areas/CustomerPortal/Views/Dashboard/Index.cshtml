@@ -6,10 +6,13 @@
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><i class="bi bi-speedometer2"></i> Welcome, @Model.CustomerName!</h1>
-        <a asp-area="CustomerPortal" asp-controller="Trip" asp-action="Book" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Book a Trip
-        </a>
+        <h1 class="mb-0"><i class="bi bi-speedometer2"></i> Welcome, @Model.CustomerName!</h1>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <partial name="_DashboardRangePicker" />
+            <a asp-area="CustomerPortal" asp-controller="Trip" asp-action="Book" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Book a Trip
+            </a>
+        </div>
     </div>
 
     <div class="row g-4 mb-4">

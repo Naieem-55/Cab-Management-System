@@ -32,10 +32,12 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int months = 6)
         {
             try
             {
+                months = Helpers.DashboardRange.Normalize(months);
+                ViewBag.SelectedMonths = months;
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null) return RedirectToAction("Login", "Account", new { area = "" });
 
@@ -44,8 +46,8 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
 
                 var trips = (await _tripService.GetTripsByCustomerIdAsync(customer.Id)).ToList();
 
-                // Monthly activity (last 6 months, by trip date)
-                var monthly = Enumerable.Range(0, 6)
+                // Monthly activity (selected range, by trip date)
+                var monthly = Enumerable.Range(0, months)
                     .Select(i => DateTime.Now.AddMonths(-i))
                     .Reverse()
                     .Select(date => new

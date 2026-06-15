@@ -21,8 +21,9 @@ namespace CabManagementSystem.Services
             _logger = logger;
         }
 
-        public async Task<FinanceDashboardViewModel> GetFinanceDashboardAsync()
+        public async Task<FinanceDashboardViewModel> GetFinanceDashboardAsync(int months = 6)
         {
+            if (months < 1) months = 6;
             _logger.LogInformation("Fetching Finance dashboard data");
             var recentBillings = await _billingRepository.GetAllAsync();
             var billingsList = recentBillings.ToList();
@@ -37,8 +38,8 @@ namespace CabManagementSystem.Services
                 .Select(g => new { Method = g.Key.ToString(), Amount = g.Sum(b => b.Amount) })
                 .OrderBy(g => g.Method).ToList();
 
-            // Chart data - Revenue trend (last 6 months)
-            var revenueTrend = Enumerable.Range(0, 6)
+            // Chart data - Revenue trend (selected range)
+            var revenueTrend = Enumerable.Range(0, months)
                 .Select(i => DateTime.Now.AddMonths(-i))
                 .Reverse()
                 .Select(date => new

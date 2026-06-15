@@ -11,9 +11,10 @@
             <h2><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h2>
             <p>Overview of system operations and key metrics</p>
         </div>
-        <div class="d-flex gap-2 flex-wrap">
+        <div class="d-flex gap-2 flex-wrap align-items-center">
             <span class="pro-stat"><i class="bi bi-people"></i> @Model.TotalUsers Users</span>
             <span class="pro-stat"><i class="bi bi-geo-alt"></i> @Model.ActiveTrips Active Trips</span>
+            <partial name="_DashboardRangePicker" />
         </div>
     </div>
 </div>
@@ -268,7 +269,7 @@
         <div class="pro-card h-100">
             <div class="d-flex justify-content-between align-items-center p-3 pb-0">
                 <h6 class="fw-bold mb-0">Trips Over Time</h6>
-                <span class="pro-badge pro-badge-gray">@Model.MonthlyTripCounts.Sum() Last 6 Months</span>
+                <span class="pro-badge pro-badge-gray">@Model.MonthlyTripCounts.Sum() · Last @ViewBag.SelectedMonths Months</span>
             </div>
             <div class="p-3"><canvas id="monthlyTripsChart" style="max-height:280px;"></canvas></div>
         </div>

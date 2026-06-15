@@ -1,0 +1,21 @@
+@{
+    int selectedMonths = ViewBag.SelectedMonths != null ? (int)ViewBag.SelectedMonths : 6;
+    var rangeOptions = new[]
+    {
+        new { Val = 3, Text = "Last 3 months" },
+        new { Val = 6, Text = "Last 6 months" },
+        new { Val = 12, Text = "Last 12 months" },
+        new { Val = 24, Text = "Last 24 months" }
+    };
+}
+<form method="get" class="d-flex align-items-center gap-2 mb-0">
+    <label class="form-label small text-muted mb-0 text-nowrap">
+        <i class="bi bi-calendar-range me-1"></i>Range
+    </label>
+    <select name="months" class="form-select form-select-sm" style="width:auto;" onchange="this.form.submit()">
+        @foreach (var o in rangeOptions)
+        {
+            <option value="@o.Val" selected="@(o.Val == selectedMonths)">@o.Text</option>
+        }
+    </select>
+</form>

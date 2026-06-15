@@ -4,6 +4,6 @@ namespace CabManagementSystem.Services
 {
     public interface IFinanceDashboardService
     {
-        Task<FinanceDashboardViewModel> GetFinanceDashboardAsync();
+        Task<FinanceDashboardViewModel> GetFinanceDashboardAsync(int months = 6);
     }
 }
