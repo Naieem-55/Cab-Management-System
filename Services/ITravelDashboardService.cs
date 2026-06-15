@@ -4,6 +4,6 @@ namespace CabManagementSystem.Services
 {
     public interface ITravelDashboardService
     {
-        Task<TravelDashboardViewModel> GetTravelDashboardAsync();
+        Task<TravelDashboardViewModel> GetTravelDashboardAsync(int months = 6);
     }
 }

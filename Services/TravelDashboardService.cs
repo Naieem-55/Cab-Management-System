@@ -24,8 +24,9 @@ namespace CabManagementSystem.Services
             _logger = logger;
         }
 
-        public async Task<TravelDashboardViewModel> GetTravelDashboardAsync()
+        public async Task<TravelDashboardViewModel> GetTravelDashboardAsync(int months = 6)
         {
+            if (months < 1) months = 6;
             _logger.LogInformation("Fetching Travel dashboard data");
             var recentTrips = (await _tripRepository.GetAllAsync()).ToList();
             var overdueMaintenance = await _maintenanceRepository.GetOverdueMaintenanceAsync();
@@ -41,8 +42,8 @@ namespace CabManagementSystem.Services
                 .Select(g => new { Status = g.Key.ToString(), Count = g.Count() })
                 .OrderBy(g => g.Status).ToList();
 
-            // Chart data - Monthly trips (last 6 months, by booking date)
-            var monthlyTrips = Enumerable.Range(0, 6)
+            // Chart data - Monthly trips (selected range, by booking date)
+            var monthlyTrips = Enumerable.Range(0, months)
                 .Select(i => DateTime.Now.AddMonths(-i))
                 .Reverse()
                 .Select(date => new
