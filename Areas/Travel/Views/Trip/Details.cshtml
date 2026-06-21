@@ -131,11 +131,49 @@
         </div>
     </div>
 
-    <div class="mt-3 d-flex gap-2">
+    <div class="mt-3 d-flex gap-2 flex-wrap align-items-center">
+        <!-- Lifecycle transitions -->
         @if (Model.Status == TripStatus.Pending)
         {
-            <button id="simulateBtn" class="btn btn-info" onclick="startSimulation(@Model.Id)">
-                <i class="bi bi-play-circle"></i> Simulate Trip
+            <form asp-action="Confirm" asp-route-id="@Model.Id" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-info">
+                    <i class="bi bi-check2-circle"></i> Confirm
+                </button>
+            </form>
+        }
+        @if (Model.Status == TripStatus.Confirmed)
+        {
+            <form asp-action="Start" asp-route-id="@Model.Id" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-play-fill"></i> Start Trip
+                </button>
+            </form>
+        }
+        @if (Model.Status == TripStatus.InProgress)
+        {
+            <form asp-action="Complete" asp-route-id="@Model.Id" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-flag-fill"></i> Complete
+                </button>
+            </form>
+        }
+        @if (Model.Status != TripStatus.Completed && Model.Status != TripStatus.Cancelled)
+        {
+            <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" class="d-inline"
+                  onsubmit="return confirm('Cancel this trip? This cannot be undone.');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-x-circle"></i> Cancel Trip
+                </button>
+            </form>
+        }
+        @if (Model.Status == TripStatus.Pending)
+        {
+            <button id="simulateBtn" class="btn btn-outline-info" onclick="startSimulation(@Model.Id)">
+                <i class="bi bi-play-circle"></i> Simulate
             </button>
         }
         @if (Model.Status == TripStatus.Completed && Model.DriverRating == null)
@@ -150,13 +188,90 @@
                 <i class="bi bi-check-circle"></i> Rated (@Model.DriverRating.Rating/5)
             </span>
         }
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
             <i class="bi bi-pencil"></i> Edit
         </a>
         <a asp-action="Index" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Back to List
         </a>
     </div>
+
+    <!-- Status Timeline -->
+    <div class="card mt-3">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Status Timeline</h5>
+        </div>
+        <div class="card-body">
+            @{
+                var history = Model.StatusHistory?.OrderBy(h => h.ChangedAt).ToList()
+                              ?? new List<CabManagementSystem.Models.TripStatusHistory>();
+            }
+            @if (history.Any())
+            {
+                <ul class="list-unstyled mb-0">
+                    @for (int i = 0; i < history.Count; i++)
+                    {
+                        var h = history[i];
+                        var isLast = i == history.Count - 1;
+                        var (dotClass, label) = h.Status switch
+                        {
+                            TripStatus.Pending => ("bg-warning", "Pending"),
+                            TripStatus.Confirmed => ("bg-info", "Confirmed"),
+                            TripStatus.InProgress => ("bg-primary", "In Progress"),
+                            TripStatus.Completed => ("bg-success", "Completed"),
+                            TripStatus.Cancelled => ("bg-danger", "Cancelled"),
+                            _ => ("bg-secondary", h.Status.ToString())
+                        };
+                        <li class="d-flex">
+                            <div class="d-flex flex-column align-items-center me-3">
+                                <span class="rounded-circle @dotClass" style="width:14px;height:14px;"></span>
+                                @if (!isLast)
+                                {
+                                    <span class="flex-grow-1 bg-secondary" style="width:2px;min-height:28px;opacity:0.3;"></span>
+                                }
+                            </div>
+                            <div class="@(isLast ? "" : "pb-3")">
+                                <span class="fw-semibold">@label</span>
+                                <div class="text-muted small">@h.ChangedAt.ToString("MMM dd, yyyy HH:mm")</div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted mb-0">No status history recorded.</p>
+            }
+        </div>
+    </div>
+
+    @if (Model.Status != TripStatus.Completed && Model.Status != TripStatus.Cancelled)
+    {
+        <!-- Reassign Driver / Vehicle -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-arrow-left-right me-2"></i>Reassign</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Assign" asp-route-id="@Model.Id" method="post" class="row g-2 align-items-end">
+                    @Html.AntiForgeryToken()
+                    <div class="col-md-5">
+                        <label class="form-label small">Driver</label>
+                        <select name="driverId" class="form-select" asp-items="@(ViewBag.Drivers as SelectList)"></select>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label small">Vehicle</label>
+                        <select name="vehicleId" class="form-select" asp-items="@(ViewBag.Vehicles as SelectList)"></select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-save"></i> Update
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
 
     <!-- Simulation Progress -->
     <div id="simulationProgress" class="mt-3 d-none">
