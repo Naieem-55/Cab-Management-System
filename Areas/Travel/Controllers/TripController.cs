@@ -222,41 +222,7 @@ namespace CabManagementSystem.Areas.Travel.Controllers
                     if (oldStatus != model.Status)
                     {
                         await _tripService.UpdateTripStatusAsync(id, model.Status);
-
-                        // Send email + in-app notification on status change
-                        if (!string.IsNullOrWhiteSpace(existingTrip.CustomerEmail))
-                        {
-                            try
-                            {
-                                await _emailService.SendTripStatusUpdateAsync(
-                                    existingTrip.CustomerEmail,
-                                    existingTrip.CustomerName,
-                                    id,
-                                    model.Status.ToString());
-                            }
-                            catch (Exception emailEx)
-                            {
-                                _logger.LogWarning(emailEx, "Failed to send status update email for trip {TripId}", id);
-                            }
-
-                            // Create in-app notification
-                            try
-                            {
-                                var appUser = await _userManager.FindByEmailAsync(existingTrip.CustomerEmail);
-                                if (appUser != null)
-                                {
-                                    await _notificationService.CreateNotificationAsync(
-                                        appUser.Id,
-                                        $"Trip #{id} Status Updated",
-                                        $"Your trip status has been changed to {model.Status}.",
-                                        $"/CustomerPortal/Trip/Details/{id}");
-                                }
-                            }
-                            catch (Exception notifEx)
-                            {
-                                _logger.LogWarning(notifEx, "Failed to create notification for trip {TripId}", id);
-                            }
-                        }
+                        await NotifyStatusChangeAsync(existingTrip, model.Status);
                     }
                     else
                     {
@@ -287,6 +253,13 @@ namespace CabManagementSystem.Areas.Travel.Controllers
             var trip = await _tripService.GetTripWithDetailsAsync(id);
             if (trip == null)
                 return NotFound();
+
+            // Reassign form options (only meaningful for non-terminal trips)
+            var drivers = await _driverService.GetAllDriversAsync();
+            ViewBag.Drivers = new SelectList(drivers, "Id", "Employee.Name", trip.DriverId);
+
+            var vehicles = await _vehicleService.GetAllVehiclesAsync();
+            ViewBag.Vehicles = new SelectList(vehicles, "Id", "RegistrationNumber", trip.VehicleId);
 
             return View(trip);
         }
@@ -426,6 +399,135 @@ namespace CabManagementSystem.Areas.Travel.Controllers
             }
 
             return View(model);
+        }
+
+        // Allowed source statuses for each target transition (lifecycle state machine).
+        private static readonly Dictionary<TripStatus, TripStatus[]> AllowedFrom = new()
+        {
+            [TripStatus.Confirmed] = new[] { TripStatus.Pending },
+            [TripStatus.InProgress] = new[] { TripStatus.Confirmed },
+            [TripStatus.Completed] = new[] { TripStatus.InProgress },
+            [TripStatus.Cancelled] = new[] { TripStatus.Pending, TripStatus.Confirmed, TripStatus.InProgress }
+        };
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> Confirm(int id) => ChangeStatusAsync(id, TripStatus.Confirmed);
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> Start(int id) => ChangeStatusAsync(id, TripStatus.InProgress);
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> Complete(int id) => ChangeStatusAsync(id, TripStatus.Completed);
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public Task<IActionResult> Cancel(int id) => ChangeStatusAsync(id, TripStatus.Cancelled);
+
+        private async Task<IActionResult> ChangeStatusAsync(int id, TripStatus target)
+        {
+            var trip = await _tripService.GetTripByIdAsync(id);
+            if (trip == null)
+                return NotFound();
+
+            if (trip.Status == target)
+            {
+                TempData["ErrorMessage"] = $"Trip is already {target}.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (!AllowedFrom.TryGetValue(target, out var sources) || !sources.Contains(trip.Status))
+            {
+                TempData["ErrorMessage"] = $"Cannot change trip from {trip.Status} to {target}.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            try
+            {
+                await _tripService.UpdateTripStatusAsync(id, target);
+                await NotifyStatusChangeAsync(trip, target);
+                TempData["SuccessMessage"] = $"Trip #{id} marked {target}.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error changing trip {Id} status to {Status}", id, target);
+                TempData["ErrorMessage"] = "An error occurred while updating the trip status.";
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Assign(int id, int driverId, int vehicleId)
+        {
+            var trip = await _tripService.GetTripByIdAsync(id);
+            if (trip == null)
+                return NotFound();
+
+            if (trip.Status == TripStatus.Completed || trip.Status == TripStatus.Cancelled)
+            {
+                TempData["ErrorMessage"] = "Cannot reassign a completed or cancelled trip.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            try
+            {
+                trip.DriverId = driverId;
+                trip.VehicleId = vehicleId;
+                await _tripService.UpdateTripAsync(trip);
+
+                // Reflect on-trip assignment for active trips
+                if (trip.Status == TripStatus.Confirmed || trip.Status == TripStatus.InProgress)
+                {
+                    await _tripService.UpdateTripStatusAsync(id, trip.Status);
+                }
+
+                TempData["SuccessMessage"] = "Driver and vehicle reassigned.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error reassigning trip {Id}", id);
+                TempData["ErrorMessage"] = "An error occurred while reassigning the trip.";
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // Sends status-change email + in-app notification to the customer (best-effort).
+        private async Task NotifyStatusChangeAsync(Trip trip, TripStatus newStatus)
+        {
+            if (string.IsNullOrWhiteSpace(trip.CustomerEmail))
+                return;
+
+            try
+            {
+                await _emailService.SendTripStatusUpdateAsync(
+                    trip.CustomerEmail, trip.CustomerName, trip.Id, newStatus.ToString());
+            }
+            catch (Exception emailEx)
+            {
+                _logger.LogWarning(emailEx, "Failed to send status update email for trip {TripId}", trip.Id);
+            }
+
+            try
+            {
+                var appUser = await _userManager.FindByEmailAsync(trip.CustomerEmail);
+                if (appUser != null)
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        appUser.Id,
+                        $"Trip #{trip.Id} Status Updated",
+                        $"Your trip status has been changed to {newStatus}.",
+                        $"/CustomerPortal/Trip/Details/{trip.Id}");
+                }
+            }
+            catch (Exception notifEx)
+            {
+                _logger.LogWarning(notifEx, "Failed to create notification for trip {TripId}", trip.Id);
+            }
         }
 
         private async Task PopulateDropdownsAsync(TripViewModel model)
