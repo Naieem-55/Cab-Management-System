@@ -1,0 +1,79 @@
+@model IEnumerable<CabManagementSystem.Models.Notification>
+@{
+    ViewData["Title"] = "Notifications";
+    var unreadCount = Model.Count(n => !n.IsRead);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1"><i class="bi bi-bell me-2"></i>Notifications</h2>
+        <p class="text-muted mb-0">
+            @Model.Count() total
+            @if (unreadCount > 0)
+            {
+                <span class="badge bg-danger ms-1">@unreadCount unread</span>
+            }
+        </p>
+    </div>
+    @if (unreadCount > 0)
+    {
+        <form asp-action="ReadAll" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-primary">
+                <i class="bi bi-check2-all me-1"></i>Mark all read
+            </button>
+        </form>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center text-muted py-5">
+            <i class="bi bi-bell-slash" style="font-size: 2.5rem;"></i>
+            <p class="mt-3 mb-0">No notifications yet.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="list-group list-group-flush">
+            @foreach (var n in Model)
+            {
+                <div class="list-group-item @(n.IsRead ? "" : "bg-light") d-flex justify-content-between align-items-start py-3">
+                    <div class="me-3">
+                        <div class="d-flex align-items-center mb-1">
+                            @if (!n.IsRead)
+                            {
+                                <span class="badge rounded-pill bg-danger me-2">&nbsp;</span>
+                            }
+                            @if (!string.IsNullOrEmpty(n.Link))
+                            {
+                                <a href="@n.Link" class="@(n.IsRead ? "fw-normal" : "fw-bold") text-decoration-none">@n.Title</a>
+                            }
+                            else
+                            {
+                                <span class="@(n.IsRead ? "fw-normal" : "fw-bold")">@n.Title</span>
+                            }
+                        </div>
+                        <div class="text-muted small">@n.Message</div>
+                        <div class="text-muted small mt-1">
+                            <i class="bi bi-clock me-1"></i>@n.CreatedDate.ToString("MMM dd, yyyy HH:mm")
+                        </div>
+                    </div>
+                    @if (!n.IsRead)
+                    {
+                        <form asp-action="MarkRead" method="post" class="flex-shrink-0">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@n.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Mark as read">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                        </form>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
