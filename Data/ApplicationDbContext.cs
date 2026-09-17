@@ -33,6 +33,7 @@ namespace CabManagementSystem.Data
         public DbSet<LoyaltyTransaction> LoyaltyTransactions { get; set; }
         public DbSet<PromoCode> PromoCodes { get; set; }
         public DbSet<TripStatusHistory> TripStatusHistories { get; set; }
+        public DbSet<PricingRule> PricingRules { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -102,6 +103,22 @@ namespace CabManagementSystem.Data
 
             builder.Entity<Trip>()
                 .Property(t => t.Cost)
+                .HasPrecision(18, 2);
+
+            builder.Entity<Trip>()
+                .Property(t => t.BaseFare)
+                .HasPrecision(18, 2);
+
+            builder.Entity<Trip>()
+                .Property(t => t.Surcharge)
+                .HasPrecision(18, 2);
+
+            builder.Entity<PricingRule>()
+                .Property(r => r.Value)
+                .HasPrecision(18, 2);
+
+            builder.Entity<PricingRule>()
+                .Property(r => r.MaxSurchargeAmount)
                 .HasPrecision(18, 2);
 
             builder.Entity<Billing>()

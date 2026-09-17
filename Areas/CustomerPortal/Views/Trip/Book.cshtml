@@ -28,7 +28,7 @@
                                 <option value="">-- Select a Route --</option>
                             </select>
                             <span asp-validation-for="RouteId" class="text-danger"></span>
-                            <div class="form-text">Select your desired route. Price is based on the route's base cost.</div>
+                            <div class="form-text">Select your desired route. Price is the route's base fare plus any peak-hour or night surcharge.</div>
                         </div>
 
                         <div class="mb-4">
@@ -88,6 +88,10 @@
                                     <span>Base fare</span>
                                     <span id="fareBase">—</span>
                                 </div>
+                                <div class="d-flex justify-content-between mb-1 text-danger" id="fareSurchargeRow" style="display:none !important;">
+                                    <span><i class="bi bi-clock-history"></i> <span id="fareSurchargeLabel">Surcharge</span></span>
+                                    <span id="fareSurcharge">+৳0.00</span>
+                                </div>
                                 <div class="d-flex justify-content-between mb-1 text-success" id="farePromoRow" style="display:none !important;">
                                     <span><i class="bi bi-tag"></i> Promo discount</span>
                                     <span id="farePromo">-৳0.00</span>
@@ -132,8 +136,14 @@
         (function () {
             var fares = @Html.Raw(Model.RouteFaresJson);
             var validateUrl = '@Url.Action("ValidatePromo")';
+            var quoteUrl = '@Url.Action("Quote")';
 
             var routeSel = document.getElementById('RouteId');
+            var dateInput = document.getElementById('TripDate');
+            var surchargeRow = document.getElementById('fareSurchargeRow');
+            var surchargeEl = document.getElementById('fareSurcharge');
+            var surchargeLabelEl = document.getElementById('fareSurchargeLabel');
+            var surcharge = 0, surchargeLabel = '', quoteSeq = 0;
             var promoInput = document.getElementById('PromoCode');
             var applyBtn = document.getElementById('applyPromoBtn');
             var promoStatus = document.getElementById('promoStatus');
@@ -161,10 +171,20 @@
                     baseEl.textContent = money(baseFare);
                 }
 
-                // Loyalty discount capped at base minus promo
+                // Surcharge row (from server quote)
+                var fare = baseFare > 0 ? baseFare + surcharge : 0;
+                if (baseFare > 0 && surcharge > 0) {
+                    surchargeRow.style.setProperty('display', 'flex', 'important');
+                    surchargeLabelEl.textContent = surchargeLabel || 'Surcharge';
+                    surchargeEl.textContent = '+' + money(surcharge);
+                } else {
+                    surchargeRow.style.setProperty('display', 'none', 'important');
+                }
+
+                // Loyalty discount capped at fare minus promo
                 var pts = pointsInput ? (parseInt(pointsInput.value) || 0) : 0;
                 loyaltyDiscount = pts / 100;
-                var maxLoyalty = Math.max(0, baseFare - promoDiscount);
+                var maxLoyalty = Math.max(0, fare - promoDiscount);
                 if (loyaltyDiscount > maxLoyalty) loyaltyDiscount = maxLoyalty;
 
                 // Promo row
@@ -186,9 +206,34 @@
                 if (pointsPreview) pointsPreview.textContent = money(loyaltyDiscount);
 
                 if (baseFare > 0) {
-                    var total = Math.max(0, baseFare - promoDiscount - loyaltyDiscount);
+                    var total = Math.max(0, fare - promoDiscount - loyaltyDiscount);
                     totalEl.textContent = money(total);
                 }
+            }
+
+            function refreshQuote() {
+                surcharge = 0;
+                surchargeLabel = '';
+                if (!routeSel || !routeSel.value || !dateInput || !dateInput.value) { recompute(); return; }
+
+                var seq = ++quoteSeq;
+                var params = new URLSearchParams({ routeId: routeSel.value, tripDate: dateInput.value });
+                fetch(quoteUrl + '?' + params.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(function (r) {
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.json();
+                    })
+                    .then(function (d) {
+                        if (seq !== quoteSeq) return; // stale response
+                        baseFare = Number(d.baseFare) || 0;
+                        surcharge = Number(d.surcharge) || 0;
+                        surchargeLabel = d.surchargeLabel || '';
+                        recompute();
+                    })
+                    .catch(function (err) {
+                        console.error('Fare quote failed:', err);
+                    });
+                recompute();
             }
 
             function resetPromo(msg, cls) {
@@ -207,6 +252,7 @@
                 var body = new URLSearchParams();
                 body.append('code', code);
                 body.append('routeId', routeSel.value);
+                if (dateInput && dateInput.value) body.append('tripDate', dateInput.value);
                 if (token) body.append('__RequestVerificationToken', token.value);
 
                 applyBtn.disabled = true;
@@ -236,9 +282,14 @@
                     });
             }
 
+            // Promo discount depends on the fare, so it must be re-validated when route or time changes.
             if (routeSel) routeSel.addEventListener('change', function () {
                 if (promoDiscount > 0) resetPromo('Route changed — re-apply promo code.', 'text-warning');
-                recompute();
+                refreshQuote();
+            });
+            if (dateInput) dateInput.addEventListener('change', function () {
+                if (promoDiscount > 0) resetPromo('Trip time changed — re-apply promo code.', 'text-warning');
+                refreshQuote();
             });
             if (applyBtn) applyBtn.addEventListener('click', applyPromo);
             if (promoInput) promoInput.addEventListener('keydown', function (e) {
@@ -246,7 +297,7 @@
             });
             if (pointsInput) pointsInput.addEventListener('input', recompute);
 
-            recompute();
+            refreshQuote();
         })();
     </script>
 }

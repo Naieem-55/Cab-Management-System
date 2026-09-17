@@ -1,0 +1,48 @@
+@model PricingRule
+
+@{
+    ViewData["Title"] = "Delete Pricing Rule";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Delete Pricing Rule</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-body">
+                    <p class="lead">Are you sure you want to delete this pricing rule?</p>
+
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Name</dt>
+                        <dd class="col-sm-8 fw-semibold">@Model.Name</dd>
+
+                        <dt class="col-sm-4">Time Window</dt>
+                        <dd class="col-sm-8">@Model.WindowDisplay</dd>
+
+                        <dt class="col-sm-4">Days</dt>
+                        <dd class="col-sm-8">@Model.ApplicableDays.ToDisplayString()</dd>
+
+                        <dt class="col-sm-4">Surcharge</dt>
+                        <dd class="col-sm-8">@Model.AdjustmentDisplay</dd>
+                    </dl>
+
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Trips already booked keep their recorded surcharge. Tip: untick <em>Active</em> instead to pause the rule.
+                    </div>
+
+                    <form asp-action="Delete" method="post" class="mt-4">
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i> Delete
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary ms-2">
+                            <i class="bi bi-arrow-left me-1"></i> Cancel
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

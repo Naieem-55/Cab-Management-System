@@ -60,6 +60,19 @@ namespace CabManagementSystem.Models
         [Range(0, double.MaxValue)]
         public decimal Cost { get; set; }
 
+        // Fare breakdown snapshot taken at booking time (Cost = BaseFare + Surcharge - discounts).
+        [DataType(DataType.Currency)]
+        [Display(Name = "Base Fare")]
+        public decimal BaseFare { get; set; }
+
+        [DataType(DataType.Currency)]
+        [Display(Name = "Surcharge")]
+        public decimal Surcharge { get; set; }
+
+        [StringLength(100)]
+        [Display(Name = "Surcharge Rule")]
+        public string? SurchargeLabel { get; set; }
+
         public int? CustomerId { get; set; }
 
         [System.ComponentModel.DataAnnotations.Schema.ForeignKey("CustomerId")]

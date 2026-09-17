@@ -77,8 +77,14 @@
 
                 <div class="mb-3">
                     <label asp-for="Cost" class="form-label"></label>
-                    <input asp-for="Cost" type="number" step="0.01" class="form-control" />
+                    <div class="input-group">
+                        <input asp-for="Cost" type="number" step="0.01" class="form-control" />
+                        <button type="button" class="btn btn-outline-primary" id="calcFareBtn">
+                            <i class="bi bi-calculator"></i> Recalculate
+                        </button>
+                    </div>
                     <span asp-validation-for="Cost" class="text-danger"></span>
+                    <div class="form-text" id="fareQuoteHint">Route base fare plus any active peak/night surcharge. You can override it.</div>
                 </div>
 
                 <div class="mt-4">
@@ -96,4 +102,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <partial name="_FareQuoteScript" />
 }

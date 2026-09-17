@@ -60,6 +60,12 @@
 
                 <dt class="col-sm-3">Cost</dt>
                 <dd class="col-sm-9">@Model.Cost.ToString("C")</dd>
+
+                @if (Model.BaseFare > 0)
+                {
+                    <dt class="col-sm-3">Fare Breakdown</dt>
+                    <dd class="col-sm-9"><partial name="_FareBreakdownPartial" model="Model" /></dd>
+                }
             </dl>
 
             <hr />

@@ -55,6 +55,7 @@ builder.Services.AddScoped<ITripFeedbackRepository, TripFeedbackRepository>();
 builder.Services.AddScoped<ILoyaltyTransactionRepository, LoyaltyTransactionRepository>();
 builder.Services.AddScoped<IPromoCodeRepository, PromoCodeRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IPricingRuleRepository, PricingRuleRepository>();
 
 // Register services
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
@@ -70,6 +71,7 @@ builder.Services.AddScoped<IDriverRatingService, DriverRatingService>();
 builder.Services.AddScoped<ITripFeedbackService, TripFeedbackService>();
 builder.Services.AddScoped<ILoyaltyPointsService, LoyaltyPointsService>();
 builder.Services.AddScoped<IPromoCodeService, PromoCodeService>();
+builder.Services.AddScoped<IPricingService, PricingService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<IFinanceDashboardService, FinanceDashboardService>();
 builder.Services.AddScoped<IHRDashboardService, HRDashboardService>();

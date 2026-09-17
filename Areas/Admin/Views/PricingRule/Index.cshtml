@@ -1,0 +1,147 @@
+@model IEnumerable<PricingRule>
+
+@{
+    ViewData["Title"] = "Pricing Rules";
+    var total = Model.Count();
+    var activeCount = Model.Count(r => r.IsActive);
+    var previewQuote = ViewBag.PreviewQuote as CabManagementSystem.Services.FareQuote;
+    var previewAt = (DateTime)ViewBag.PreviewAt;
+    var previewFare = (decimal)ViewBag.PreviewFare;
+}
+
+<!-- Header -->
+<div class="pro-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h2><i class="bi bi-graph-up-arrow me-2"></i>Pricing Rules</h2>
+            <p>Peak-hour and night surcharges applied on top of route base cost</p>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="pro-stat"><i class="bi bi-list-ul"></i> @total Total</span>
+            <span class="pro-stat"><i class="bi bi-check-circle"></i> @activeCount Active</span>
+            <a asp-action="Create" class="btn btn-light btn-sm px-3">
+                <i class="bi bi-plus-lg me-1"></i> Add Rule
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Fare preview -->
+<div class="pro-card mb-3">
+    <div class="p-3">
+        <form method="get" asp-action="Index" class="row g-2 align-items-end">
+            <div class="col-sm-3">
+                <label class="form-label small mb-1" for="previewFare">Base fare</label>
+                <input type="number" step="0.01" min="0" class="form-control" id="previewFare" name="previewFare" value="@previewFare.ToString("0.##")" />
+            </div>
+            <div class="col-sm-4">
+                <label class="form-label small mb-1" for="previewAt">Trip time</label>
+                <input type="datetime-local" class="form-control" id="previewAt" name="previewAt" value="@previewAt.ToString("yyyy-MM-ddTHH:mm")" />
+            </div>
+            <div class="col-sm-2">
+                <button type="submit" class="btn btn-dark w-100"><i class="bi bi-calculator me-1"></i> Preview</button>
+            </div>
+            <div class="col-sm-3">
+                @if (previewQuote != null)
+                {
+                    <div class="small text-muted">@previewAt.ToString("ddd HH:mm")</div>
+                    @if (previewQuote.HasSurcharge)
+                    {
+                        <div><span class="fw-semibold">@previewQuote.Total.ToString("C")</span>
+                            <span class="text-warning small">(+@previewQuote.Surcharge.ToString("C") @previewQuote.SurchargeLabel)</span></div>
+                    }
+                    else
+                    {
+                        <div><span class="fw-semibold">@previewQuote.Total.ToString("C")</span> <span class="text-muted small">(no surcharge)</span></div>
+                    }
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Search -->
+<div class="pro-search">
+    <div class="p-3">
+        <form method="get" asp-action="Index" class="d-flex gap-2">
+            <div class="flex-grow-1 position-relative">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" class="form-control has-icon" name="searchTerm"
+                       value="@ViewBag.SearchTerm" placeholder="Search by name or description..." />
+            </div>
+            <button type="submit" class="btn btn-dark px-4" style="border-radius:8px;height:42px;">Search</button>
+            @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
+            {
+                <a asp-action="Index" class="btn btn-outline-secondary px-3" style="border-radius:8px;height:42px;line-height:30px;">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            }
+        </form>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <div class="pro-card">
+        <div class="table-responsive">
+            <table class="table pro-table">
+                <thead>
+                    <tr>
+                        <th>@Html.SortableHeader("Name", "Name")</th>
+                        <th>@Html.SortableHeader("Window", "StartTime")</th>
+                        <th>Days</th>
+                        <th>@Html.SortableHeader("Surcharge", "Value")</th>
+                        <th>@Html.SortableHeader("Status", "IsActive")</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var rule in Model)
+                    {
+                        <tr>
+                            <td>
+                                <span class="fw-semibold">@rule.Name</span>
+                                @if (!string.IsNullOrEmpty(rule.Description))
+                                {
+                                    <div class="text-muted" style="font-size:0.8rem;">@rule.Description</div>
+                                }
+                            </td>
+                            <td>@rule.WindowDisplay</td>
+                            <td class="text-muted" style="font-size:0.85rem;">@rule.ApplicableDays.ToDisplayString()</td>
+                            <td>@rule.AdjustmentDisplay</td>
+                            <td>
+                                @if (rule.IsActive)
+                                {
+                                    <span class="pro-badge pro-badge-green"><span class="bdot"></span> Active</span>
+                                }
+                                else
+                                {
+                                    <span class="pro-badge"><span class="bdot"></span> Inactive</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@rule.Id" class="pro-action" title="Details"><i class="bi bi-eye"></i></a>
+                                <a asp-action="Edit" asp-route-id="@rule.Id" class="pro-action" title="Edit"><i class="bi bi-pencil"></i></a>
+                                <a asp-action="Delete" asp-route-id="@rule.Id" class="pro-action pro-action-danger" title="Delete"><i class="bi bi-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <partial name="_PaginationPartial" />
+}
+else
+{
+    <div class="pro-card">
+        <div class="pro-empty">
+            <i class="bi bi-graph-up-arrow d-block mb-2"></i>
+            <p>No pricing rules found — all trips are charged the route base cost</p>
+            <a asp-action="Create" class="btn btn-dark btn-sm px-3">
+                <i class="bi bi-plus-lg me-1"></i> Add Rule
+            </a>
+        </div>
+    </div>
+}

@@ -1,0 +1,34 @@
+@model PricingRuleViewModel
+
+@{
+    ViewData["Title"] = "Add Pricing Rule";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">Add Pricing Rule</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <partial name="_PricingRuleForm" model="Model" />
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-1"></i> Add Pricing Rule
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

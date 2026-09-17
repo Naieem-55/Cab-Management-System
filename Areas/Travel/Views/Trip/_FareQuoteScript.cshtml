@@ -1,0 +1,47 @@
+@* Fills the Cost field from the dynamic pricing quote. Cost stays editable as a manual override. *@
+<script>
+    (function () {
+        var quoteUrl = '@Url.Action("Quote", "Trip", new { area = "Travel" })';
+        var routeSel = document.getElementById('RouteId');
+        var dateInput = document.getElementById('TripDate');
+        var costInput = document.getElementById('Cost');
+        var btn = document.getElementById('calcFareBtn');
+        var hint = document.getElementById('fareQuoteHint');
+        if (!routeSel || !dateInput || !costInput || !btn) return;
+
+        function money(n) { return '৳' + (Number(n) || 0).toFixed(2); }
+
+        function fetchQuote(fillCost) {
+            if (!routeSel.value || !dateInput.value) {
+                hint.textContent = 'Select route and trip date to calculate the fare.';
+                return;
+            }
+            var params = new URLSearchParams({ routeId: routeSel.value, tripDate: dateInput.value });
+            fetch(quoteUrl + '?' + params.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function (d) {
+                    hint.textContent = d.surcharge > 0
+                        ? 'Suggested: ' + money(d.baseFare) + ' base + ' + money(d.surcharge) + ' (' + d.surchargeLabel + ') = ' + money(d.total)
+                        : 'Suggested: ' + money(d.total) + ' (no surcharge at this time)';
+                    if (fillCost) costInput.value = Number(d.total).toFixed(2);
+                })
+                .catch(function (err) {
+                    console.error('Fare quote failed:', err);
+                    hint.textContent = 'Could not calculate fare (' + err.message + ').';
+                });
+        }
+
+        function onChange() {
+            var empty = !costInput.value || Number(costInput.value) === 0;
+            fetchQuote(empty);
+        }
+
+        btn.addEventListener('click', function () { fetchQuote(true); });
+        routeSel.addEventListener('change', onChange);
+        dateInput.addEventListener('change', onChange);
+        fetchQuote(false);
+    })();
+</script>

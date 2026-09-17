@@ -23,6 +23,7 @@ namespace CabManagementSystem.Areas.Travel.Controllers
         private readonly IDriverRatingService _driverRatingService;
         private readonly INotificationService _notificationService;
         private readonly ITripSimulationService _simulationService;
+        private readonly IPricingService _pricingService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<TripController> _logger;
 
@@ -36,6 +37,7 @@ namespace CabManagementSystem.Areas.Travel.Controllers
             IDriverRatingService driverRatingService,
             INotificationService notificationService,
             ITripSimulationService simulationService,
+            IPricingService pricingService,
             UserManager<ApplicationUser> userManager,
             ILogger<TripController> logger)
         {
@@ -48,6 +50,7 @@ namespace CabManagementSystem.Areas.Travel.Controllers
             _driverRatingService = driverRatingService;
             _notificationService = notificationService;
             _simulationService = simulationService;
+            _pricingService = pricingService;
             _userManager = userManager;
             _logger = logger;
         }
@@ -113,6 +116,17 @@ namespace CabManagementSystem.Areas.Travel.Controllers
             {
                 try
                 {
+                    var route = await _routeService.GetRouteByIdAsync(model.RouteId);
+                    if (route == null)
+                    {
+                        ModelState.AddModelError(nameof(model.RouteId), "Selected route not found.");
+                        await PopulateDropdownsAsync(model);
+                        return View(model);
+                    }
+
+                    // Record the system fare breakdown; Cost itself may be a manual override.
+                    var quote = await _pricingService.GetQuoteAsync(route.BaseCost, model.TripDate);
+
                     var trip = new Trip
                     {
                         DriverId = model.DriverId,
@@ -125,7 +139,10 @@ namespace CabManagementSystem.Areas.Travel.Controllers
                         BookingDate = model.BookingDate,
                         TripDate = model.TripDate,
                         Status = model.Status,
-                        Cost = model.Cost
+                        Cost = model.Cost,
+                        BaseFare = quote.BaseFare,
+                        Surcharge = quote.Surcharge,
+                        SurchargeLabel = quote.SurchargeLabel
                     };
 
                     await _tripService.CreateTripAsync(trip);
@@ -135,8 +152,7 @@ namespace CabManagementSystem.Areas.Travel.Controllers
                     {
                         try
                         {
-                            var route = await _routeService.GetRouteByIdAsync(model.RouteId);
-                            var routeText = route != null ? $"{route.Origin} - {route.Destination}" : "N/A";
+                            var routeText = $"{route.Origin} - {route.Destination}";
                             await _emailService.SendBookingConfirmationAsync(
                                 model.CustomerEmail, model.CustomerName, routeText, model.TripDate, model.Cost);
                         }
@@ -208,6 +224,20 @@ namespace CabManagementSystem.Areas.Travel.Controllers
                         return NotFound();
 
                     var oldStatus = existingTrip.Status;
+
+                    // Re-snapshot the fare breakdown only when route or time changed.
+                    if (existingTrip.RouteId != model.RouteId || existingTrip.TripDate != model.TripDate)
+                    {
+                        var route = await _routeService.GetRouteByIdAsync(model.RouteId);
+                        if (route != null)
+                        {
+                            var quote = await _pricingService.GetQuoteAsync(route.BaseCost, model.TripDate);
+                            existingTrip.BaseFare = quote.BaseFare;
+                            existingTrip.Surcharge = quote.Surcharge;
+                            existingTrip.SurchargeLabel = quote.SurchargeLabel;
+                        }
+                    }
+
                     existingTrip.DriverId = model.DriverId;
                     existingTrip.VehicleId = model.VehicleId;
                     existingTrip.RouteId = model.RouteId;
@@ -246,6 +276,23 @@ namespace CabManagementSystem.Areas.Travel.Controllers
 
             await PopulateDropdownsAsync(model);
             return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Quote(int routeId, DateTime tripDate)
+        {
+            var route = await _routeService.GetRouteByIdAsync(routeId);
+            if (route == null)
+                return NotFound();
+
+            var quote = await _pricingService.GetQuoteAsync(route.BaseCost, tripDate);
+            return Json(new
+            {
+                baseFare = quote.BaseFare,
+                surcharge = quote.Surcharge,
+                surchargeLabel = quote.SurchargeLabel,
+                total = quote.Total
+            });
         }
 
         public async Task<IActionResult> Details(int id)
