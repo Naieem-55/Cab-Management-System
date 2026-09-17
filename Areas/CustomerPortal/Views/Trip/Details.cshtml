@@ -95,6 +95,12 @@
                         <dt class="col-sm-4">Cost</dt>
                         <dd class="col-sm-8"><strong>@Model.Cost.ToString("C")</strong></dd>
 
+                        @if (Model.BaseFare > 0)
+                        {
+                            <dt class="col-sm-4">Fare Breakdown</dt>
+                            <dd class="col-sm-8"><partial name="_FareBreakdownPartial" model="Model" /></dd>
+                        }
+
                         @if (Model.PointsRedeemed > 0)
                         {
                             <dt class="col-sm-4">Points Redeemed</dt>

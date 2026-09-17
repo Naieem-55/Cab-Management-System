@@ -23,6 +23,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
         private readonly INotificationService _notificationService;
         private readonly ILoyaltyPointsService _loyaltyService;
         private readonly IPromoCodeService _promoCodeService;
+        private readonly IPricingService _pricingService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<TripController> _logger;
 
@@ -37,6 +38,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
             INotificationService notificationService,
             ILoyaltyPointsService loyaltyService,
             IPromoCodeService promoCodeService,
+            IPricingService pricingService,
             UserManager<ApplicationUser> userManager,
             ILogger<TripController> logger)
         {
@@ -50,6 +52,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
             _notificationService = notificationService;
             _loyaltyService = loyaltyService;
             _promoCodeService = promoCodeService;
+            _pricingService = pricingService;
             _userManager = userManager;
             _logger = logger;
         }
@@ -190,12 +193,15 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                     return View(model);
                 }
 
-                // Validate and apply promo code (if any)
+                // Time-based surcharge (peak / night) on top of route base cost
+                var quote = await _pricingService.GetQuoteAsync(route.BaseCost, model.TripDate);
+
+                // Validate and apply promo code (if any) against the surcharged fare
                 decimal promoDiscount = 0m;
                 int? promoCodeId = null;
                 if (!string.IsNullOrWhiteSpace(model.PromoCode))
                 {
-                    var promoResult = await _promoCodeService.ValidateAsync(model.PromoCode, route.BaseCost);
+                    var promoResult = await _promoCodeService.ValidateAsync(model.PromoCode, quote.Total);
                     if (!promoResult.IsValid)
                     {
                         ModelState.AddModelError(nameof(model.PromoCode), promoResult.Message);
@@ -207,7 +213,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                     promoCodeId = promoResult.PromoCodeId;
                 }
 
-                decimal costAfterPromo = route.BaseCost - promoDiscount;
+                decimal costAfterPromo = quote.Total - promoDiscount;
 
                 // Validate and compute loyalty redemption (applied after promo discount)
                 int pointsToRedeem = Math.Max(0, model.PointsToRedeem);
@@ -241,6 +247,9 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                     TripDate = model.TripDate,
                     Status = TripStatus.Pending,
                     Cost = costAfterPromo - discount,
+                    BaseFare = quote.BaseFare,
+                    Surcharge = quote.Surcharge,
+                    SurchargeLabel = quote.SurchargeLabel,
                     PointsRedeemed = pointsToRedeem,
                     PromoCodeId = promoCodeId,
                     PromoDiscount = promoDiscount,
@@ -279,6 +288,7 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                 }
 
                 var msgParts = new List<string> { "Trip booked successfully!" };
+                if (quote.HasSurcharge) msgParts.Add($"{quote.SurchargeLabel} surcharge of {quote.Surcharge:C} applied.");
                 if (promoDiscount > 0) msgParts.Add($"Promo saved {promoDiscount:C}.");
                 if (pointsToRedeem > 0) msgParts.Add($"Redeemed {pointsToRedeem} points for {discount:C}.");
                 if (promoDiscount == 0 && pointsToRedeem == 0) msgParts.Add("Your trip is pending confirmation.");
@@ -455,9 +465,26 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
                 routes.ToDictionary(r => r.Id, r => r.BaseCost));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Quote(int routeId, DateTime tripDate)
+        {
+            var route = await _routeService.GetRouteByIdAsync(routeId);
+            if (route == null)
+                return NotFound();
+
+            var quote = await _pricingService.GetQuoteAsync(route.BaseCost, tripDate);
+            return Json(new
+            {
+                baseFare = quote.BaseFare,
+                surcharge = quote.Surcharge,
+                surchargeLabel = quote.SurchargeLabel,
+                total = quote.Total
+            });
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ValidatePromo(string? code, int routeId)
+        public async Task<IActionResult> ValidatePromo(string? code, int routeId, DateTime? tripDate)
         {
             if (string.IsNullOrWhiteSpace(code))
                 return Json(new { valid = false, message = "Enter a promo code.", discount = 0m });
@@ -466,7 +493,8 @@ namespace CabManagementSystem.Areas.CustomerPortal.Controllers
             if (route == null)
                 return Json(new { valid = false, message = "Select a route first.", discount = 0m });
 
-            var result = await _promoCodeService.ValidateAsync(code, route.BaseCost);
+            var quote = await _pricingService.GetQuoteAsync(route.BaseCost, tripDate ?? DateTime.Now);
+            var result = await _promoCodeService.ValidateAsync(code, quote.Total);
             return Json(new
             {
                 valid = result.IsValid,

@@ -45,6 +45,51 @@ namespace CabManagementSystem.Data
 
             // Seed manager users and sample data
             await SeedSampleDataAsync(serviceProvider);
+            await SeedPricingRulesAsync(serviceProvider);
+        }
+
+        // Runs independently of sample data so existing databases also get default rules.
+        private static async Task SeedPricingRulesAsync(IServiceProvider serviceProvider)
+        {
+            var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+            if (await context.PricingRules.AnyAsync())
+                return;
+
+            context.PricingRules.AddRange(
+                new PricingRule
+                {
+                    Name = "Morning Peak",
+                    Description = "Office rush hour on working days",
+                    StartTime = new TimeSpan(8, 0, 0),
+                    EndTime = new TimeSpan(10, 0, 0),
+                    ApplicableDays = DayOfWeekFlags.Weekdays,
+                    AdjustmentType = DiscountType.Percentage,
+                    Value = 20m,
+                    MaxSurchargeAmount = 800m
+                },
+                new PricingRule
+                {
+                    Name = "Evening Peak",
+                    Description = "Return commute on working days",
+                    StartTime = new TimeSpan(17, 0, 0),
+                    EndTime = new TimeSpan(20, 0, 0),
+                    ApplicableDays = DayOfWeekFlags.Weekdays,
+                    AdjustmentType = DiscountType.Percentage,
+                    Value = 20m,
+                    MaxSurchargeAmount = 800m
+                },
+                new PricingRule
+                {
+                    Name = "Night Surcharge",
+                    Description = "Late night and early morning trips",
+                    StartTime = new TimeSpan(22, 0, 0),
+                    EndTime = new TimeSpan(6, 0, 0),
+                    ApplicableDays = DayOfWeekFlags.All,
+                    AdjustmentType = DiscountType.Percentage,
+                    Value = 15m
+                });
+
+            await context.SaveChangesAsync();
         }
 
         private static async Task SeedSampleDataAsync(IServiceProvider serviceProvider)

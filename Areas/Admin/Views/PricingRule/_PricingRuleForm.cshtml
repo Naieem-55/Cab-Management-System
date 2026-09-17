@@ -1,0 +1,77 @@
+@model PricingRuleViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" placeholder="e.g. Morning Peak" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Description" class="form-label"></label>
+        <input asp-for="Description" class="form-control" />
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <label asp-for="StartTime" class="form-label"></label>
+        <input asp-for="StartTime" asp-format="{0:hh\:mm}" class="form-control" type="time" />
+        <span asp-validation-for="StartTime" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="EndTime" class="form-label"></label>
+        <input asp-for="EndTime" asp-format="{0:hh\:mm}" class="form-control" type="time" />
+        <span asp-validation-for="EndTime" class="text-danger"></span>
+        <div class="form-text">End before start = overnight window (e.g. 22:00 → 06:00).</div>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label d-block">Applicable Days</label>
+    @foreach (var day in Enum.GetValues<DayOfWeek>())
+    {
+        var id = $"day-{day}";
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="SelectedDays" id="@id" value="@day"
+                   checked="@Model.SelectedDays.Contains(day)" />
+            <label class="form-check-label" for="@id">@day.ToString()[..3]</label>
+        </div>
+    }
+    <div>
+        <span asp-validation-for="SelectedDays" class="text-danger"></span>
+    </div>
+    <div class="form-text">For overnight windows, pick the day the window starts on.</div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <label asp-for="AdjustmentType" class="form-label"></label>
+        <select asp-for="AdjustmentType" asp-items="Html.GetEnumSelectList<DiscountType>()" class="form-select"></select>
+        <span asp-validation-for="AdjustmentType" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Value" class="form-label"></label>
+        <input asp-for="Value" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Value" class="text-danger"></span>
+        <div class="form-text">Percent of base fare (e.g. 20) or fixed amount.</div>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="MaxSurchargeAmount" class="form-label"></label>
+        <input asp-for="MaxSurchargeAmount" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="MaxSurchargeAmount" class="text-danger"></span>
+        <div class="form-text">Cap for percentage surcharges (optional).</div>
+    </div>
+</div>
+
+<div class="mb-3 form-check">
+    <input asp-for="IsActive" class="form-check-input" />
+    <label asp-for="IsActive" class="form-check-label"></label>
+</div>
+
+<div class="alert alert-light border small">
+    <i class="bi bi-info-circle me-1"></i>
+    When several rules match a trip time, only the one giving the <strong>largest</strong> surcharge applies.
+</div>

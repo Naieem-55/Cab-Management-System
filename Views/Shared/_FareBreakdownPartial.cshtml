@@ -1,0 +1,48 @@
+@model CabManagementSystem.Models.Trip
+
+@* Fare breakdown snapshot. Trips created before dynamic pricing have BaseFare = 0 and render nothing. *@
+@if (Model.BaseFare > 0)
+{
+    var pointsDiscount = Model.PointsRedeemed / 100m;
+    var adjustment = Model.Cost - (Model.BaseFare + Model.Surcharge - Model.PromoDiscount - pointsDiscount);
+    <table class="table table-sm mb-0" style="max-width:360px;">
+        <tbody>
+            <tr>
+                <td class="border-0 ps-0">Base fare</td>
+                <td class="border-0 text-end">@Model.BaseFare.ToString("C")</td>
+            </tr>
+            @if (Model.Surcharge > 0)
+            {
+                <tr class="text-danger">
+                    <td class="border-0 ps-0"><i class="bi bi-clock-history"></i> @(Model.SurchargeLabel ?? "Surcharge")</td>
+                    <td class="border-0 text-end">+@Model.Surcharge.ToString("C")</td>
+                </tr>
+            }
+            @if (Model.PromoDiscount > 0)
+            {
+                <tr class="text-success">
+                    <td class="border-0 ps-0"><i class="bi bi-tag"></i> Promo discount</td>
+                    <td class="border-0 text-end">-@Model.PromoDiscount.ToString("C")</td>
+                </tr>
+            }
+            @if (pointsDiscount > 0)
+            {
+                <tr class="text-warning">
+                    <td class="border-0 ps-0"><i class="bi bi-award"></i> Points discount</td>
+                    <td class="border-0 text-end">-@pointsDiscount.ToString("C")</td>
+                </tr>
+            }
+            @if (adjustment != 0)
+            {
+                <tr class="text-muted">
+                    <td class="border-0 ps-0"><i class="bi bi-pencil"></i> Manual adjustment</td>
+                    <td class="border-0 text-end">@(adjustment > 0 ? "+" : "-")@Math.Abs(adjustment).ToString("C")</td>
+                </tr>
+            }
+            <tr class="fw-bold">
+                <td class="ps-0">Total</td>
+                <td class="text-end">@Model.Cost.ToString("C")</td>
+            </tr>
+        </tbody>
+    </table>
+}
