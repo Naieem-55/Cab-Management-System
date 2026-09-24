@@ -83,6 +83,20 @@ builder.Services.AddScoped<IInvoicePdfService, InvoicePdfService>();
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+// Background jobs
+builder.Services.Configure<CabManagementSystem.Services.BackgroundJobs.BackgroundJobOptions>(
+    builder.Configuration.GetSection(CabManagementSystem.Services.BackgroundJobs.BackgroundJobOptions.SectionName));
+builder.Services.AddScoped<CabManagementSystem.Services.BackgroundJobs.JobNotifier>();
+builder.Services.AddScoped<CabManagementSystem.Services.BackgroundJobs.IScheduledJob,
+    CabManagementSystem.Services.BackgroundJobs.LicenseExpiryJob>();
+builder.Services.AddScoped<CabManagementSystem.Services.BackgroundJobs.IScheduledJob,
+    CabManagementSystem.Services.BackgroundJobs.MaintenanceDueJob>();
+builder.Services.AddScoped<CabManagementSystem.Services.BackgroundJobs.IScheduledJob,
+    CabManagementSystem.Services.BackgroundJobs.StaleTripCleanupJob>();
+builder.Services.AddScoped<CabManagementSystem.Services.BackgroundJobs.IScheduledJob,
+    CabManagementSystem.Services.BackgroundJobs.PromoExpiryJob>();
+builder.Services.AddHostedService<CabManagementSystem.Services.BackgroundJobs.ScheduledJobRunner>();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<ITripSimulationService, TripSimulationService>();

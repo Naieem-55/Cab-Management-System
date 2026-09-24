@@ -44,6 +44,7 @@ namespace CabManagementSystem.Data
             }
 
             // Seed manager users and sample data
+            await SeedManagerUsersAsync(serviceProvider);
             await SeedSampleDataAsync(serviceProvider);
             await SeedPricingRulesAsync(serviceProvider);
         }
@@ -92,24 +93,16 @@ namespace CabManagementSystem.Data
             await context.SaveChangesAsync();
         }
 
-        private static async Task SeedSampleDataAsync(IServiceProvider serviceProvider)
+        // Runs independently of sample data so existing databases get missing manager accounts too.
+        private static async Task SeedManagerUsersAsync(IServiceProvider serviceProvider)
         {
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
 
-            // Check if data already exists - skip seeding if Employees table has any rows
-            if (await context.Employees.AnyAsync())
-            {
-                return;
-            }
-
-            // ---------------------------------------------------------------
-            // 1. Seed Manager Users
-            // ---------------------------------------------------------------
             var managers = new[]
             {
                 new { Email = "finance@cabsystem.com", Password = "Finance@123", FirstName = "Anita", LastName = "Verma", Role = nameof(UserRole.FinanceManager) },
-                new { Email = "hr@cabsystem.com", Password = "HR@1234", FirstName = "Vikram", LastName = "Mehta", Role = nameof(UserRole.HRManager) },
+                // Passwords must satisfy the Identity policy in Program.cs (upper, lower, digit, symbol).
+                new { Email = "hr@cabsystem.com", Password = "Hr@1234", FirstName = "Vikram", LastName = "Mehta", Role = nameof(UserRole.HRManager) },
                 new { Email = "travel@cabsystem.com", Password = "Travel@123", FirstName = "Deepa", LastName = "Nair", Role = nameof(UserRole.TravelManager) }
             };
 
@@ -133,7 +126,25 @@ namespace CabManagementSystem.Data
                     {
                         await userManager.AddToRoleAsync(user, mgr.Role);
                     }
+                    else
+                    {
+                        // Without this the account silently never exists (e.g. a password the policy rejects).
+                        var logger = serviceProvider.GetRequiredService<ILogger<ApplicationDbContext>>();
+                        logger.LogError("Failed to seed {Role} user {Email}: {Errors}",
+                            mgr.Role, mgr.Email, string.Join("; ", result.Errors.Select(e => e.Description)));
+                    }
                 }
+            }
+        }
+
+        private static async Task SeedSampleDataAsync(IServiceProvider serviceProvider)
+        {
+            var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+
+            // Check if data already exists - skip seeding if Employees table has any rows
+            if (await context.Employees.AnyAsync())
+            {
+                return;
             }
 
             // ---------------------------------------------------------------

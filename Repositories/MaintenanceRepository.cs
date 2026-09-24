@@ -28,6 +28,14 @@ namespace CabManagementSystem.Repositories
                            .OrderByDescending(m => m.Date)
                            .ToListAsync();
 
+        public async Task<IEnumerable<MaintenanceRecord>> GetDueMaintenanceAsync(DateTime horizon)
+            => await _dbSet.Include(m => m.Vehicle)
+                           .Where(m => m.Status != MaintenanceStatus.Completed &&
+                                       m.NextMaintenanceDate != null &&
+                                       m.NextMaintenanceDate <= horizon)
+                           .OrderBy(m => m.NextMaintenanceDate)
+                           .ToListAsync();
+
         public async Task<IEnumerable<MaintenanceRecord>> GetMaintenanceByVehicleAsync(int vehicleId)
             => await _dbSet.Include(m => m.Vehicle)
                            .Where(m => m.VehicleId == vehicleId)

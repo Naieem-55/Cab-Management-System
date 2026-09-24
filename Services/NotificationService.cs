@@ -46,6 +46,27 @@ namespace CabManagementSystem.Services
             }
         }
 
+        public async Task<bool> CreateIfNotRecentAsync(string userId, string title, string message, string? link, TimeSpan window)
+        {
+            try
+            {
+                var cutoff = DateTime.Now - window;
+                var existing = await _notificationRepository.FindAsync(n =>
+                    n.UserId == userId && n.Title == title && n.CreatedDate >= cutoff);
+
+                if (existing.Any())
+                    return false;
+
+                await CreateNotificationAsync(userId, title, message, link);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating deduplicated notification for user {UserId}", userId);
+                return false;
+            }
+        }
+
         public async Task MarkAsReadAsync(int notificationId)
         {
             await _notificationRepository.MarkAsReadAsync(notificationId);
