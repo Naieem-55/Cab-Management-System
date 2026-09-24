@@ -533,7 +533,7 @@ The application seeds the following accounts on first run:
 |:-----|:------|:---------|
 | **Admin** | `admin@cabsystem.com` | `Admin@123` |
 | **Finance Manager** | `finance@cabsystem.com` | `Finance@123` |
-| **HR Manager** | `hr@cabsystem.com` | `HR@1234` |
+| **HR Manager** | `hr@cabsystem.com` | `Hr@1234` |
 | **Travel Manager** | `travel@cabsystem.com` | `Travel@123` |
 
 > **Tip:** The Admin account can create additional users through User Management. Customers can self-register via the **Register** link on the login page.
