@@ -1,13 +1,25 @@
 using CabManagementSystem.Models;
 using CabManagementSystem.Models.Enums;
+using CabManagementSystem.Models.ViewModels;
+using CabManagementSystem.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Diagnostics;
 
 namespace CabManagementSystem.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly IRouteService _routeService;
+        private readonly IPricingService _pricingService;
+
+        public HomeController(IRouteService routeService, IPricingService pricingService)
+        {
+            _routeService = routeService;
+            _pricingService = pricingService;
+        }
+
+        public async Task<IActionResult> Index()
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
@@ -22,7 +34,36 @@ namespace CabManagementSystem.Controllers
                 if (User.IsInRole(nameof(UserRole.Customer)))
                     return RedirectToAction("Index", "Dashboard", new { area = "CustomerPortal" });
             }
-            return View();
+
+            var routes = (await _routeService.GetAllRoutesAsync()).ToList();
+            var model = new FareEstimatorViewModel
+            {
+                AvailableRoutes = new SelectList(
+                    routes.Select(r => new { r.Id, Display = $"{r.Origin} → {r.Destination} ({r.Distance} km)" }),
+                    "Id", "Display")
+            };
+
+            return View(model);
+        }
+
+        /// <summary>Public fare quote for the landing-page estimator. Read-only, no login required.</summary>
+        [HttpGet]
+        public async Task<IActionResult> FareEstimate(int routeId, DateTime tripDate)
+        {
+            var route = await _routeService.GetRouteByIdAsync(routeId);
+            if (route == null)
+                return NotFound();
+
+            var quote = await _pricingService.GetQuoteAsync(route.BaseCost, tripDate);
+            return Json(new
+            {
+                route = $"{route.Origin} → {route.Destination}",
+                distance = route.Distance,
+                baseFare = quote.BaseFare,
+                surcharge = quote.Surcharge,
+                surchargeLabel = quote.SurchargeLabel,
+                total = quote.Total
+            });
         }
 
         public IActionResult Privacy()

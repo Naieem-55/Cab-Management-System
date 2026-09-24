@@ -1,3 +1,5 @@
+@model FareEstimatorViewModel
+
 @{
     ViewData["Title"] = "Home";
 }
@@ -12,6 +14,63 @@
             A comprehensive platform to manage vehicles, drivers, employees, routes, trips, and financial operations for your travel agency.
         </p>
         <hr class="my-4" />
+
+        @if (Model.HasRoutes)
+        {
+            <div class="card border-primary shadow-sm text-start mb-5" id="fareEstimator">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-calculator"></i> Estimate Your Fare</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted">
+                        Check the price before you sign up. Fares include peak-hour and night surcharges where they apply.
+                    </p>
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold" for="estRoute">Route</label>
+                            <select class="form-select" id="estRoute" asp-items="Model.AvailableRoutes">
+                                <option value="">-- Select a route --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold" for="estDate">Travel date &amp; time</label>
+                            <input type="datetime-local" class="form-control" id="estDate"
+                                   value="@Model.DefaultTripDate.ToString("yyyy-MM-ddTHH:mm")" />
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-primary w-100" id="estBtn">
+                                <i class="bi bi-cash-coin"></i> Estimate
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-4" id="estResult" hidden>
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span id="estRouteLabel" class="text-muted"></span>
+                                <span id="estBase"></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1 text-danger" id="estSurchargeRow" style="display:none !important;">
+                                <span><i class="bi bi-clock-history"></i> <span id="estSurchargeLabel"></span></span>
+                                <span id="estSurcharge"></span>
+                            </div>
+                            <hr class="my-2" />
+                            <div class="d-flex justify-content-between fw-bold fs-5">
+                                <span>Estimated fare</span>
+                                <span class="text-primary" id="estTotal"></span>
+                            </div>
+                            <div class="form-text mt-2" id="estNote"></div>
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-success mt-3">
+                                <i class="bi bi-person-plus"></i> Sign up to book this trip
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-danger mt-3" id="estError" hidden></div>
+                </div>
+            </div>
+        }
+
         <div class="row justify-content-center mt-4">
             <div class="col-md-3 mb-3">
                 <div class="card border-primary h-100">
@@ -51,3 +110,74 @@
         </a>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+            (function () {
+                var url = '@Url.Action("FareEstimate", "Home")';
+                var routeSel = document.getElementById('estRoute');
+                var dateInput = document.getElementById('estDate');
+                var btn = document.getElementById('estBtn');
+                var result = document.getElementById('estResult');
+                var error = document.getElementById('estError');
+                var surchargeRow = document.getElementById('estSurchargeRow');
+                var seq = 0;
+
+                if (!routeSel || !dateInput || !btn) return; // estimator hidden when no routes exist
+
+                function money(n) { return '৳' + (Number(n) || 0).toFixed(2); }
+
+                function fail(msg) {
+                    result.hidden = true;
+                    error.textContent = msg;
+                    error.hidden = false;
+                }
+
+                function estimate() {
+                    if (!routeSel.value) { fail('Please select a route.'); return; }
+                    if (!dateInput.value) { fail('Please choose a travel date and time.'); return; }
+
+                    var mySeq = ++seq;
+                    btn.disabled = true;
+                    error.hidden = true;
+
+                    var params = new URLSearchParams({ routeId: routeSel.value, tripDate: dateInput.value });
+                    fetch(url + '?' + params.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(function (r) {
+                            if (!r.ok) throw new Error('HTTP ' + r.status);
+                            return r.json();
+                        })
+                        .then(function (d) {
+                            btn.disabled = false;
+                            if (mySeq !== seq) return; // a newer request is in flight
+
+                            document.getElementById('estRouteLabel').textContent = d.route + ' · ' + d.distance + ' km';
+                            document.getElementById('estBase').textContent = money(d.baseFare);
+                            document.getElementById('estTotal').textContent = money(d.total);
+
+                            // Bootstrap's .d-flex is !important, so the hidden attribute alone will not hide this row.
+                            if (d.surcharge > 0) {
+                                document.getElementById('estSurchargeLabel').textContent = d.surchargeLabel;
+                                document.getElementById('estSurcharge').textContent = '+' + money(d.surcharge);
+                                surchargeRow.style.setProperty('display', 'flex', 'important');
+                                document.getElementById('estNote').textContent =
+                                    'This time falls in the ' + d.surchargeLabel + ' window. Travelling outside it costs ' + money(d.baseFare) + '.';
+                            } else {
+                                surchargeRow.style.setProperty('display', 'none', 'important');
+                                document.getElementById('estNote').textContent = 'No surcharge applies at this time.';
+                            }
+
+                            result.hidden = false;
+                        })
+                        .catch(function (err) {
+                            btn.disabled = false;
+                            console.error('Fare estimate failed:', err);
+                            fail('Could not estimate the fare right now. Please try again.');
+                        });
+                }
+
+                btn.addEventListener('click', estimate);
+                dateInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); estimate(); } });
+            })();
+    </script>
+}
